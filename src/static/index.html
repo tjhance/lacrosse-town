@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" ng-app="lacrosse-town">
+  <head>
+    <meta charset="utf-8">
+    <title>Lacross Town - Collaborative Crossword Solving Editor</title>
+
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="/static/lib/js/angular/angular.min.js"></script>
+    <script type="text/javascript" src="/static/lib/js/angular/angular-route.min.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+    <script type="text/javascript" src="/static/js-shared/utils.js"></script>
+    <script type="text/javascript" src="/static/js-shared/ot.js"></script>
+    <script type="text/javascript" src="/static/js/controllers/puzzle.js"></script>
+    <script type="text/javascript" src="/static/js/state.js"></script>
+    <script type="text/javascript" src="/static/js/app.js"></script>
+  </head>
+  <body>
+    <div class="view-container">
+      <div ng-view class="view-frame"></div>
+    </div>
+  </body>
+</html>

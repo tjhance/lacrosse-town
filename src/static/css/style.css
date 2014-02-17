@@ -1,0 +1,62 @@
+table.puzzle_grid_table {
+    border-width: 0 0 1px 1px;
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-style: solid;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+tr.puzzle_grid_row {
+}
+td.puzzle_grid_cell {
+	margin: 0;
+	padding: 4px;
+	border-width: 1px 1px 0 0;
+	border-style: solid;
+	border-color: black;
+    padding: 0px;
+    width: 30px;
+    height: 30px;
+    background-clip: padding-box;
+    vertical-align: middle;
+    text-align: center;
+    cursor: pointer;
+}
+
+div.cell_number {
+    position: absolute;
+    top: -5px;
+    left: 0px;
+
+    font-size: 9px;
+}
+
+div.cell_contents {
+    font-weight: bold;
+}
+
+td.closed_cell {
+    background-color: black;
+}
+td.closed_cell_highlighted {
+    background-color: #313131;
+}
+td.open_cell {
+    background-color: white;
+}
+td.open_cell_highlighted {
+    background-color: #8fb28f;
+}
+td.open_cell_highlighted_intermediate {
+    background-color: #ccffcc;
+}
+
+.cellField {
+    position: absolute;
+    z-index: 2;
+    background-color: #e6e68a;
+    padding: 3px;
+    left: 0px;
+    top: 15px;
+}

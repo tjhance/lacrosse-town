@@ -10,7 +10,7 @@
 # in respond to a localOp or when a change comes from the main server.
 #
 # The exposed functions are
-#   addWatcher - add a callback which is called (with the new tip) whenever
+#   addWatcher - add a callback which is called (with the new tip/op) whenever
 #           the tip is changed.
 #   localOp - takes an operation to apply to the tip.
 #   setOffline - sets whether offline mode is on (starts in online mode).
@@ -96,10 +96,10 @@ window.ClientSyncer = (puzzleID) ->
 
     @addWatcher = (watcher) ->
         watchers.push watcher
-    notifyWatchers = () ->
+    notifyWatchers = (newState, op) ->
         for watcher in watchers
             do (watcher) ->
-                watcher tip
+                watcher newState, op
 
     socket = io.connect()
     connected = false
@@ -144,7 +144,9 @@ window.ClientSyncer = (puzzleID) ->
         op_a = Ot.identity data.puzzle
         op_b = Ot.identity data.puzzle
 
-        notifyWatchers()
+        # Notify the watchers. Here, op is null because this is the initial
+        # state to work with - there is no old state to apply an op from.
+        notifyWatchers tip, null
     
     # The server continuously sends us "update" packets with updates to be
     # be applied to the root.
@@ -175,7 +177,7 @@ window.ClientSyncer = (puzzleID) ->
             op_b = op_b1
             tip = Ot.apply tip, op_c2
 
-            notifyWatchers()
+            notifyWatchers tip, op_c2
 
     # Receive a local operation
     @localOp = (op) ->
@@ -185,7 +187,7 @@ window.ClientSyncer = (puzzleID) ->
         if outstandingID == null
             sendUpdate()
 
-        notifyWatchers()
+        notifyWatchers tip, op
 
     getID = () ->
         return ("0123456789abcdef"[Math.floor Math.random() * 16] for i in [1..48]).join ""

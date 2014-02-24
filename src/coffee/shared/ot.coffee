@@ -61,6 +61,11 @@ xform = (base, a, b) ->
 # Returns the state obtained by applying operation a to base.
 apply = (base, a) ->
     res = Utils.clonePuzzle base
+    applyInPlace res, a
+    return res
+
+# Applies the operation a by MUTATING the input state.
+applyInPlace = (res, a) ->
     for key of a
         value = a[key]
         components = key.split "-"
@@ -69,7 +74,6 @@ apply = (base, a) ->
             col = parseInt components[2]
             name = components[3]
             res.grid[row][col][name] = value
-    return res
 
 # Functions to return operations.
 
@@ -104,5 +108,6 @@ exports.isIdentity = isIdentity
 exports.compose = compose
 exports.xform = xform
 exports.apply = apply
+exports.applyInPlace = applyInPlace
 exports.opEditCellValue = opEditCellValue
 exports.opGridDiff = opGridDiff

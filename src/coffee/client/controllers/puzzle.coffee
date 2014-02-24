@@ -33,10 +33,22 @@ puzzleController = ($scope, $routeParams) ->
     # Initialize the ClientSyncer.
     $scope.puzzle = null
     syncer = new ClientSyncer $scope.puzzle_id
-    syncer.addWatcher (newTip) ->
+    syncer.addWatcher (newTip, op) ->
         fn = () ->
-            $scope.puzzle = newTip
+            # It would be simplest if we always just set $scope.puzzle to
+            # newTip. However, applying the operation in-place rather than
+            # replacing the whole object results in much better performance
+            # for AngularJS.
+            # Also, we had better clone the newTip when we take it; otherwise
+            # we could introduce a subtle bug by mutating some object that
+            # the ClientSyncer uses.
+            if $scope.puzzle == null or op == null
+                $scope.puzzle = Utils.clonePuzzle newTip
+            else
+                Ot.applyInPlace $scope.puzzle, op
+
             fixFocus()
+
         # Sometimes we need to wrap this in $scope.apply, in order for the
         # changes to actually be propogated to the display. But sometimes
         # we don't (if we are already in one).

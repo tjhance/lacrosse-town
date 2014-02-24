@@ -19,6 +19,9 @@ module.exports = (grunt) ->
         ext: ".js"
 
     watch:
-      coffeescript:
-        files: ["coffee/client/**/*.coffee", "coffee/shared/**/*.coffee"]
-        tasks: ["newer:coffee"]
+      coffeescript_client:
+        files: ["coffee/client/**/*.coffee"]
+        tasks: ["newer:coffee:client"]
+      coffeescript_shared:
+        files: ["coffee/shared/**/*.coffee"]
+        tasks: ["newer:coffee:shared"]

@@ -10,6 +10,7 @@ exports.init = (callback) ->
 
     pg.connect conString, (err, cl, done) ->
         if err
+            console.error "Error initializing database:"
             console.error err
         else
             client = cl

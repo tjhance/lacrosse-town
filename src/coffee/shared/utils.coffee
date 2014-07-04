@@ -9,6 +9,8 @@ isValidInteger = (s) ->
     isDigit = (c) -> c.charCodeAt(0) >= "0".charCodeAt(0) and c.charCodeAt(0) <= "9".charCodeAt(0)
     s.length > 0 and ([0..s.length-1].every (i) -> (isDigit s[i]) or (i == 0 and s[i] == '-'))
 
+sum = (l) -> l.reduce ((a, b) -> a + b) 0
+
 # Puzzle-related utilities.
 
 # Returns an empty puzzle object.
@@ -24,8 +26,8 @@ getEmptyPuzzle = (height, width, title) ->
     return {
         title: if title? then title else ""
         grid: getNumberedGrid ((getSquare() for i in [0..width-1]) for j in [0..height-1])
-        across_clues: "blah\nmeh"
-        down_clues: "chicken\nteehee"
+        across_clues: "blah\nmeh\n"
+        down_clues: "chicken\nteehee\n"
     }
 
 # Take a grid and returns one numbered correctly according to which squares are
@@ -65,6 +67,7 @@ else
 
 exports.assert = assert
 exports.isValidInteger = isValidInteger
+exports.sum = sum
 exports.getEmptyPuzzle = getEmptyPuzzle
 exports.getNumberedGrid = getNumberedGrid
 exports.clonePuzzle = clonePuzzle

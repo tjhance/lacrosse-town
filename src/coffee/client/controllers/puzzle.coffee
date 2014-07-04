@@ -44,8 +44,11 @@ puzzleController = ($scope, $routeParams) ->
             # the ClientSyncer uses.
             if $scope.puzzle == null or op == null
                 $scope.puzzle = Utils.clonePuzzle newTip
+                $scope.across_clues = $scope.puzzle.across_clues
             else
                 Ot.applyInPlace $scope.puzzle, op
+                if "across_clues" of op
+                    $scope.update_text_functions.across op["across_clues"]
 
             fixFocus()
 
@@ -279,5 +282,15 @@ puzzleController = ($scope, $routeParams) ->
     # Offline mode
     $scope.toggleOffline = () ->
         syncer.setOffline ($scope.settingsModel.offlineMode == "yes")
+
+    $scope.clueEditted = (name, local_text_op) ->
+        syncer.localOp (Ot.getClueOp(name, local_text_op))
+
+    $scope.update_text_functions = {
+        across: null
+        down: null
+      }
+
+    $scope.range = (a, b) -> [a...b]
 
 window.puzzleController = puzzleController

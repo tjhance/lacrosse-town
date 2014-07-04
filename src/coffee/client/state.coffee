@@ -164,12 +164,8 @@ window.ClientSyncer = (puzzleID) ->
                 sendUpdate()
         else
             op_c = data.op
-            x = Ot.xform root, op_a, op_c
-            op_c1 = x.b1
-            op_a1 = x.a1
-            x = Ot.xform buffer, op_b, op_c1
-            op_c2 = x.b1
-            op_b1 = x.a1
+            [op_a1, op_c1] = Ot.xform root, op_a, op_c
+            [op_b1, op_c2] = Ot.xform buffer, op_b, op_c1
 
             root = Ot.apply root, op_c
             op_a = op_a1
@@ -210,6 +206,7 @@ window.ClientSyncer = (puzzleID) ->
             opID : id
             rootID : rootID
         }
+        console.log updateMessage
         if connected
             socket.emit "update", updateMessage
 

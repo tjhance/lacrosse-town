@@ -1,7 +1,9 @@
 if require?
     Utils = require "./utils"
+    OtText = require "./ottext"
 else
     Utils = @Utils
+    OtText = @OtText
 
 # Abstract operational transformation functions
 # Many of these functions (may) need to know the grid that the operation
@@ -25,6 +27,17 @@ compose = (base, a, b) ->
         c[key] = a[key]
     for key of b
         c[key] = b[key]
+
+    merge_clue = (name, t) ->
+        if name of a and name of b
+            c[name] = OtText.composeText t, a[name], b[name]
+        else if name of a
+            c[name] = a[name]
+        else if name of b
+            c[name] = b[name]
+    merge_clue "across_clues", base["across_clues"]
+    merge_clue "down_clues", base["down_clues"]
+
     return c
 
 # The operational transformation.
@@ -42,21 +55,28 @@ compose = (base, a, b) ->
 #            base
 #
 # a o b1 = b o a1
-# This function takes in base, a, and b and returns an object with a1 and b1.
+# This function takes in base, a, and b and returns a list [a1, b1].
 # Where applicable, b should be from the "saved updates" and a
 # should be a "new" update. For example, a is a new update from a client,
 # and b is an update saved on the server that was applied before a.
 # Right now, a overrides b when they conflict.
 xform = (base, a, b) ->
+    console.log(a)
+    console.log(b)
     a1 = a
     b1 = {}
     for key of b
         if key not of a
             b1[key] = b[key]
-    return {
-        a1: a1
-        b1: b1
-    }
+    for strname in ["across_clues", "down_clues"]
+        if strname of a and strname of b
+            [a1[strname], b1[strname]] = OtText.xformText base[strname], a[strname], b[strname]
+        else if strname of a
+            a1[strname] = a[strname]
+        else if strname of b
+            b1[strname] = b[strname]
+            
+    return [a1, b1]
 
 # Returns the state obtained by applying operation a to base.
 apply = (base, a) ->
@@ -69,11 +89,16 @@ applyInPlace = (res, a) ->
     for key of a
         value = a[key]
         components = key.split "-"
-        if components[0] == "cell"
-            row = parseInt components[1]
-            col = parseInt components[2]
-            name = components[3]
-            res.grid[row][col][name] = value
+        switch components[0]
+            when "cell"
+                row = parseInt components[1]
+                col = parseInt components[2]
+                name = components[3]
+                res.grid[row][col][name] = value
+            when "across_clues"
+                res.across_clues = OtText.applyTextOp res.across_clues, value
+            when "down_clues"
+                res.down_clues = OtText.applyTextOp res.down_clues, value
 
 # Functions to return operations.
 
@@ -96,6 +121,14 @@ opGridDiff = (puzzle, grid2) ->
                     res["cell-#{i}-#{j}-#{v}"] = grid2[i][j][v]
     return res
 
+# Returns an operation that applies the text_op to one of the clue fields.
+# The parameter 'which' is either 'across' or 'down'.
+# The parameter 'text_op' is a text operation as described in ottext.coffee
+getClueOp = (which, text_op) ->
+    res = {}
+    res["#{which}_clues"] = text_op
+    return res
+
 # Export stuff
 
 if module?
@@ -111,3 +144,4 @@ exports.apply = apply
 exports.applyInPlace = applyInPlace
 exports.opEditCellValue = opEditCellValue
 exports.opGridDiff = opGridDiff
+exports.getClueOp = getClueOp

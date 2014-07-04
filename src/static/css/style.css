@@ -60,3 +60,11 @@ td.open_cell_highlighted_intermediate {
     left: 0px;
     top: 15px;
 }
+
+.contenteditable_single_row {
+    font-family: 'Courier New';
+}
+.contenteditable_single_row:empty {
+    display: block;
+    height: 1em;
+}

@@ -30,17 +30,15 @@
       </div>
       <div class="clues_container">
         Across:
-        <ul class="clues">
-          <li ng-repeat="clue in getClues(puzzle.across_clues)" class="{{clue.classname}}">
-            {{clue.text}}
-          </li>
-        </ul>
-        Down:
-        <ul class="clues">
-          <li ng-repeat="clue in getClues(puzzle.down_clues)" class="{{clue.classname}}">
-            {{clue.text}}
-          </li>
-        </ul>
+        <div contenteditable="true"
+             dont-bubble-keydown
+             lt-editable-val="across_clues"
+             lt-on-edit="clueEditted('across', $op)"
+             lt-do-edit="update_text_functions.across"
+             style="font-family: 'Courier New'"
+             id="across_clue">
+            <div class="contenteditable_single_row">{{$line}}<br ng-if="$line == ''" /></div>
+        </div>
       </div>
       <div class="offline_mode">
         Offline mode is <br/>

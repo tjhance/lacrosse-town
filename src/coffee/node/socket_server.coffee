@@ -126,7 +126,7 @@ ServerSyncer = (puzzleID, callbackOnClose) ->
                 callback()
             else
                 db.getOpsToLatest puzzleID, data.from, (ops) ->
-                    i = data.from
+                    i = data.from + 1
                     for op in ops
                         socket.emit "update", {
                             stateID : i
@@ -158,15 +158,15 @@ ServerSyncer = (puzzleID, callbackOnClose) ->
                                 # Transform the new operation against the operations
                                 # that already exist.
                                 for op in ops
-                                    x = Ot.xform newState, newOp, op.op
+                                    [a1, _] = Ot.xform newState, newOp, op.op
                                     newState = Ot.apply newState, op.op
-                                    newOp = x.a1
+                                    newOp = a1
                                 newState = Ot.apply latestState, newOp
                                 # Save the new (transformed) op and the new state.
                                 db.saveOp puzzleID, update_data.opID, newOp, newState, () ->
                                     # Tell all the connections about the new update.
                                     broadcast "update", {
-                                        stateID : latestStateID
+                                        stateID : latestStateID + 1
                                         opID : update_data.opID
                                         op: newOp
                                     }

@@ -96,8 +96,6 @@ mod.directive "ltEditableVal", ($parse) ->
         editableVal = attr["ltEditableVal"]
         editableValParsed = $parse editableVal
 
-        selectionObject = rangy.getSelection()
-
         return ($scope, element, iAttrs, controller, transcludeFn) ->
             selection = []
             text = []
@@ -196,8 +194,9 @@ mod.directive "ltEditableVal", ($parse) ->
                         return null
 
                 sels = []
-                selectionObject.refresh()
-                for range in selectionObject.getAllRanges()
+                selObj = window.getSelection()
+                for i in [0 ... selObj.rangeCount]
+                    range = selObj.getRangeAt(i)
                     left = getTotalOffset(range.startContainer, range.startOffset)
                     if left?
                         right = getTotalOffset(range.endContainer, range.endOffset)
@@ -266,21 +265,21 @@ mod.directive "ltEditableVal", ($parse) ->
                     subcontainer = if offset == 0 then container else (get_text_nodes container)[0]
                     return [subcontainer, offset]
 
-                if selection.length > 0
-                    if text == modelText
-                        return # TODO
-                    else if text == modelTextNew
-                        $scope.$$postDigest () ->
-                            selectionObject.refresh()
-                            #sel.removeAllRanges()
-                            ranges = []
-                            for [left, right] in selection
-                                [contL, offsetL] = getContOffset left
-                                [contR, offsetR] = getContOffset right
-                                range = rangy.createRange()
-                                range.setStart contL, offsetL
-                                range.setEnd contR, offsetR
-                                ranges.push range
-                            selectionObject.setRanges ranges
-
                 editableValParsed.assign $scope, modelTextNew
+
+            restoreSelection = () ->
+                if text == modelText
+                    return # TODO
+                else if text == modelTextNew
+                    setTimeout (() ->
+                        selObj = window.getSelection()
+                        selObj.removeAllRanges()
+                        for [left, right] in selection
+                            [contL, offsetL] = getContOffset left
+                            [contR, offsetR] = getContOffset right
+                            range = document.createRange()
+                            range.setStart contL, offsetL
+                            range.setEnd contR, offsetR
+                            selObj.addRange range
+                      ), 0
+

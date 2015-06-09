@@ -1,3 +1,4 @@
+###
 # Thanks http://stackoverflow.com/questions/298750/how-do-i-select-text-nodes-with-jquery
 get_text_nodes = (el) ->
     $(el).find(":not(iframe)").addBack().contents().filter () -> @nodeType == 3
@@ -87,8 +88,7 @@ SPACE_STATE_BEGINNING = 0
 SPACE_STATE_AFTER_SPACE = 1
 SPACE_STATE_AFTER_TEXT = 2
 
-mod = angular.module "editableDivUtil", []
-mod.directive "ltEditableVal", ($parse) ->
+EditableTextField = React.createClass
     transclude: true
     compile: ($element, attr) ->
         onEditFn = $parse attr["ltOnEdit"]
@@ -283,3 +283,4 @@ mod.directive "ltEditableVal", ($parse) ->
                             selObj.addRange range
                       ), 0
 
+###

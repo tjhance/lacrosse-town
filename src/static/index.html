@@ -1,16 +1,14 @@
 <!doctype html>
-<html lang="en" ng-app="lacrosse-town">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <title>Lacross Town - Collaborative Crossword Solving Editor</title>
 
     <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
 
-	<!--<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>-->
 	<script type="text/javascript" src="/static/lib/js/jquery/jquery.js"></script>
-    <script type="text/javascript" src="/static/lib/js/angular/angular.min.js"></script>
-    <script type="text/javascript" src="/static/lib/js/angular/angular-route.min.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="/static/lib/js/react/react.js"></script>
 
     <script type="text/javascript" src="/static/js-shared/utils.js"></script>
     <script type="text/javascript" src="/static/js-shared/ottext.js"></script>
@@ -21,8 +19,9 @@
     <script type="text/javascript" src="/static/js/app.js"></script>
   </head>
   <body>
-    <div class="view-container">
-      <div ng-view class="view-frame"></div>
-    </div>
+    <div class="view-container"></div>
+    <script type="text/javascript">
+        window.initApp();
+    </script>
   </body>
 </html>

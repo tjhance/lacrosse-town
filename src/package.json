@@ -31,7 +31,8 @@
     "grunt": "~0.4.2",
     "grunt-contrib-coffee": "~0.10.0",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-newer": "~0.6.1"
+    "grunt-newer": "~0.6.1",
+    "grunt-coffee-react": "~2.4.1"
   },
   "engines": {
     "node": ">=0.10.24",

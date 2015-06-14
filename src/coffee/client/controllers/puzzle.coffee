@@ -29,7 +29,7 @@
 
 PuzzlePage = React.createClass
     render: ->
-        if puzzle == null
+        if @state.puzzle == null
             <div className="puzzle_container">
               Loading puzzle...
             </div>
@@ -37,86 +37,103 @@ PuzzlePage = React.createClass
             <div className="puzzle_container">
               <div className="puzzle_grid">
                 <table className="puzzle_grid_table">
-                  { render_rows() }
+                  { @render_rows() }
                 </table>
                 <input type="button" value="Re-assign numbers" onClick={this.renumber} />
-                <input type="checkbox" /> Maintain rotational symmetry
+                <input type="checkbox"
+                        defaultChecked={true}
+                        onChange={@toggleMaintainRotationalSymmetry} />
+                    Maintain rotational symmetry
+              </div>
+              <div style={{'border': '2px solid black'}}>
+                <EditableTextField
+                        defaultText={@state.initial_puzzle.across_clues}
+                        produceOp={(op) => @clueEdited('across', op)}
+                        ref="acrossClues" />
               </div>
               <div className="offline_mode">
-                Offline mode is <br/>
-                <input type="radio" name="offlineMode" value="yes"
-                                    onChange={this.toggleOffline} /> On <br/>
-                <input type="radio" name="offlineMode" value="no"
-                                    onChange={this.toggleOffline} /> Off <br/>
+                <input type="checkbox"
+                        defaultChecked={false}
+                        onChange={@toggleOffline} />
+                    Offline mode
               </div>
             </div>
 
     render_rows: ->
-        for row in [0 ... puzzle.grid.length]
-            puzzle_row = puzzle.grid[i]
+        for row in [0 ... @state.puzzle.grid.length]
+            puzzle_row = @state.puzzle.grid[row]
 
-            <tr className="puzzle_grid_row">
-                { render_cells(row, puzzle_row) }
+            <tr className="puzzle_grid_row" key={"tr-"+row}>
+                { @render_cells(row, puzzle_row) }
             </tr>
 
     render_cells: (row, puzzle_row) ->
         for col in [0 ... puzzle_row.length]
-            cell = puzzle_row[col]
+            do (col) =>
+                cell = puzzle_row[col]
 
-            <td onClick={() => this.onCellClick(row, col)}
-                className={"puzzle_grid_cell " + this.getCellClass(row, col)}>
-            {
-                <div>
-                  <div style="position:relative; height: 100%; width: 100%">
-                        <div className="cell_number">{if cell.number != null then cell.number else ""}</div>
-                  </div>
-                  <div className="cell_contents">{if cell.contents == "" then "&nbsp;" else cell.contents}</div>
-                </div> if cell.open
-            }
-            {
-                <div style="position:relative">
-                  <div className="cellField">
-                        <input type="text" id="cellFieldInput"
-                                  dont-bubble-keydown
-                                  onKeydown="onCellFieldKeyPress(cellFieldInputValue, $event.keyCode)">
-                  </div>
-                </div> if doesCellHaveFieldOpen(row, col)
-            }
-            </td>
+                <td onClick={() => @onCellClick(row, col)}
+                    key={"td-"+row+"-"+col}
+                    className={"puzzle_grid_cell " + @getCellClass(row, col)}>
+                {
+                    if cell.open
+                        <div>
+                          <div style={{position: 'relative', height: '100%', width: '100%'}}>
+                            <div className="cell_number">
+                                {if cell.number != null then cell.number else ""}
+                            </div>
+                          </div>
+                          <div className="cell_contents">
+                            {if cell.contents == "" then "\xA0" else cell.contents}
+                          </div>
+                        </div>
+                }
+                {
+                    if @doesCellHaveFieldOpen(row, col)
+                        <div style={{position: 'relative'}}>
+                          <div className="cellField">
+                            <input type="text" id="cellFieldInput"
+                                      ref={@onCellFieldCreate}
+                                      className="dont-bubble-keydown"
+                                      onKeyDown={@onCellFieldKeyPress} />
+                          </div>
+                        </div>
+                }
+                </td>
+
+    onCellFieldCreate: (field) ->
+        if field?
+            React.findDOMNode(field).focus()
 
     getInitialState: () ->
-        state =
-            puzzle: null
-            
-            # If this is true, then maintain rotational symmetry of white/blackness
-            # when the user toggles a single square.
-            maintainRotationalSymmetry: true
+        puzzle: null
+        
+        # If this is true, then maintain rotational symmetry of white/blackness
+        # when the user toggles a single square.
+        maintainRotationalSymmetry: true
 
-            # Controls the offlineMode property of the ClientSyncer. When in offline
-            # mode, don't sync with the server.
-            offlineMode: false
+        # Controls the offlineMode property of the ClientSyncer. When in offline
+        # mode, don't sync with the server.
+        offlineMode: false
 
-            # Information on how the user is focused on the grid. Contains a row and
-            # column for the primary cell the user is focused on. The 'is_across'
-            # field determines whether the user is secondarily focused on the
-            # across-word of that cell, or the down-word.
-            # The 'field_open' is for when the user has an input field open for
-            # editting a cell - necessary when editting the number, or when entering
-            # contents of more than a single letter.
-            # grid_focus can also be null if the user isn't focused on the grid.
-            grid_focus:
-                row: 0
-                col: 0
-                is_across: true
-                field_open: "none" # "none" or "number" or "contents"
-
-        for key in state
-            this[key] = state[key]
+        # Information on how the user is focused on the grid. Contains a row and
+        # column for the primary cell the user is focused on. The 'is_across'
+        # field determines whether the user is secondarily focused on the
+        # across-word of that cell, or the down-word.
+        # The 'field_open' is for when the user has an input field open for
+        # editting a cell - necessary when editting the number, or when entering
+        # contents of more than a single letter.
+        # grid_focus can also be null if the user isn't focused on the grid.
+        grid_focus:
+            row: 0
+            col: 0
+            is_across: true
+            field_open: "none" # "none" or "number" or "contents"
 
     width: () ->
-        this.puzzle.grid[0].length
+        @state.puzzle.grid[0].length
     height: () ->
-        this.puzzle.grid.length
+        @state.puzzle.grid.length
 
     # Returns the CSS class for styling the cell
     getCellClass: (row, col) ->
@@ -158,7 +175,16 @@ PuzzlePage = React.createClass
     setPuzzleState: (puzzle_state) ->
         this.setState
             puzzle: puzzle_state
+            initial_puzzle: puzzle_state
             grid_focus: this.fixFocus(puzzle_state, this.state.grid_focus)
+
+    applyOpToPuzzleState: (op) ->
+        puzzle_state = Ot.apply(@state.puzzle, op)
+        this.setState
+            puzzle: puzzle_state
+            grid_focus: this.fixFocus(puzzle_state, this.state.grid_focus)
+        if op.across_clues?
+            this.refs.acrossClues.takeOp op.across_clues
 
     # Actions corresponding to keypresses
 
@@ -167,7 +193,7 @@ PuzzlePage = React.createClass
         if @state.grid_focus != null
             col1 = @state.grid_focus.col + dcol
             row1 = @state.grid_focus.row + drow
-            if col1 >= 0 and col1 < width() and row1 >= 0 and row1 < height()
+            if col1 >= 0 and col1 < @width() and row1 >= 0 and row1 < @height()
                 @setState
                     grid_focus:
                         row: row1
@@ -184,9 +210,9 @@ PuzzlePage = React.createClass
             c = String.fromCharCode keyCode
             @props.requestOp Ot.opEditCellValue \
                 grid_focus.row, grid_focus.col, "contents", c
-            if grid_focus.is_across and grid_focus.col < width() - 1
+            if grid_focus.is_across and grid_focus.col < @width() - 1
                 grid_focus.col += 1
-            else if (not grid_focus.is_across) and grid_focus.row < height() - 1
+            else if (not grid_focus.is_across) and grid_focus.row < @height() - 1
                 grid_focus.row += 1
         @setState { grid_focus: grid_focus }
 
@@ -196,9 +222,9 @@ PuzzlePage = React.createClass
         if grid_focus != null
             row = grid_focus.row
             col = grid_focus.col
-            g = $scope.puzzle.grid
+            g = @state.puzzle.grid
             if g[row][col].open and g[row][col].contents != ""
-                syncer.localOp Ot.opEditCellValue \
+                @props.requestOp Ot.opEditCellValue \
                     grid_focus.row, grid_focus.col, "contents", ""
                 if grid_focus.is_across and grid_focus.col > 0
                     grid_focus.col -= 1
@@ -213,7 +239,7 @@ PuzzlePage = React.createClass
                     col1 = col
                 if row1 >= 0 and col1 >= 0
                     if g[row1][col1].open and g[row1][col1].contents != ""
-                        syncer.localOp Ot.opEditCellValue \
+                        @props.requestOp Ot.opEditCellValue \
                             row1, col1, "contents", ""
                     grid_focus.col = col1
                     grid_focus.row = row1
@@ -222,14 +248,14 @@ PuzzlePage = React.createClass
     # Perform an automatic renumbering.
     renumber: () ->
         @removeCellField()
-        @props.requestOp Ot.opGridDiff $scope.puzzle, Utils.getNumberedGrid $scope.puzzle.grid
+        @props.requestOp Ot.opGridDiff @state.puzzle, Utils.getNumberedGrid @state.puzzle.grid
 
     toggleOpenness: () ->
         @removeCellField()
         if @state.grid_focus != null
             row = @state.grid_focus.row
             col = @state.grid_focus.col
-            newvalue = not $scope.puzzle.grid[row][col].open
+            newvalue = not @state.puzzle.grid[row][col].open
             op = Ot.opEditCellValue row, col, "open", newvalue
             if @state.maintainRotationalSymmetry
                 op = Ot.compose @state.puzzle, op, (Ot.opEditCellValue \
@@ -259,7 +285,10 @@ PuzzlePage = React.createClass
                 return if cell.number == null then "" else cell.number.toString()
             else if @state.grid_focus.field_open == "contents"
                 return cell.contents
-    onCellFieldKeyPress: (v, keyCode) ->
+    onCellFieldKeyPress: (event) ->
+        v = event.target.value
+        keyCode = event.keyCode
+
         grid_focus = Utils.clone @state.grid_focus
         if grid_focus == null
             return
@@ -281,6 +310,7 @@ PuzzlePage = React.createClass
                 name = "contents"
             else
                 return
+
             @props.requestOp Ot.opEditCellValue grid_focus.row, grid_focus.col, name, value
 
             grid_focus.field_open = "none"
@@ -288,6 +318,7 @@ PuzzlePage = React.createClass
 
     # Handle a keypress by dispatching to the correct method (above).
     handleKeyPress: (event) ->
+        event.preventDefault()
         if event.ctrlKey
             if event.keyCode == 66 # B
                 @toggleOpenness()
@@ -327,12 +358,16 @@ PuzzlePage = React.createClass
         this.setState { grid_focus: grid_focus }
 
     # Offline mode
-    toggleOffline: () ->
-        checked = this.refs.offline.checked
-        this.setState { offlineMode: checked }
-        this.onToggleOffline checked
+    toggleOffline: (event) ->
+        checked = event.target.checked
+        @setState { offlineMode: checked }
+        @props.onToggleOffline checked
 
-    clueEditted: (name, local_text_op) ->
+    toggleMaintainRotationalSymmetry: (event) ->
+        checked = event.target.checked
+        @setState { maintainRotationalSymmetry: checked }
+
+    clueEdited: (name, local_text_op) ->
         @props.requestOp(Ot.getClueOp(name, local_text_op))
 
 window.PuzzlePage = PuzzlePage

@@ -54,9 +54,12 @@ getNumberedGrid = (grid) ->
         contents: grid[i][j].contents
     } for j in [0..width-1]) for i in [0..height-1])
 
-# Clones a puzzle.
+# Clone objects
 clonePuzzle = (puzzle) ->
-    JSON.parse JSON.stringify puzzle
+    return clone puzzle
+
+clone = (obj) ->
+    return JSON.parse JSON.stringify obj
 
 # Export stuff
 
@@ -71,3 +74,4 @@ exports.sum = sum
 exports.getEmptyPuzzle = getEmptyPuzzle
 exports.getNumberedGrid = getNumberedGrid
 exports.clonePuzzle = clonePuzzle
+exports.clone = clone

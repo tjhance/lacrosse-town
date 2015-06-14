@@ -11,24 +11,38 @@ initApp = () ->
     parts = pathname.split('/')
     if pathname == '/new'
         el = <NewPage />
-        React.render(el, document.getElementById('view-container'))
+        container = $('.view-container').get(0)
+        React.render(el, container)
     else if parts[1] == 'puzzle'
         initPuzzleSyncer(parts[2])
 
 
 #TODO This should get its own file
 initPuzzleSyncer = (puzzleID) ->
-    syncer = new ClientSyncer(puzzleId)
+    syncer = new ClientSyncer(puzzleID)
     syncer.addWatcher (newState, op) ->
-        p.setPuzzleState newState
+        if op?
+            p.applyOpToPuzzleState op
+        else
+            p.setPuzzleState newState
 
     requestOp = (op) ->
         syncer.localOp op
+
+    onToggleOffline = (val) ->
+        syncer.setOffline val
+
+    document.body.addEventListener('keydown', ((event) ->
+        if (not $(event.target).hasClass('dont-bubble-keydown')) and \
+                $(event.target).closest('.dont-bubble-keydown').length == 0
+            p.handleKeyPress event
+     ), false)
 
     el = <PuzzlePage
         requestOp={requestOp}
         onToggleOffline={onToggleOffline}
      />
-    p = React.render(el, document.getElementById('view-container'))
+    container = $('.view-container').get(0)
+    p = React.render(el, container)
 
 window.initApp = initApp

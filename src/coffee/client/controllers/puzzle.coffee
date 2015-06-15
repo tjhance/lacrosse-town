@@ -324,12 +324,15 @@ PuzzlePage = React.createClass
  
 
 PuzzleGrid = React.createClass
+    shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)
+
     render: ->
         <table className="puzzle_grid_table">
             { for row in [0 ... @props.grid.length]
                do (row) =>
                 <PuzzleGridRow
                     key={"puzzle-grid-row-"+row}
+                    row={row}
                     grid_row={@props.grid[row]}
                     cell_classes={@props.cell_classes[row]}
                     grid_focus={
@@ -342,12 +345,16 @@ PuzzleGrid = React.createClass
         </table>
 
 PuzzleGridRow = React.createClass
+    shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)
+
     render: ->
         <tr className="puzzle_grid_row">
             { for col in [0 ... @props.grid_row.length]
                do (col) =>
                 <PuzzleGridCell
                     key={"puzzle-grid-col-"+col}
+                    row={@props.row}
+                    col={col}
                     grid_cell={@props.grid_row[col]}
                     cell_class={@props.cell_classes[col]}
                     grid_focus={
@@ -360,7 +367,10 @@ PuzzleGridRow = React.createClass
         </tr>
 
 PuzzleGridCell = React.createClass
+    shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)
+
     render: ->
+        #console.log('row/col', @props.row, @props.col)
         cell = @props.grid_cell
 
         <td onClick={@props.onCellClick}

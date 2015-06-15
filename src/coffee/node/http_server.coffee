@@ -14,7 +14,7 @@ exports.init = (callback) ->
     app.use express.bodyParser()
 
     # Serve static content from the static/ directory.
-    # (javascript, CSS, angularJS templates, etc.)
+    # (javascript, CSS, etc.)
     STATIC_ROOT = "#{__dirname}/../../static/"
     app.use "/static", express.static STATIC_ROOT
 

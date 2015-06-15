@@ -1,31 +1,28 @@
-# This contains the AngularJS controller for the puzzled-editting page.
-# The corresponding template is static/angular/puzzle.html.
-#
-# It creates a ClientSyncer object (see client/state.coffee) which deals with
-# all logic involed in syncing with the server.
-#
-# The template displays the controllers $scope.puzzle object - but the
-# controller just makes this what the ClientSyncer tells it to be.
-# Specifically, the controller registers a watcher with the ClientSyncer which
-# is called whenever the object-to-be-displayed changes.
-#
-# The controller responds to most user-input commands by calling the
-# ClientSyncer's localOp method with an operation to be made. The ClientSyncer
-# will respond by changing the object and calling the watcher to update
-# $scope.puzzle. Note, however, that this is not the only time the watcher
-# could be called. In particular, it could be called in response to an update
-# from the server. As such, the code should be prepared to update the display
-# in a way that the user did not ask for.
-#
-# The most important object here is $scope.puzzle which contain the puzzle to
-# be displayed (e.g., a grid containing information about which cells are black,
-# what letters are in them, etc.).
-#
-# Next is $scope.grid_focus which contains information about which cell the
-# user is currently focused on, if any.
-#
-# Finally, there is $scope.settingsModel which is a model that simply contains
-# some user configuration settings.
+###
+This is the main react element for the puzzle page.
+
+It takes two callback arguments
+    requestOp: Calls this function with a single op representing a change to
+        the puzzle state.
+    onToggleOffline: Calls this function whenever the user toggles offline-mode.
+
+It also has two functions which should be called:
+    setPuzzleState: call this initially to set the puzzle state
+    applyOpToPuzzleState: call this with an op to update it.
+
+The user of this class should call `applyOpToPuzzleState` for any op which is applied.
+This includes both ops from the server AND ops from the user. Tha means that when
+this object calls `requestOp`, `applyOpToPuzzleState` should be called immediately after.
+
+The React element responds to most user-input commands by creating an op and
+calling `requestOp`.
+
+The most important state object is `puzzle`, which is the current state of the puzzle
+to be displayed (e.g., a grid containing information about which cells are black,
+what letters are in them, etc.).
+There is also `grid_focus`, which describes the focus state of the grid: which
+cell the grid is focused on, if any.
+###
 
 PuzzlePage = React.createClass
     getInitialState: () ->

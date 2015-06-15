@@ -38,6 +38,13 @@ initPuzzleSyncer = (puzzleID) ->
             p.handleKeyPress event
      ), false)
 
+    document.body.addEventListener('click', ((event) ->
+        node = p.gridNode()
+        console.log node, event.target
+        if not (event.target == node or $.contains(node, event.target))
+            p.blur()
+      ), true)
+
     el = <PuzzlePage
         requestOp={requestOp}
         onToggleOffline={onToggleOffline}

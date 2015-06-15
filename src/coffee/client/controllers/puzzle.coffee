@@ -44,11 +44,13 @@ PuzzlePage = React.createClass
         # editting a cell - necessary when editting the number, or when entering
         # contents of more than a single letter.
         # grid_focus can also be null if the user isn't focused on the grid.
-        grid_focus:
-            row: 0
-            col: 0
-            is_across: true
-            field_open: "none" # "none" or "number" or "contents"
+        grid_focus: @defaultGridFocus()
+
+    defaultGridFocus: () ->
+        row: 0
+        col: 0
+        is_across: true
+        field_open: "none" # "none" or "number" or "contents"
 
     width: () ->
         @state.puzzle.grid[0].length
@@ -87,6 +89,8 @@ PuzzlePage = React.createClass
     # Ensures that the grid_focus is in a valid state even after the puzzle
     # state was modified.
     fixFocus: (puzzle, grid_focus) ->
+        if grid_focus == null
+            return null
         row = grid_focus.row
         col = grid_focus.col
         height = puzzle.grid.length
@@ -113,8 +117,7 @@ PuzzlePage = React.createClass
     # Actions corresponding to keypresses
 
     moveGridCursor: (drow, dcol) ->
-        @removeCellField()
-        if @state.grid_focus != null
+        if @state.grid_focus
             col1 = @state.grid_focus.col + dcol
             row1 = @state.grid_focus.row + drow
             if col1 >= 0 and col1 < @width() and row1 >= 0 and row1 < @height()
@@ -128,7 +131,6 @@ PuzzlePage = React.createClass
         return false
 
     typeLetter: (keyCode) ->
-        @removeCellField()
         grid_focus = Utils.clone @state.grid_focus
         if grid_focus != null
             c = String.fromCharCode keyCode
@@ -141,9 +143,9 @@ PuzzlePage = React.createClass
         @setState { grid_focus: grid_focus }
 
     deleteLetter: (keyCode) ->
-        @removeCellField()
         grid_focus = Utils.clone @state.grid_focus
         if grid_focus != null
+            grid_focus.cell_field = "none"
             row = grid_focus.row
             col = grid_focus.col
             g = @state.puzzle.grid
@@ -175,8 +177,8 @@ PuzzlePage = React.createClass
         @props.requestOp Ot.opGridDiff @state.puzzle, Utils.getNumberedGrid @state.puzzle.grid
 
     toggleOpenness: () ->
-        @removeCellField()
         if @state.grid_focus != null
+            grid_focus.field_open = "none"
             row = @state.grid_focus.row
             col = @state.grid_focus.col
             newvalue = not @state.puzzle.grid[row][col].open
@@ -193,11 +195,11 @@ PuzzlePage = React.createClass
                 @state.puzzle.grid[grid_focus.row][grid_focus.col].open
             grid_focus.field_open = type
             @setState { grid_focus: grid_focus }
-    removeCellField: () ->
-        grid_focus = Utils.clone @state.grid_focus
+    removeCellField: (grid_focus) ->
+        grid_focus = Utils.clone grid_focus
         if grid_focus != null
             grid_focus.field_open = "none"
-            @setState { grid_focus: grid_focus }
+        return grid_focus
 
     onCellFieldKeyPress: (event, row, col) ->
         v = event.target.value
@@ -208,7 +210,7 @@ PuzzlePage = React.createClass
             return
 
         if keyCode == 27 # Escape
-            @removeCellField()
+            grid_focus = @removeCellField(grid_focus)
         else if keyCode == 13 # Enter
             v = v or ""
             if grid_focus.field_open == "number"
@@ -227,8 +229,9 @@ PuzzlePage = React.createClass
 
             @props.requestOp Ot.opEditCellValue row, col, name, value
 
-            grid_focus.field_open = "none"
-            @setState { grid_focus: grid_focus }
+            grid_focus = @removeCellField(grid_focus)
+
+        @setState { grid_focus: grid_focus }
 
     # Handle a keypress by dispatching to the correct method (above).
     handleKeyPress: (event) ->
@@ -260,9 +263,10 @@ PuzzlePage = React.createClass
     # Focus on a cell when it is clicked on, or toggle its
     # acrossness/downness if it already has focus.
     onCellClick: (row, col) ->
-        @removeCellField()
+        grid_focus = if @state.grid_focus == null then @defaultGridFocus() else Utils.clone @state.grid_focus
 
-        grid_focus = Utils.clone @state.grid_focus
+        grid_focus = @removeCellField(grid_focus)
+
         if grid_focus != null and grid_focus.row == row and grid_focus.col == col
             grid_focus.is_across = not grid_focus.is_across
         else
@@ -270,6 +274,11 @@ PuzzlePage = React.createClass
             grid_focus.col = col
             grid_focus.is_across = true
         this.setState { grid_focus: grid_focus }
+
+    blur: () ->
+        @setState { grid_focus: null }
+    gridNode: () ->
+        return React.findDOMNode(this.refs.grid)
 
     # Offline mode
     toggleOffline: (event) ->
@@ -293,6 +302,7 @@ PuzzlePage = React.createClass
             <div className="puzzle_container">
               <div className="puzzle_grid">
                 <PuzzleGrid
+                    ref="grid"
                     grid={@state.puzzle.grid}
                     grid_focus={@state.grid_focus}
                     cell_classes={@getCellClasses()}
@@ -318,7 +328,6 @@ PuzzlePage = React.createClass
                     Offline mode
               </div>
             </div>
- 
 
 PuzzleGrid = React.createClass
     shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)

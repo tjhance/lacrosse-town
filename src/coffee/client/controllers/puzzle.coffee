@@ -28,83 +28,6 @@
 # some user configuration settings.
 
 PuzzlePage = React.createClass
-    render: ->
-        if @state.puzzle == null
-            <div className="puzzle_container">
-              Loading puzzle...
-            </div>
-        else
-            <div className="puzzle_container">
-              <div className="puzzle_grid">
-                <table className="puzzle_grid_table">
-                  { @render_rows() }
-                </table>
-                <input type="button" value="Re-assign numbers" onClick={this.renumber} />
-                <input type="checkbox"
-                        defaultChecked={true}
-                        onChange={@toggleMaintainRotationalSymmetry} />
-                    Maintain rotational symmetry
-              </div>
-              <div style={{'border': '2px solid black'}}>
-                <EditableTextField
-                        defaultText={@state.initial_puzzle.across_clues}
-                        produceOp={(op) => @clueEdited('across', op)}
-                        ref="acrossClues" />
-              </div>
-              <div className="offline_mode">
-                <input type="checkbox"
-                        defaultChecked={false}
-                        onChange={@toggleOffline} />
-                    Offline mode
-              </div>
-            </div>
-
-    render_rows: ->
-        for row in [0 ... @state.puzzle.grid.length]
-            puzzle_row = @state.puzzle.grid[row]
-
-            <tr className="puzzle_grid_row" key={"tr-"+row}>
-                { @render_cells(row, puzzle_row) }
-            </tr>
-
-    render_cells: (row, puzzle_row) ->
-        for col in [0 ... puzzle_row.length]
-            do (col) =>
-                cell = puzzle_row[col]
-
-                <td onClick={() => @onCellClick(row, col)}
-                    key={"td-"+row+"-"+col}
-                    className={"puzzle_grid_cell " + @getCellClass(row, col)}>
-                {
-                    if cell.open
-                        <div>
-                          <div style={{position: 'relative', height: '100%', width: '100%'}}>
-                            <div className="cell_number">
-                                {if cell.number != null then cell.number else ""}
-                            </div>
-                          </div>
-                          <div className="cell_contents">
-                            {if cell.contents == "" then "\xA0" else cell.contents}
-                          </div>
-                        </div>
-                }
-                {
-                    if @doesCellHaveFieldOpen(row, col)
-                        <div style={{position: 'relative'}}>
-                          <div className="cellField">
-                            <input type="text" id="cellFieldInput"
-                                      ref={@onCellFieldCreate}
-                                      className="dont-bubble-keydown"
-                                      onKeyDown={@onCellFieldKeyPress} />
-                          </div>
-                        </div>
-                }
-                </td>
-
-    onCellFieldCreate: (field) ->
-        if field?
-            React.findDOMNode(field).focus()
-
     getInitialState: () ->
         puzzle: null
         
@@ -135,30 +58,34 @@ PuzzlePage = React.createClass
     height: () ->
         @state.puzzle.grid.length
 
-    # Returns the CSS class for styling the cell
-    getCellClass: (row, col) ->
-        grid = this.state.puzzle.grid
-        if grid[row][col].open
-            if @state.grid_focus == null
-                return "open_cell"
-            else
-                focus = @state.grid_focus
-                if focus.row == row and focus.col == col
-                    return "open_cell_highlighted"
-                else if (\
-                    (focus.is_across and focus.row == row and \
-                        ([col..focus.col].every (col1) -> grid[row][col1].open)) or \
-                    ((not focus.is_across) and focus.col == col and \
-                        ([row..focus.row].every (row1) -> grid[row1][col].open)))
-                    return "open_cell_highlighted_intermediate"
-                else
+    # Returns a grid of the the CSS classes for styling the cell
+    getCellClasses: () ->
+        getCellClass = (row, col) =>
+            grid = @state.puzzle.grid
+            if grid[row][col].open
+                if @state.grid_focus == null
                     return "open_cell"
-        else
-            if (@state.grid_focus != null and @state.grid_focus.row == row \
-                    and @state.grid_focus.col == col)
-                return "closed_cell_highlighted"
+                else
+                    focus = @state.grid_focus
+                    if focus.row == row and focus.col == col
+                        return "open_cell_highlighted"
+                    else if (\
+                        (focus.is_across and focus.row == row and \
+                            ([col..focus.col].every (col1) -> grid[row][col1].open)) or \
+                        ((not focus.is_across) and focus.col == col and \
+                            ([row..focus.row].every (row1) -> grid[row1][col].open)))
+                        return "open_cell_highlighted_intermediate"
+                    else
+                        return "open_cell"
             else
-                return "closed_cell"
+                if (@state.grid_focus != null and @state.grid_focus.row == row \
+                        and @state.grid_focus.col == col)
+                    return "closed_cell_highlighted"
+                else
+                    return "closed_cell"
+        for i in [0 ... @height()]
+            for j in [0 ... @width()]
+                getCellClass(i, j)
 
     # Ensures that the grid_focus is in a valid state even after the puzzle
     # state was modified.
@@ -275,17 +202,7 @@ PuzzlePage = React.createClass
             grid_focus.field_open = "none"
             @setState { grid_focus: grid_focus }
 
-    doesCellHaveFieldOpen: (row, col) ->
-        @state.grid_focus.field_open != "none" and \
-               @state.grid_focus.row == row and @state.grid_focus.col == col
-    getCellFieldInitialValue: () ->
-        if @state.grid_focus != null
-            cell = @state.puzzle.grid[@state.grid_focus.row][@state.grid_focus.col]
-            if @state.grid_focus.field_open == "number"
-                return if cell.number == null then "" else cell.number.toString()
-            else if @state.grid_focus.field_open == "contents"
-                return cell.contents
-    onCellFieldKeyPress: (event) ->
+    onCellFieldKeyPress: (event, row, col) ->
         v = event.target.value
         keyCode = event.keyCode
 
@@ -311,7 +228,7 @@ PuzzlePage = React.createClass
             else
                 return
 
-            @props.requestOp Ot.opEditCellValue grid_focus.row, grid_focus.col, name, value
+            @props.requestOp Ot.opEditCellValue row, col, name, value
 
             grid_focus.field_open = "none"
             @setState { grid_focus: grid_focus }
@@ -369,5 +286,124 @@ PuzzlePage = React.createClass
 
     clueEdited: (name, local_text_op) ->
         @props.requestOp(Ot.getClueOp(name, local_text_op))
+
+    render: ->
+        if @state.puzzle == null
+            <div className="puzzle_container">
+              Loading puzzle...
+            </div>
+        else
+            <div className="puzzle_container">
+              <div className="puzzle_grid">
+                <PuzzleGrid
+                    grid={@state.puzzle.grid}
+                    grid_focus={@state.grid_focus}
+                    cell_classes={@getCellClasses()}
+                    onCellClick={@onCellClick}
+                    onCellFieldKeyPress={@onCellFieldKeyPress}
+                  />
+                <input type="button" value="Re-assign numbers" onClick={this.renumber} />
+                <input type="checkbox"
+                        defaultChecked={true}
+                        onChange={@toggleMaintainRotationalSymmetry} />
+                    Maintain rotational symmetry
+              </div>
+              <div style={{'border': '2px solid black'}}>
+                <EditableTextField
+                        defaultText={@state.initial_puzzle.across_clues}
+                        produceOp={(op) => @clueEdited('across', op)}
+                        ref="acrossClues" />
+              </div>
+              <div className="offline_mode">
+                <input type="checkbox"
+                        defaultChecked={false}
+                        onChange={@toggleOffline} />
+                    Offline mode
+              </div>
+            </div>
+ 
+
+PuzzleGrid = React.createClass
+    render: ->
+        <table className="puzzle_grid_table">
+            { for row in [0 ... @props.grid.length]
+               do (row) =>
+                <PuzzleGridRow
+                    key={"puzzle-grid-row-"+row}
+                    grid_row={@props.grid[row]}
+                    cell_classes={@props.cell_classes[row]}
+                    grid_focus={
+                        if @props.grid_focus? and @props.grid_focus.row == row then @props.grid_focus else null
+                    }
+                    onCellFieldKeyPress={(event, col) => @props.onCellFieldKeyPress(event, row, col)}
+                    onCellClick={(col) => @props.onCellClick(row, col)}
+                />
+            }
+        </table>
+
+PuzzleGridRow = React.createClass
+    render: ->
+        <tr className="puzzle_grid_row">
+            { for col in [0 ... @props.grid_row.length]
+               do (col) =>
+                <PuzzleGridCell
+                    key={"puzzle-grid-col-"+col}
+                    grid_cell={@props.grid_row[col]}
+                    cell_class={@props.cell_classes[col]}
+                    grid_focus={
+                        if @props.grid_focus? and @props.grid_focus.col == col then @props.grid_focus else null
+                    }
+                    onCellFieldKeyPress={(event) => @props.onCellFieldKeyPress(event, col)}
+                    onCellClick={(event) => @props.onCellClick(col)}
+                />
+            }
+        </tr>
+
+PuzzleGridCell = React.createClass
+    render: ->
+        cell = @props.grid_cell
+
+        <td onClick={@props.onCellClick}
+            className={"puzzle_grid_cell " + @props.cell_class}>
+        {
+            if cell.open
+                <div>
+                  <div style={{position: 'relative', height: '100%', width: '100%'}}>
+                    <div className="cell_number">
+                        {if cell.number != null then cell.number else ""}
+                    </div>
+                  </div>
+                  <div className="cell_contents">
+                    {if cell.contents == "" then "\xA0" else cell.contents}
+                  </div>
+                </div>
+        }
+        {
+            if @props.grid_focus? and @props.grid_focus.field_open != "none"
+                <div style={{position: 'relative'}}>
+                  <div className="cellField">
+                    <input type="text" id="cellFieldInput"
+                              defaultValue={@getCellFieldInitialValue()}
+                              ref={@onCellFieldCreate}
+                              className="dont-bubble-keydown"
+                              onKeyDown={@props.onCellFieldKeyPress} />
+                  </div>
+                </div>
+        }
+        </td>
+
+    onCellFieldCreate: (field) ->
+        if field?
+            React.findDOMNode(field).focus()
+
+    getCellFieldInitialValue: () ->
+        if @props.grid_focus != null
+            cell = @props.grid_cell
+            if @props.grid_focus.field_open == "number"
+                return if cell.number == null then "" else cell.number.toString()
+            else if @props.grid_focus.field_open == "contents"
+                return cell.contents
+        else
+            return null
 
 window.PuzzlePage = PuzzlePage

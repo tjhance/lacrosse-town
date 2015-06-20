@@ -2,7 +2,7 @@
 # mapping routes. Routes are
 #   /new - Static page
 #   /puzzle - Page where you view and edit a puzzle.
-#             Controller is in controllers/puzzle.coffee
+#             Controller is in puzzle.coffee
 
 # TODO could use some lightweight routing framework?
 

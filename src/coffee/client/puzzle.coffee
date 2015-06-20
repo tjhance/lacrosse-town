@@ -101,16 +101,17 @@ PuzzlePage = React.createClass
             grid_focus
 
     setPuzzleState: (puzzle_state) ->
+        this.puzzle_state = puzzle_state
         this.setState
             puzzle: puzzle_state
             initial_puzzle: puzzle_state
             grid_focus: this.fixFocus(puzzle_state, this.state.grid_focus)
 
     applyOpToPuzzleState: (op) ->
-        puzzle_state = Ot.apply(@state.puzzle, op)
+        this.puzzle_state = Ot.apply(this.puzzle_state, op)
         this.setState
-            puzzle: puzzle_state
-            grid_focus: this.fixFocus(puzzle_state, this.state.grid_focus)
+            puzzle: this.puzzle_state
+            grid_focus: this.fixFocus(this.puzzle_state, this.state.grid_focus)
         if op.across_clues?
             this.refs.acrossClues.takeOp op.across_clues
 
@@ -174,7 +175,7 @@ PuzzlePage = React.createClass
     # Perform an automatic renumbering.
     renumber: () ->
         @removeCellField()
-        @props.requestOp Ot.opGridDiff @state.puzzle, Utils.getNumberedGrid @state.puzzle.grid
+        @props.requestOp Ot.opGridDiff @state.puzzle, PuzzleUtils.getNumberedGrid @state.puzzle.grid
 
     toggleOpenness: () ->
         if @state.grid_focus != null
@@ -376,7 +377,6 @@ PuzzleGridCell = React.createClass
     shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)
 
     render: ->
-        #console.log('row/col', @props.row, @props.col)
         cell = @props.grid_cell
 
         <td onClick={@props.onCellClick}

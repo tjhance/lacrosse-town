@@ -2,6 +2,7 @@
 
 Db = require "./db"
 Utils = require "../shared/utils"
+PuzzleUtils = require "../shared/puzzle_utils"
 
 exports.init = (callback) ->
     express = require "express"
@@ -34,7 +35,7 @@ exports.init = (callback) ->
     # the puzzle page.
     app.post /\/new/, (req, res) ->
         if req.body? and req.body.title?
-            puzzle = Utils.getEmptyPuzzle 15, 15, req.body.title
+            puzzle = PuzzleUtils.getEmptyPuzzle 15, 15, req.body.title
             Db.createPuzzle puzzle, (puzzleID) ->
                 res.redirect "/puzzle/#{puzzleID}"
 

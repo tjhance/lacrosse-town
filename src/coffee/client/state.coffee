@@ -4,7 +4,7 @@
 #
 # The ClientSyncer contains the authoritative copy that should be
 # *displayed* to the user. This copy is stored in the "tip" variable
-# below. The controller (controllers/puzzle.coffee) should respond
+# below. The app should respond
 # to user actions by calling the "localOp" function, and it should register
 # a watcher to watch for when the tip changes. The tip may change either
 # in respond to a localOp or when a change comes from the main server.

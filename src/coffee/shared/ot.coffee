@@ -1,7 +1,9 @@
 if require?
+    PuzzleUtils = require "./puzzle_utils"
     Utils = require "./utils"
     OtText = require "./ottext"
 else
+    PuzzleUtils = @PuzzleUtils
     Utils = @Utils
     OtText = @OtText
 
@@ -80,7 +82,7 @@ xform = (base, a, b) ->
 
 # Returns the state obtained by applying operation a to base.
 apply = (base, a) ->
-    res = Utils.clonePuzzle base
+    res = PuzzleUtils.clonePuzzle base
     applyInPlace res, a
     return res
 

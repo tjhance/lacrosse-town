@@ -317,9 +317,10 @@ PuzzlePage = React.createClass
                     Maintain rotational symmetry
               </div>
               <div style={{'border': '2px solid black'}}>
-                <EditableTextField
+                <CluesEditableTextField
                         defaultText={@state.initial_puzzle.across_clues}
                         produceOp={(op) => @clueEdited('across', op)}
+                        stylingData={{}}
                         ref="acrossClues" />
               </div>
               <div className="offline_mode">
@@ -421,5 +422,15 @@ PuzzleGridCell = React.createClass
                 return cell.contents
         else
             return null
+
+CluesEditableTextField = EditableTextField (lines, stylingData) ->
+    for line in lines
+        childElem = document.createElement('div')
+        if line.length > 0
+            $(childElem).text(line)
+        else
+            childElem.appendChild(document.createElement('br'))
+        childElem
+
 
 window.PuzzlePage = PuzzlePage

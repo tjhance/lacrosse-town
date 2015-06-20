@@ -1,8 +1,12 @@
-EditableTextField = React.createClass
+# This is an incredibly stateful, very "non reacty" object.
+# TODO move the 'stateful' part outside react, make the react object more stateless
+
+EditableTextField = (buildContent) -> React.createClass
     componentWillMount: ->
         @selection = []
         @text = @props.defaultText
         @baseText = @props.defaultText
+        @stylingData = @props.stylingData
 
     render: ->
         <div contentEditable={true}
@@ -19,7 +23,8 @@ EditableTextField = React.createClass
              ref="editableDiv" ></div>
 
     shouldComponentUpdate: (nextProps, nextState) ->
-        false
+        @stylingData = nextProps.stylingData
+        return false
 
     componentDidMount: ->
         @setContents @text
@@ -76,19 +81,10 @@ EditableTextField = React.createClass
         while element.firstChild
             element.removeChild(element.firstChild)
 
-        i = 0
-        for text_row in (text.split "\n")[0 ... -1]
-            # TODO factor this out, maybe write it with React
-            childElem = document.createElement('div')
-            if text_row.length > 0
-                $(childElem).text(text_row)
-            else
-                childElem.appendChild(document.createElement('br'))
+        lineElements = buildContent (text.split "\n"), @stylingData
 
-            # Append element
-            element.appendChild childElem
-
-            i += 1
+        for lineElement in lineElements
+            element.appendChild lineElement
 
     setSelection: (selection) ->
         element = @getNode()
@@ -219,7 +215,7 @@ EditableTextField = React.createClass
                     sels.push [left, right]
 
         sels.sort ([l,r], [l2,r2]) -> l < l2
-        return [sels, text_lines.join("\n") + "\n"]
+        return [sels, text_lines.join("\n")]
 
 
 # Thanks http://stackoverflow.com/questions/298750/how-do-i-select-text-nodes-with-jquery

@@ -68,3 +68,11 @@ td.open_cell_highlighted_intermediate {
     display: block;
     height: 1em;
 }
+
+div.clues-highlight-primary {
+    background-color: #ccffcc;
+}
+
+div.clues-highlight-secondary {
+    background-color: #f0f0f0;
+}

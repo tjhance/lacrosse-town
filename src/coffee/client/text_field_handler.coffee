@@ -23,7 +23,9 @@ EditableTextField = (buildContent) -> React.createClass
              ref="editableDiv" ></div>
 
     shouldComponentUpdate: (nextProps, nextState) ->
-        @stylingData = nextProps.stylingData
+        if not Utils.deepEquals(nextProps.stylingData, @stylingData)
+            @stylingData = nextProps.stylingData
+            @updateContents()
         return false
 
     componentDidMount: ->
@@ -75,6 +77,9 @@ EditableTextField = (buildContent) -> React.createClass
 
     getNode: ->
         React.findDOMNode(this.refs.editableDiv)
+
+    updateContents: () ->
+        @setContents @text
 
     setContents: (text) ->
         element = @getNode()

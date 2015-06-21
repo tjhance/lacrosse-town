@@ -294,6 +294,26 @@ PuzzlePage = React.createClass
     clueEdited: (name, local_text_op) ->
         @props.requestOp(Ot.getClueOp(name, local_text_op))
 
+    clueStylingData: (isAcross) ->
+        row = @state.grid_focus.row
+        col = @state.grid_focus.col
+        while true
+            row1 = if isAcross then row else row - 1
+            col1 = if isAcross then col - 1 else col
+            if row1 >= 0 and col1 >= 0 and @state.puzzle.grid[row1][col1].open
+                row = row1
+                col = col1
+            else
+                break
+        s = {
+            primaryNumber: null,
+            secondaryNumber: null
+         }
+        if @state.puzzle.grid[row][col].number != null
+            keyName = if @state.grid_focus.is_across == isAcross then 'primaryNumber' else 'secondaryNumber'
+            s[keyName] = @state.puzzle.grid[row][col].number
+        return s
+
     render: ->
         if @state.puzzle == null
             <div className="puzzle_container">
@@ -320,7 +340,7 @@ PuzzlePage = React.createClass
                 <CluesEditableTextField
                         defaultText={@state.initial_puzzle.across_clues}
                         produceOp={(op) => @clueEdited('across', op)}
-                        stylingData={{}}
+                        stylingData={@clueStylingData(true)}
                         ref="acrossClues" />
               </div>
               <div className="offline_mode">
@@ -437,6 +457,12 @@ CluesEditableTextField = EditableTextField (lines, stylingData) ->
             if parsed.secondPart.length > 0
                 el = document.createTextNode(Utils.useHardSpaces(parsed.secondPart))
                 childElem.appendChild el
+
+            if parsed.number and parsed.number == stylingData.primaryNumber
+                $(childElem).addClass('clues-highlight-primary')
+            if parsed.number and parsed.number == stylingData.secondaryNumber
+                $(childElem).addClass('clues-highlight-secondary')
+
         else
             childElem.appendChild(document.createElement('br'))
         childElem

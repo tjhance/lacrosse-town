@@ -64,6 +64,27 @@ deepEquals = (x, y) ->
                 break
     return true
 
+isWhitespace = (c) ->
+    return c == ' ' or c == '\n' or c == '\r' or c == '\t'
+
+useHardSpaces = (s) ->
+    t = []
+    inSpaceRun = true
+    spaceRunLen = 1
+    for i in [0 ... s.length]
+        c = s.charAt(i)
+        if c == ' '
+            if inSpaceRun
+                spaceRunLen++
+            else
+                inSpaceRun = true
+                spaceRunLen = 0
+            t.push (if i == s.length - 1 or spaceRunLen % 2 == 1 then '\xA0' else ' ')
+        else
+            inSpaceRun = false
+            t.push c
+    return t.join ""
+
 # Export stuff
 
 if module?
@@ -75,4 +96,6 @@ exports.assert = assert
 exports.clone = clone
 exports.deepEquals = deepEquals
 exports.isValidInteger = isValidInteger
+exports.isWhitespace = isWhitespace
 exports.sum = sum
+exports.useHardSpaces = useHardSpaces

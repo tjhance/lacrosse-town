@@ -92,15 +92,21 @@ EditableTextField = (buildContent) -> React.createClass
         countNewlines = (s) ->
             return (s.split "\n").length - 1
         getContOffset = (totalIndex) =>
-            #if totalIndex == modelTextNew.length - 1
-            #    return [element, $(element).contents().length]
             startOfLine = 1 + @text.lastIndexOf '\n', totalIndex-1
             offset = totalIndex - startOfLine
             containerIndex = countNewlines (@text.substr 0, startOfLine)
             container = element.childNodes[containerIndex]
             container2 = $(element).children().get(containerIndex)
-            subcontainer = if offset == 0 then container else (get_text_nodes container)[0]
-            return [subcontainer, offset]
+            if offset == 0
+                return [container, 0]
+            else
+                textNodes = get_text_nodes container
+                i = 0
+                while offset > $(textNodes[i]).text().length
+                    Utils.assert(i < textNodes.length)
+                    offset -= $(textNodes[i]).text().length
+                    i += 1
+                return [textNodes[i], offset]
 
         selObj = window.getSelection()
         selObj.removeAllRanges()
@@ -115,94 +121,131 @@ EditableTextField = (buildContent) -> React.createClass
     getSelectionAndText: () ->
         element = React.findDOMNode(this)
 
-        # Ugh, some annoying state thing for traversing the DOM nodes for dealing
+        # Ugh, some annoying crap for traversing the DOM nodes for dealing
         # with the crazy way browsers interpret spaces.
         text_lines = []
         cur_line = []
+        cur_line_has_text = false
         line_num = 0
-        line_offset = 0
-        space_state = SPACE_STATE_BEGINNING
-        add_line_piece = (piece) ->
-            if piece.length > 0
-                [space1, main_piece, space2] = plainify_text(piece)
-                if space1.length == piece.length
-                    if space_state == SPACE_STATE_AFTER_TEXT
-                        space_state = SPACE_STATE_AFTER_SPACE
-                    return 0
-                else
-                    if space_state == SPACE_STATE_AFTER_SPACE
-                        cur_line.push(' ')
-                        line_offset += 1
-                    else if space_state == SPACE_STATE_AFTER_TEXT
-                        cur_line.push(' ')
-                        line_offset += 1
-                    cur_line.push(main_piece)
-                    line_offset += main_piece.length
-                    space_state = if space2.length > 0 then SPACE_STATE_AFTER_SPACE else SPACE_STATE_AFTER_TEXT
-                    return space1.length
+        total_offset = 0
+
+        add_line_piece = (node) ->
+            node.lt_pieces = []
+            text = $(node).text()
+            if text.length > 0
+                l = 0
+                while l < text.length
+                    if Utils.isWhitespace(text.charAt(l))
+                        # run of spaces
+                        r = l + 1
+                        while r < text.length and Utils.isWhitespace(text.charAt(r))
+                            r += 1
+                        cur_line.push { node: node, left: l, right: r, text: " ", isSpace: true }
+                    else
+                        # run of text
+                        r = l + 1
+                        while r < text.length and not Utils.isWhitespace(text.charAt(r))
+                            r += 1
+                        cur_line.push {
+                            node: node,
+                            left: l,
+                            right: r,
+                            text: text.substring(l, r).replace('\xA0', ' '),
+                            isSpace: false
+                          }
+                        cur_line_has_text = true
+                    l = r
             else
-                return 0
+                cur_line.push { node: node, left: 0, right: 0, text: "", isSpace: true }
+
+        analyze_line_pieces = () ->
+            while cur_line.length > 0 and cur_line[cur_line.length - 1].isSpace
+                cur_line.length -= 1
+
+            totalText = []
+            for i in [0 ... cur_line.length]
+                piece = cur_line[i]
+                if piece.isSpace and (i == 0 or cur_line[i-1].isSpace)
+                    piece.text = ""
+                piece.totalOffset = total_offset
+                total_offset += piece.text.length
+                piece.node.lt_pieces.push piece
+                totalText.push piece.text
+            return totalText.join ""
 
         finish_line = () ->
-            text_lines.push(cur_line.join(""))
             line_num++
-            line_offset = 0
+            text_lines.push(analyze_line_pieces())
             cur_line = []
-            space_state = SPACE_STATE_BEGINNING
+            cur_line_has_text = false
+            total_offset += 1
 
         needs_newline = () ->
-            return cur_line.length > 0
+            return cur_line_has_text
 
         # Traverse the DOM nodes
+        # Annotes all text nodes with `lt_pieces` 
         recurse = (elem) ->
+            elem.lt_start_newline = false
+            elem.lt_end_newline = false
+
             if elem.nodeType == 3 # is text node
-                elem.lt_index = [line_num, line_offset]
-                elem.lt_text_node_real_start = add_line_piece $(elem).text()
-            else if elem.tagName == "BR"
-                elem.lt_index = [line_num, line_offset]
-                finish_line()
-            else
-                cssdisplay = $(elem).css('display')
-                is_inline = cssdisplay? and cssdisplay.indexOf('inline') != -1
-                if not is_inline and needs_newline()
+                add_line_piece elem
+            else if elem.nodeType == 1 # ordinary node
+                if elem.tagName == "BR"
                     finish_line()
+                    elem.lt_end_newline = true
+                else
+                    cssdisplay = $(elem).css('display')
+                    is_inline = cssdisplay? and cssdisplay.indexOf('inline') != -1
+                    if not is_inline and needs_newline()
+                        finish_line()
+                        elem.lt_start_newline = true
 
-                elem.lt_index = [line_num, line_offset]
+                    for childElem in $(elem).contents()
+                        recurse childElem
 
-                for childElem in $(elem).contents()
-                    recurse childElem
+                    if not is_inline and needs_newline()
+                        finish_line()
+                        elem.lt_end_newline = true
 
-                if not is_inline and needs_newline()
-                    finish_line()
-
-        recurse element, false
+        recurse element
 
         if line_num == 0 or needs_newline()
             finish_line()
+
+        # Traverse the DOM nodes again, annotate all nodes with lt_start and lt_end
+        totalOffset = 0
+        recurse2 = (elem) ->
+            if elem.lt_start_newline
+                totalOffset += 1
+            elem.lt_start = totalOffset
+            if elem.nodeType == 3 # is text node
+                for piece in elem.lt_pieces
+                    totalOffset += piece.text.length
+            else if elem.nodeType == 1 # ordinary node
+                for childElem in $(elem).contents()
+                    recurse2 childElem
+            elem.lt_end = totalOffset
+            if elem.lt_end_newline
+                totalOffset += 1
+
+        recurse2 element
 
         # OK, now the text lines should be in `text_lines`.
         # Now we can use all the lt_* properties on the nodes to compute
         # the selection offsets.
 
-        getLineColOffset = (container, offsetWithinContainer) ->
-            if container.nodeType == 3 # is text node
-                if container.lt_index?
-                    [line, offset] = container.lt_index
-                    real_start = container.lt_text_node_real_start
-                    return [line, offset + Math.max(offsetWithinContainer - real_start, 0)]
-                else
-                    return null
-            else
-                subcont = if offsetWithinContainer == 0 then container else $(container).contents()[offsetWithinContainer]
-                return if subcont.lt_index? then subcont.lt_index else null
-
         getTotalOffset = (container, offsetWithinContainer) ->
-            o = getLineColOffset(container, offsetWithinContainer)
-            if o != null
-                [line, offset] = o
-                return text_lines.slice(0, line).join("").length + line + offset
+            if container.nodeType == 1
+                return if offsetWithinContainer == 0 then container.lt_start else container.lt_end
+            else if container.nodeType == 3
+                for piece in container.lt_pieces
+                    if offsetWithinContainer >= piece.left and offsetWithinContainer <= piece.right
+                        return piece.totalOffset + Math.min(offsetWithinContainer - piece.left, piece.text.length)
+                Utils.assert(false, "bad pieces")
             else
-                return null
+                Utils.assert(false, "nodeType note 1 or 3, instead " + container.nodeType)
 
         sels = []
         selObj = window.getSelection()
@@ -218,50 +261,16 @@ EditableTextField = (buildContent) -> React.createClass
         return [sels, text_lines.join("\n")]
 
 
-# Thanks http://stackoverflow.com/questions/298750/how-do-i-select-text-nodes-with-jquery
 get_text_nodes = (el) ->
-    $(el).find(":not(iframe)").addBack().contents().filter () -> @nodeType == 3
-
-isWhitespace = (c) ->
-    return c == ' ' or c == '\n' or c == '\r' or c == '\t'
-
-plainify_text = (s, offsets) ->
-    l = 0
-    while l < s.length and isWhitespace(s.charAt(l))
-        l += 1
-    if l == s.length
-        # all whitespace case
-        return [s, "", ""]
-    else
-        r = s.length
-        while isWhitespace(s.charAt(r-1))
-            r -= 1
-        mid = s.substring(l, r)
-        # Replace runs of spaces with a single space
-        # Replace \xA0 (i.e., &nbsp;) with a single space
-        mid_fixed = mid.replace(/[ \n]+/g, ' ').replace('\xA0', ' ')
-        return [s.substring(0, l), mid_fixed, s.substring(r, s.length)]
-
-browserify_text = (s) ->
-    t = []
-    inSpaceRun = true
-    spaceRunLen = 1
-    for i in [0 ... s.length]
-        c = s[i]
-        if c == ' '
-            if inSpaceRun
-                spaceRunLen++
-            else
-                inSpaceRun = true
-                spaceRunLen = 0
-            t.push (if i == s.length - 1 or spaceRunLen % 2 == 1 then '\xA0' else ' ')
-        else
-            inSpaceRun = false
-            t.push c
-        
-    return t.join ""
-
-
+    ans = []
+    recurse = (e) ->
+        if e.nodeType == 1
+            for node in e.childNodes
+                recurse(node)
+        else if e.nodeType == 3
+            ans.push(e)
+    recurse el
+    return ans
 
 getOpForTextChange = (old_sel, old_text, new_sel, new_text) ->
     Utils.assert old_sel.length >= 1
@@ -304,9 +313,5 @@ getOpForTextChange = (old_sel, old_text, new_sel, new_text) ->
                             (OtText.canonicalized op_delete_selected),
                             (OtText.canonicalized op2)
     return op
-
-SPACE_STATE_BEGINNING = 0
-SPACE_STATE_AFTER_SPACE = 1
-SPACE_STATE_AFTER_TEXT = 2
 
 window.EditableTextField = EditableTextField

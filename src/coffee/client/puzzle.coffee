@@ -424,13 +424,47 @@ PuzzleGridCell = React.createClass
             return null
 
 CluesEditableTextField = EditableTextField (lines, stylingData) ->
+    i = -1
     for line in lines
+        i += 1
         childElem = document.createElement('div')
         if line.length > 0
-            $(childElem).text(line)
+            parsed = parseClueLine line
+            if parsed.firstPart.length > 0
+                el = document.createElement('b')
+                $(el).text(Utils.useHardSpaces(parsed.firstPart))
+                childElem.appendChild el
+            if parsed.secondPart.length > 0
+                el = document.createTextNode(Utils.useHardSpaces(parsed.secondPart))
+                childElem.appendChild el
         else
             childElem.appendChild(document.createElement('br'))
         childElem
+
+# Takes a line and parses it assuming it is of the form
+# X. clue
+# return an object
+# { number, firstPart, secondPart }
+# If it can't be parsed as such, number is null, firstPart is empty, and secondPart is the entire contents
+parseClueLine = (line) ->
+    i = 0
+    while i < line.length and Utils.isWhitespace(line.charAt(i))
+        i += 1
+    j = i
+    while j < line.length and line.charAt(j) >= '0' and line.charAt(j) <= '9'
+        j += 1
+    if j > i and j < line.length and line.charAt(j) == '.'
+        return {
+            number: parseInt(line.substring(i, j))
+            firstPart: line.substring(0, j+1)
+            secondPart: line.substring(j+1, line.length)
+          }
+    else
+        return {
+            number: null
+            firstPart: ''
+            secondPart: line
+          }
 
 
 window.PuzzlePage = PuzzlePage

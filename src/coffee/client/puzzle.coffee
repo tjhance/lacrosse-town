@@ -297,6 +297,11 @@ PuzzlePage = React.createClass
         @props.requestOp(Ot.getClueOp(name, local_text_op))
 
     clueStylingData: (isAcross) ->
+        if @state.grid_focus == null
+            return {
+                primaryNumber: null,
+                secondaryNumber: null
+             }
         row = @state.grid_focus.row
         col = @state.grid_focus.col
         while true

@@ -40,7 +40,6 @@ initPuzzleSyncer = (puzzleID) ->
 
     document.body.addEventListener('click', ((event) ->
         node = p.gridNode()
-        console.log node, event.target
         if not (event.target == node or $.contains(node, event.target))
             p.blur()
       ), true)

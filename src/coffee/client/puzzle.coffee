@@ -114,6 +114,8 @@ PuzzlePage = React.createClass
             grid_focus: this.fixFocus(this.puzzle_state, this.state.grid_focus)
         if op.across_clues?
             this.refs.acrossClues.takeOp op.across_clues
+        if op.down_clues?
+            this.refs.downClues.takeOp op.down_clues
 
     # Actions corresponding to keypresses
 
@@ -321,28 +323,40 @@ PuzzlePage = React.createClass
             </div>
         else
             <div className="puzzle_container">
-              <div className="puzzle_grid">
-                <PuzzleGrid
-                    ref="grid"
-                    grid={@state.puzzle.grid}
-                    grid_focus={@state.grid_focus}
-                    cell_classes={@getCellClasses()}
-                    onCellClick={@onCellClick}
-                    onCellFieldKeyPress={@onCellFieldKeyPress}
-                  />
-                <input type="button" value="Re-assign numbers" onClick={this.renumber} />
-                <input type="checkbox"
-                        defaultChecked={true}
-                        onChange={@toggleMaintainRotationalSymmetry} />
-                    Maintain rotational symmetry
-              </div>
-              <div style={{'border': '2px solid black'}}>
-                <CluesEditableTextField
-                        defaultText={@state.initial_puzzle.across_clues}
-                        produceOp={(op) => @clueEdited('across', op)}
-                        stylingData={@clueStylingData(true)}
-                        ref="acrossClues" />
-              </div>
+              <table><tr><td>
+                  <div className="puzzle_grid">
+                    <PuzzleGrid
+                        ref="grid"
+                        grid={@state.puzzle.grid}
+                        grid_focus={@state.grid_focus}
+                        cell_classes={@getCellClasses()}
+                        onCellClick={@onCellClick}
+                        onCellFieldKeyPress={@onCellFieldKeyPress}
+                      />
+                    <input type="button" value="Re-assign numbers" onClick={this.renumber} />
+                    <input type="checkbox"
+                            defaultChecked={true}
+                            onChange={@toggleMaintainRotationalSymmetry} />
+                        Maintain rotational symmetry
+                  </div>
+              </td><td>
+                  <div stye={{'float': 'left'}}>
+                      <div className="clue-container">
+                        <CluesEditableTextField
+                                defaultText={@state.initial_puzzle.across_clues}
+                                produceOp={(op) => @clueEdited('across', op)}
+                                stylingData={@clueStylingData(true)}
+                                ref="acrossClues" />
+                      </div>
+                      <div className="clue-container">
+                        <CluesEditableTextField
+                                defaultText={@state.initial_puzzle.down_clues}
+                                produceOp={(op) => @clueEdited('down', op)}
+                                stylingData={@clueStylingData(false)}
+                                ref="downClues" />
+                      </div>
+                  </div>
+              </td></tr></table>
               <div className="offline_mode">
                 <input type="checkbox"
                         defaultChecked={false}

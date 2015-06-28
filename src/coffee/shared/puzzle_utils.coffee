@@ -18,8 +18,8 @@ getEmptyPuzzle = (height, width, title) ->
     return {
         title: if title? then title else ""
         grid: getNumberedGrid ((getSquare() for i in [0..width-1]) for j in [0..height-1])
-        across_clues: "blah\nmeh\n"
-        down_clues: "chicken\nteehee\n"
+        across_clues: "1. Clue here"
+        down_clues: "1. Clue here"
     }
 
 # Take a grid and returns one numbered correctly according to which squares are

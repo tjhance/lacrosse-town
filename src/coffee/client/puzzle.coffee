@@ -176,7 +176,7 @@ PuzzlePage = React.createClass
 
     # Perform an automatic renumbering.
     renumber: () ->
-        @removeCellField()
+        @setState { grid_focus: @removeCellField(@state.grid_focus) }
         @props.requestOp Ot.opGridDiff @state.puzzle, PuzzleUtils.getNumberedGrid @state.puzzle.grid
 
     toggleOpenness: () ->
@@ -201,8 +201,8 @@ PuzzlePage = React.createClass
             grid_focus.field_open = type
             @setState { grid_focus: grid_focus }
     removeCellField: (grid_focus) ->
-        grid_focus = Utils.clone grid_focus
         if grid_focus != null
+            grid_focus = Utils.clone grid_focus
             grid_focus.field_open = "none"
         return grid_focus
 

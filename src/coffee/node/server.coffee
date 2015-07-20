@@ -3,8 +3,16 @@
 log4js = require 'log4js'
 async = require 'async'
 npm = require 'npm'
+fs = require 'fs'
 
 log4js.replaceConsole()
+
+# Read the config file from the command-line argument
+if process.argv.length != 3
+    console.log "Expected: one argument, config filename (e.g. 'config/development.json')"
+    process.exit(1)
+configFilename = process.argv[2]
+config = JSON.parse(fs.readFileSync(configFilename))
 
 async.waterfall [
     (callback) ->
@@ -12,7 +20,7 @@ async.waterfall [
 
     (callback) ->
         db = require './db'
-        db.init () ->
+        db.init config, () ->
             console.info 'Initialized database'
             callback()
 

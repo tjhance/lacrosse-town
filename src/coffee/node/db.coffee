@@ -4,9 +4,9 @@ Crypto = require "crypto"
 
 client = null
 
-exports.init = (callback) ->
+exports.init = (config, callback) ->
     pg = require "pg"
-    conString = "postgres://tjhance:blah@localhost/lacrosse_town"
+    conString = config.db
 
     pg.connect conString, (err, cl, done) ->
         if err

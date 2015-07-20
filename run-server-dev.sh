@@ -6,4 +6,4 @@ grunt coffee
 #coffee --compile --output static/js/ coffee/client/
 #coffee --compile --output static/js-shared/ coffee/shared/
 
-nodemon -V coffee/node/server.coffee
+nodemon -V coffee/node/server.coffee ../config/development.json

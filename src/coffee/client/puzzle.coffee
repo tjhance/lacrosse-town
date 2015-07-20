@@ -181,9 +181,11 @@ PuzzlePage = React.createClass
 
     toggleOpenness: () ->
         if @state.grid_focus != null
+            grid_focus = Utils.clone @state.grid_focus
             grid_focus.field_open = "none"
-            row = @state.grid_focus.row
-            col = @state.grid_focus.col
+            @setState { grid_focus: grid_focus }
+            row = grid_focus.row
+            col = grid_focus.col
             newvalue = not @state.puzzle.grid[row][col].open
             op = Ot.opEditCellValue row, col, "open", newvalue
             if @state.maintainRotationalSymmetry
@@ -328,6 +330,14 @@ PuzzlePage = React.createClass
             </div>
         else
             <div className="puzzle_container">
+              <div>
+                  Commands:<br/>
+                  Ctrl+b to toggle a cell between black/white<br/>
+                  Type any letter to enter into the selected cell<br/>
+                  Hit backspace to empty a cell<br/>
+                  Ctrl+u to enter arbitrary text into a cell (not restricted to a single letter)<br/>
+                  Ctlr+i to edit the number of the cell (but the easiest way to set the numbers is the button at the bottom)
+              </div>
               <table><tr><td>
                   <div className="puzzle_grid">
                     <PuzzleGrid

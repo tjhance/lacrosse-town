@@ -1,3 +1,4 @@
 {
-    "db": "postgres://tjhance:blah@localhost/lacrosse_town"
+    "db": "postgres://tjhance:blah@localhost/lacrosse_town",
+    "port": 3000
 }

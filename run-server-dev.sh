@@ -1,4 +1,3 @@
-cd `dirname $0`/src
 npm install
 
 grunt cjsx
@@ -6,4 +5,4 @@ grunt coffee
 #coffee --compile --output static/js/ coffee/client/
 #coffee --compile --output static/js-shared/ coffee/shared/
 
-nodemon -V coffee/node/server.coffee ../config/development.json
+nodemon --ignore node_modules -V src/coffee/node/server.coffee config/development.json

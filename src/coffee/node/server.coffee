@@ -26,7 +26,7 @@ async.waterfall [
 
     (callback) ->
         http_server = require './http_server'
-        http_server.init () ->
+        http_server.init config, () ->
             callback()
     
     () ->

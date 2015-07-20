@@ -4,7 +4,7 @@ Db = require "./db"
 Utils = require "../shared/utils"
 PuzzleUtils = require "../shared/puzzle_utils"
 
-exports.init = (callback) ->
+exports.init = (config, callback) ->
     express = require "express"
     app = express()
 
@@ -47,7 +47,7 @@ exports.init = (callback) ->
     socket_server.init socket_listener
 
     # Start listening.
-    port = 3000
+    port = config.port
     server.listen port
     console.info "Initialized webserver on port #{port}"
 

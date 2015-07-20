@@ -8,25 +8,25 @@ module.exports = (grunt) ->
     cjsx:
       client:
         expand: true,
-        cwd: "coffee/client/"
+        cwd: "src/coffee/client/"
         src: ["**/*.coffee"]
-        dest: "static/js/"
+        dest: "src/static/js/"
         ext: ".js"
 
     coffee:
       shared:
         expand: true
-        cwd: "coffee/shared/"
+        cwd: "src/coffee/shared/"
         src: ["**/*.coffee"]
-        dest: "static/js-shared/"
+        dest: "src/static/js-shared/"
         ext: ".js"
 
     watch:
       options:
         atBegin: true
       coffeescript_client:
-        files: ["coffee/client/**/*.coffee"]
+        files: ["src/coffee/client/**/*.coffee"]
         tasks: ["newer:cjsx:client"]
       coffeescript_shared:
-        files: ["coffee/shared/**/*.coffee"]
+        files: ["src/coffee/shared/**/*.coffee"]
         tasks: ["newer:coffee:shared"]

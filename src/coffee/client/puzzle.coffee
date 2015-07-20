@@ -346,6 +346,7 @@ PuzzlePage = React.createClass
                   </div>
               </td><td>
                   <div stye={{'float': 'left'}}>
+                      <div><strong>Across clues:</strong></div>
                       <div className="clue-container">
                         <CluesEditableTextField
                                 defaultText={@state.initial_puzzle.across_clues}
@@ -353,6 +354,7 @@ PuzzlePage = React.createClass
                                 stylingData={@clueStylingData(true)}
                                 ref="acrossClues" />
                       </div>
+                      <div><strong>Down clues:</strong></div>
                       <div className="clue-container">
                         <CluesEditableTextField
                                 defaultText={@state.initial_puzzle.down_clues}

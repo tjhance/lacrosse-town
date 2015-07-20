@@ -80,7 +80,7 @@ div.clues-highlight-secondary {
 div.clue-container {
     border: 2px solid black;
     margin: 5px;
-    width: 100px;
+    width: 400px;
     height: 300px;
     overflow-y: scroll;
 }

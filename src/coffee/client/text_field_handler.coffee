@@ -64,9 +64,9 @@ EditableTextField = (buildContent) -> React.createClass
             selection = @selection
         else if @baseText == @text
             # TODO OT the selection over the op
-            selection = null
+            selection = []
         else
-            selection = null
+            selection = []
 
         @setContents modelTextNew
         @setSelection selection

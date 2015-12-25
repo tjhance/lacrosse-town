@@ -186,34 +186,59 @@ PuzzlePage = React.createClass
                 grid_focus.focus.row += 1
         @setState { grid_focus: @collapseGridFocus grid_focus }
 
-    deleteLetter: (keyCode) ->
+    doDelete: (keyCode) ->
         grid_focus = Utils.clone @state.grid_focus
         if grid_focus != null
             grid_focus.cell_field = "none"
-            row = grid_focus.focus.row
-            col = grid_focus.focus.col
             g = @state.puzzle.grid
-            if g[row][col].open and g[row][col].contents != ""
-                @props.requestOp Ot.opEditCellValue \
-                    grid_focus.focus.row, grid_focus.focus.col, "contents", ""
-                if grid_focus.is_across and grid_focus.focus.col > 0
-                    grid_focus.focus.col -= 1
-                else if (not grid_focus.is_across) and grid_focus.focus.row > 0
-                    grid_focus.focus.row -= 1
-            else
-                if grid_focus.is_across
-                    row1 = row
-                    col1 = col - 1
+            if (grid_focus.focus.row == grid_focus.anchor.row and \
+                  grid_focus.focus.col == grid_focus.anchor.col)
+                # The simplest behavior for 'delete' would be to always delete the
+                # contents of the cell. However, this has suboptimal behavior if you're
+                # typing out a word and then a typo. If you type a letter, your selection
+                # immediately moves to the next cell, which means that if you hit 'delete'
+                # right after that, you would expect to delete the letter you just typed
+                # but you wouldn't.
+                # So, we have this special behavior: if your cell is empty then
+                # we delete the contents of the previous cell (either previous in the row
+                # or previous in the column).
+                # Also, we *always* move the selection back one cell if we can.
+                row = grid_focus.focus.row
+                col = grid_focus.focus.col
+                if g[row][col].open and g[row][col].contents != ""
+                    @props.requestOp Ot.opEditCellValue \
+                        grid_focus.focus.row, grid_focus.focus.col, "contents", ""
+                    if grid_focus.is_across and grid_focus.focus.col > 0
+                        grid_focus.focus.col -= 1
+                    else if (not grid_focus.is_across) and grid_focus.focus.row > 0
+                        grid_focus.focus.row -= 1
                 else
-                    row1 = row - 1
-                    col1 = col
-                if row1 >= 0 and col1 >= 0
-                    if g[row1][col1].open and g[row1][col1].contents != ""
-                        @props.requestOp Ot.opEditCellValue \
-                            row1, col1, "contents", ""
-                    grid_focus.focus.col = col1
-                    grid_focus.focus.row = row1
-            @setState { grid_focus: @collapseGridFocus grid_focus }
+                    if grid_focus.is_across
+                        row1 = row
+                        col1 = col - 1
+                    else
+                        row1 = row - 1
+                        col1 = col
+                    if row1 >= 0 and col1 >= 0
+                        if g[row1][col1].open and g[row1][col1].contents != ""
+                            @props.requestOp Ot.opEditCellValue \
+                                row1, col1, "contents", ""
+                        grid_focus.focus.col = col1
+                        grid_focus.focus.row = row1
+                grid_focus = @collapseGridFocus grid_focus
+            else
+                # If you're selecting more than one cell, then we just delete the contents
+                # of all those cells, but we don't move the selection at all.
+                row1 = Math.min(grid_focus.focus.row, grid_focus.anchor.row)
+                row2 = Math.max(grid_focus.focus.row, grid_focus.anchor.row)
+                col1 = Math.min(grid_focus.focus.col, grid_focus.anchor.col)
+                col2 = Math.max(grid_focus.focus.col, grid_focus.anchor.col)
+                for row in [row1..row2]
+                    for col in [col1..col2]
+                        if g[row][col].open and g[row][col].contents != ""
+                            @props.requestOp Ot.opEditCellValue row, col, "contents", ""
+
+            @setState { grid_focus: grid_focus }
 
     # Perform an automatic renumbering.
     renumber: () ->
@@ -315,7 +340,7 @@ PuzzlePage = React.createClass
             else if event.keyCode >= 65 and event.keyCode <= 90 # A-Z
                 @typeLetter event.keyCode
             else if event.keyCode == 8 # backspace
-                @deleteLetter()
+                @doDelete()
 
     # Focus on a cell when it is clicked on, or toggle its
     # acrossness/downness if it already has focus.

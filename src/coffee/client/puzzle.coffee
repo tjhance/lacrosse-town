@@ -59,13 +59,19 @@ PuzzlePage = React.createClass
 
     # Returns a grid of the the CSS classes for styling the cell
     getCellClasses: () ->
+        grid = @state.puzzle.grid
+        grid_focus = @state.grid_focus
         getCellClass = (row, col) =>
-            grid = @state.puzzle.grid
-            if grid[row][col].open
-                if @state.grid_focus == null
-                    return "open_cell"
-                else
-                    focus = @state.grid_focus
+            if grid_focus == null
+                # no selection, just return the default selection based on whether
+                # or not the cell is open or closed
+                return (if grid[row][col].open then "open_cell" else "closed_cell")
+            else if (grid_focus.focus.row == grid_focus.anchor.row and \
+                     grid_focus.focus.col == grid_focus.anchor.col)
+                # highlight every cell in the selected cell's row or column (depending on
+                # the `is_across` field
+                if grid[row][col].open
+                    focus = grid_focus
                     if focus.focus.row == row and focus.focus.col == col
                         return "open_cell_highlighted"
                     else if (\
@@ -76,12 +82,22 @@ PuzzlePage = React.createClass
                         return "open_cell_highlighted_intermediate"
                     else
                         return "open_cell"
-            else
-                if (@state.grid_focus != null and @state.grid_focus.focus.row == row \
-                        and @state.grid_focus.focus.col == col)
-                    return "closed_cell_highlighted"
                 else
-                    return "closed_cell"
+                    if (grid_focus.focus.row == row and grid_focus.focus.col == col)
+                        return "closed_cell_highlighted"
+                    else
+                        return "closed_cell"
+            else
+                # selection is more than one cell
+                row1 = Math.min(grid_focus.focus.row, grid_focus.anchor.row)
+                row2 = Math.max(grid_focus.focus.row, grid_focus.anchor.row)
+                col1 = Math.min(grid_focus.focus.col, grid_focus.anchor.col)
+                col2 = Math.max(grid_focus.focus.col, grid_focus.anchor.col)
+                if (row1 <= row and row <= row2 and col1 <= col and col <= col2)
+                    return (if grid[row][col].open then "open_cell_highlighted" else "closed_cell_highlighted")
+                else
+                    return (if grid[row][col].open then "open_cell" else "closed_cell")
+
         for i in [0 ... @height()]
             for j in [0 ... @width()]
                 getCellClass(i, j)
@@ -122,11 +138,29 @@ PuzzlePage = React.createClass
 
     # Actions corresponding to keypresses
 
-    moveGridCursor: (drow, dcol) ->
+    moveGridCursor: (shiftHeld, drow, dcol) ->
         if @state.grid_focus
             col1 = @state.grid_focus.focus.col + dcol
             row1 = @state.grid_focus.focus.row + drow
-            if col1 >= 0 and col1 < @width() and row1 >= 0 and row1 < @height()
+
+            col1 = Math.min(@width() - 1, Math.max(0, col1))
+            row1 = Math.min(@height() - 1, Math.max(0, row1))
+
+            if shiftHeld
+                # move the focus but leave the anchor where it is
+                @setState
+                    grid_focus:
+                        focus:
+                            row: row1
+                            col: col1
+                        anchor:
+                            row: @state.grid_focus.anchor.row
+                            col: @state.grid_focus.anchor.col
+                        is_across: drow == 0
+                        field_open: "none"
+            else
+                # normal arrow key press, just move the focus by 1
+                # in the resulting grid_focus, we should have focus=anchor
                 @setState
                     grid_focus:
                         focus:
@@ -137,7 +171,7 @@ PuzzlePage = React.createClass
                             col: col1
                         is_across: drow == 0
                         field_open: "none"
-                return true
+            return true
         return false
 
     typeLetter: (keyCode) ->
@@ -150,7 +184,7 @@ PuzzlePage = React.createClass
                 grid_focus.focus.col += 1
             else if (not grid_focus.is_across) and grid_focus.focus.row < @height() - 1
                 grid_focus.focus.row += 1
-        @setState { grid_focus: grid_focus }
+        @setState { grid_focus: @collapseGridFocus grid_focus }
 
     deleteLetter: (keyCode) ->
         grid_focus = Utils.clone @state.grid_focus
@@ -179,7 +213,7 @@ PuzzlePage = React.createClass
                             row1, col1, "contents", ""
                     grid_focus.focus.col = col1
                     grid_focus.focus.row = row1
-            @setState { grid_focus: grid_focus }
+            @setState { grid_focus: @collapseGridFocus grid_focus }
 
     # Perform an automatic renumbering.
     renumber: () ->
@@ -188,7 +222,7 @@ PuzzlePage = React.createClass
 
     toggleOpenness: () ->
         if @state.grid_focus != null
-            grid_focus = Utils.clone @state.grid_focus
+            grid_focus = @collapseGridFocus @state.grid_focus
             grid_focus.field_open = "none"
             @setState { grid_focus: grid_focus }
             row = grid_focus.focus.row
@@ -202,22 +236,32 @@ PuzzlePage = React.createClass
 
     # Stuff relating to the input fields.
     openCellField: (type) ->
-        grid_focus = Utils.clone @state.grid_focus
+        grid_focus = @collapseGridFocus @state.grid_focus
         if grid_focus != null and \
                 @state.puzzle.grid[grid_focus.focus.row][grid_focus.focus.col].open
             grid_focus.field_open = type
             @setState { grid_focus: grid_focus }
     removeCellField: (grid_focus) ->
         if grid_focus != null
-            grid_focus = Utils.clone grid_focus
+            grid_focus = @collapseGridFocus grid_focus
             grid_focus.field_open = "none"
+        return grid_focus
+
+    # Given a grid_focus object, sets the anchor to be the focus and returns
+    # the new object.
+    collapseGridFocus: (grid_focus) ->
+        if grid_focus != null
+            grid_focus = Utils.clone grid_focus
+            grid_focus.anchor =
+                row: grid_focus.focus.row
+                col: grid_focus.focus.col
         return grid_focus
 
     onCellFieldKeyPress: (event, row, col) ->
         v = event.target.value
         keyCode = event.keyCode
 
-        grid_focus = Utils.clone @state.grid_focus
+        grid_focus = @collapseGridFocus @state.grid_focus
         if grid_focus == null
             return
 
@@ -259,14 +303,15 @@ PuzzlePage = React.createClass
                 @openCellField "contents"
                 event.preventDefault()
         else
+            shiftHeld = event.shiftKey
             if event.keyCode == 37 # LEFT
-                if @moveGridCursor 0, -1 then event.preventDefault()
+                if @moveGridCursor shiftHeld, 0, -1 then event.preventDefault()
             else if event.keyCode == 38 # UP
-                if @moveGridCursor -1, 0 then event.preventDefault()
+                if @moveGridCursor shiftHeld, -1, 0 then event.preventDefault()
             else if event.keyCode == 39 # RIGHT
-                if @moveGridCursor 0, 1 then event.preventDefault()
+                if @moveGridCursor shiftHeld, 0, 1 then event.preventDefault()
             else if event.keyCode == 40 # DOWN
-                if @moveGridCursor 1, 0 then event.preventDefault()
+                if @moveGridCursor shiftHeld, 1, 0 then event.preventDefault()
             else if event.keyCode >= 65 and event.keyCode <= 90 # A-Z
                 @typeLetter event.keyCode
             else if event.keyCode == 8 # backspace
@@ -285,7 +330,7 @@ PuzzlePage = React.createClass
             grid_focus.focus.row = row
             grid_focus.focus.col = col
             grid_focus.is_across = true
-        this.setState { grid_focus: grid_focus }
+        this.setState { grid_focus: @collapseGridFocus grid_focus }
 
     blur: () ->
         @setState { grid_focus: null }

@@ -47,8 +47,8 @@ PuzzlePage = React.createClass
         grid_focus: @defaultGridFocus()
 
     defaultGridFocus: () ->
-        row: 0
-        col: 0
+        focus: {row: 0, col: 0}
+        anchor: {row: 0, col: 0}
         is_across: true
         field_open: "none" # "none" or "number" or "contents"
 
@@ -66,19 +66,19 @@ PuzzlePage = React.createClass
                     return "open_cell"
                 else
                     focus = @state.grid_focus
-                    if focus.row == row and focus.col == col
+                    if focus.focus.row == row and focus.focus.col == col
                         return "open_cell_highlighted"
                     else if (\
-                        (focus.is_across and focus.row == row and \
-                            ([col..focus.col].every (col1) -> grid[row][col1].open)) or \
-                        ((not focus.is_across) and focus.col == col and \
-                            ([row..focus.row].every (row1) -> grid[row1][col].open)))
+                        (focus.is_across and focus.focus.row == row and \
+                            ([col..focus.focus.col].every (col1) -> grid[row][col1].open)) or \
+                        ((not focus.is_across) and focus.focus.col == col and \
+                            ([row..focus.focus.row].every (row1) -> grid[row1][col].open)))
                         return "open_cell_highlighted_intermediate"
                     else
                         return "open_cell"
             else
-                if (@state.grid_focus != null and @state.grid_focus.row == row \
-                        and @state.grid_focus.col == col)
+                if (@state.grid_focus != null and @state.grid_focus.focus.row == row \
+                        and @state.grid_focus.focus.col == col)
                     return "closed_cell_highlighted"
                 else
                     return "closed_cell"
@@ -91,11 +91,14 @@ PuzzlePage = React.createClass
     fixFocus: (puzzle, grid_focus) ->
         if grid_focus == null
             return null
-        row = grid_focus.row
-        col = grid_focus.col
+        row = grid_focus.focus.row
+        col = grid_focus.focus.col
+        row1 = grid_focus.anchor.row
+        col1 = grid_focus.anchor.col
         height = puzzle.grid.length
         width = puzzle.grid[0].length
-        if not (row >= 0 and row < height and col >= 0 and col < width)
+        if not (row >= 0 and row < height and col >= 0 and col < width and \
+                row1 >= 0 and row1 < height and col1 >= 0 and col1 < width)
             null
         else
             grid_focus
@@ -121,13 +124,17 @@ PuzzlePage = React.createClass
 
     moveGridCursor: (drow, dcol) ->
         if @state.grid_focus
-            col1 = @state.grid_focus.col + dcol
-            row1 = @state.grid_focus.row + drow
+            col1 = @state.grid_focus.focus.col + dcol
+            row1 = @state.grid_focus.focus.row + drow
             if col1 >= 0 and col1 < @width() and row1 >= 0 and row1 < @height()
                 @setState
                     grid_focus:
-                        row: row1
-                        col: col1
+                        focus:
+                            row: row1
+                            col: col1
+                        anchor:
+                            row: row1
+                            col: col1
                         is_across: drow == 0
                         field_open: "none"
                 return true
@@ -138,27 +145,27 @@ PuzzlePage = React.createClass
         if grid_focus != null
             c = String.fromCharCode keyCode
             @props.requestOp Ot.opEditCellValue \
-                grid_focus.row, grid_focus.col, "contents", c
-            if grid_focus.is_across and grid_focus.col < @width() - 1
-                grid_focus.col += 1
-            else if (not grid_focus.is_across) and grid_focus.row < @height() - 1
-                grid_focus.row += 1
+                grid_focus.focus.row, grid_focus.focus.col, "contents", c
+            if grid_focus.is_across and grid_focus.focus.col < @width() - 1
+                grid_focus.focus.col += 1
+            else if (not grid_focus.is_across) and grid_focus.focus.row < @height() - 1
+                grid_focus.focus.row += 1
         @setState { grid_focus: grid_focus }
 
     deleteLetter: (keyCode) ->
         grid_focus = Utils.clone @state.grid_focus
         if grid_focus != null
             grid_focus.cell_field = "none"
-            row = grid_focus.row
-            col = grid_focus.col
+            row = grid_focus.focus.row
+            col = grid_focus.focus.col
             g = @state.puzzle.grid
             if g[row][col].open and g[row][col].contents != ""
                 @props.requestOp Ot.opEditCellValue \
-                    grid_focus.row, grid_focus.col, "contents", ""
-                if grid_focus.is_across and grid_focus.col > 0
-                    grid_focus.col -= 1
-                else if (not grid_focus.is_across) and grid_focus.row > 0
-                    grid_focus.row -= 1
+                    grid_focus.focus.row, grid_focus.focus.col, "contents", ""
+                if grid_focus.is_across and grid_focus.focus.col > 0
+                    grid_focus.focus.col -= 1
+                else if (not grid_focus.is_across) and grid_focus.focus.row > 0
+                    grid_focus.focus.row -= 1
             else
                 if grid_focus.is_across
                     row1 = row
@@ -170,8 +177,8 @@ PuzzlePage = React.createClass
                     if g[row1][col1].open and g[row1][col1].contents != ""
                         @props.requestOp Ot.opEditCellValue \
                             row1, col1, "contents", ""
-                    grid_focus.col = col1
-                    grid_focus.row = row1
+                    grid_focus.focus.col = col1
+                    grid_focus.focus.row = row1
             @setState { grid_focus: grid_focus }
 
     # Perform an automatic renumbering.
@@ -184,8 +191,8 @@ PuzzlePage = React.createClass
             grid_focus = Utils.clone @state.grid_focus
             grid_focus.field_open = "none"
             @setState { grid_focus: grid_focus }
-            row = grid_focus.row
-            col = grid_focus.col
+            row = grid_focus.focus.row
+            col = grid_focus.focus.col
             newvalue = not @state.puzzle.grid[row][col].open
             op = Ot.opEditCellValue row, col, "open", newvalue
             if @state.maintainRotationalSymmetry
@@ -197,7 +204,7 @@ PuzzlePage = React.createClass
     openCellField: (type) ->
         grid_focus = Utils.clone @state.grid_focus
         if grid_focus != null and \
-                @state.puzzle.grid[grid_focus.row][grid_focus.col].open
+                @state.puzzle.grid[grid_focus.focus.row][grid_focus.focus.col].open
             grid_focus.field_open = type
             @setState { grid_focus: grid_focus }
     removeCellField: (grid_focus) ->
@@ -272,11 +279,11 @@ PuzzlePage = React.createClass
 
         grid_focus = @removeCellField(grid_focus)
 
-        if grid_focus != null and grid_focus.row == row and grid_focus.col == col
+        if grid_focus != null and grid_focus.focus.row == row and grid_focus.focus.col == col
             grid_focus.is_across = not grid_focus.is_across
         else
-            grid_focus.row = row
-            grid_focus.col = col
+            grid_focus.focus.row = row
+            grid_focus.focus.col = col
             grid_focus.is_across = true
         this.setState { grid_focus: grid_focus }
 
@@ -304,8 +311,8 @@ PuzzlePage = React.createClass
                 primaryNumber: null,
                 secondaryNumber: null
              }
-        row = @state.grid_focus.row
-        col = @state.grid_focus.col
+        row = @state.grid_focus.focus.row
+        col = @state.grid_focus.focus.col
         while true
             row1 = if isAcross then row else row - 1
             col1 = if isAcross then col - 1 else col
@@ -391,7 +398,7 @@ PuzzleGrid = React.createClass
                     grid_row={@props.grid[row]}
                     cell_classes={@props.cell_classes[row]}
                     grid_focus={
-                        if @props.grid_focus? and @props.grid_focus.row == row then @props.grid_focus else null
+                        if @props.grid_focus? and @props.grid_focus.focus.row == row then @props.grid_focus else null
                     }
                     onCellFieldKeyPress={(event, col) => @props.onCellFieldKeyPress(event, row, col)}
                     onCellClick={(col) => @props.onCellClick(row, col)}
@@ -413,7 +420,7 @@ PuzzleGridRow = React.createClass
                     grid_cell={@props.grid_row[col]}
                     cell_class={@props.cell_classes[col]}
                     grid_focus={
-                        if @props.grid_focus? and @props.grid_focus.col == col then @props.grid_focus else null
+                        if @props.grid_focus? and @props.grid_focus.focus.col == col then @props.grid_focus else null
                     }
                     onCellFieldKeyPress={(event) => @props.onCellFieldKeyPress(event, col)}
                     onCellClick={(event) => @props.onCellClick(col)}

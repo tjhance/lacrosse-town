@@ -9,18 +9,19 @@ EditableTextField = (buildContent) -> React.createClass
         @stylingData = @props.stylingData
 
     render: ->
-        <div contentEditable={true}
-             onKeyDown={@updateSelection}
-             onKeyUp={@updateSelection}
-             onKeyPress={@updateSelection}
-             onMouseUp={@updateSelection}
-             onInput={@onTextChange}
+        <div className="clue-container" ref="editableDivContainer">
+            <div contentEditable={true}
+                 onKeyDown={@updateSelection}
+                 onKeyUp={@updateSelection}
+                 onKeyPress={@updateSelection}
+                 onMouseUp={@updateSelection}
+                 onInput={@onTextChange}
 
-             style={{'fontFamily': 'Courier New'}}
-             id="across_clue"
-             className="dont-bubble-keydown"
+                 style={{'fontFamily': 'Courier New', 'position': 'relative'}}
+                 className="dont-bubble-keydown"
 
-             ref="editableDiv" ></div>
+               ref="editableDiv" ></div>
+        </div>
 
     shouldComponentUpdate: (nextProps, nextState) ->
         if not Utils.deepEquals(nextProps.stylingData, @stylingData)
@@ -75,11 +76,18 @@ EditableTextField = (buildContent) -> React.createClass
         @baseText = modelTextNew
         @selection = selection
 
+        @scrollIfNecessary()
+
     getNode: ->
         React.findDOMNode(this.refs.editableDiv)
 
+    getContainerNode: ->
+        React.findDOMNode(this.refs.editableDivContainer)
+
     updateContents: () ->
         @setContents @text
+
+        @scrollIfNecessary()
 
     setContents: (text) ->
         element = @getNode()
@@ -264,6 +272,26 @@ EditableTextField = (buildContent) -> React.createClass
 
         sels.sort ([l,r], [l2,r2]) -> l < l2
         return [sels, text_lines.join("\n")]
+
+    scrollIfNecessary: () ->
+        # scroll so that the node with 'node-in-view' class, if it exists
+        # is in view, if necessary
+        container = @getContainerNode()
+        node = $(container).find('.node-in-view').get(0)
+        if node?
+            # position() is relative to the contenteditable div
+            nodeTop = $(node).position().top
+            nodeBot = nodeTop + $(node).height()
+
+            viewTop = $(container).scrollTop()
+            viewBot = viewTop + $(container).height()
+
+            if nodeTop <= viewTop and not (nodeBot >= viewBot)
+                # node is high so scroll up
+                $(container).scrollTop(nodeTop)
+            else if nodeBot >= viewBot and not (nodeTop <= viewTop)
+                # node is low so scroll down
+                $(container).scrollTop(nodeBot - (viewBot - viewTop))
 
 
 get_text_nodes = (el) ->

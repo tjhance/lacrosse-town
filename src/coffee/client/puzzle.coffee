@@ -357,21 +357,17 @@ PuzzlePage = React.createClass
               </td><td>
                   <div stye={{'float': 'left'}}>
                       <div><strong>Across clues:</strong></div>
-                      <div className="clue-container">
-                        <CluesEditableTextField
-                                defaultText={@state.initial_puzzle.across_clues}
-                                produceOp={(op) => @clueEdited('across', op)}
-                                stylingData={@clueStylingData(true)}
-                                ref="acrossClues" />
-                      </div>
+                      <CluesEditableTextField
+                              defaultText={@state.initial_puzzle.across_clues}
+                              produceOp={(op) => @clueEdited('across', op)}
+                              stylingData={@clueStylingData(true)}
+                              ref="acrossClues" />
                       <div><strong>Down clues:</strong></div>
-                      <div className="clue-container">
-                        <CluesEditableTextField
-                                defaultText={@state.initial_puzzle.down_clues}
-                                produceOp={(op) => @clueEdited('down', op)}
-                                stylingData={@clueStylingData(false)}
-                                ref="downClues" />
-                      </div>
+                      <CluesEditableTextField
+                              defaultText={@state.initial_puzzle.down_clues}
+                              produceOp={(op) => @clueEdited('down', op)}
+                              stylingData={@clueStylingData(false)}
+                              ref="downClues" />
                   </div>
               </td></tr></table>
               <div className="offline_mode">
@@ -489,10 +485,14 @@ CluesEditableTextField = EditableTextField (lines, stylingData) ->
                 el = document.createTextNode(Utils.useHardSpaces(parsed.secondPart))
                 childElem.appendChild el
 
+            # clues-highlight-{primary,secondary} classes are for visual styling
+            # node-in-view signals to EditableTextField that the node should be scrolled into view.
             if parsed.number and parsed.number == stylingData.primaryNumber
                 $(childElem).addClass('clues-highlight-primary')
+                $(childElem).addClass('node-in-view')
             if parsed.number and parsed.number == stylingData.secondaryNumber
                 $(childElem).addClass('clues-highlight-secondary')
+                $(childElem).addClass('node-in-view')
 
         else
             childElem.appendChild(document.createElement('br'))

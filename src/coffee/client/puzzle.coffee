@@ -247,16 +247,36 @@ PuzzlePage = React.createClass
 
     toggleOpenness: () ->
         if @state.grid_focus != null
-            grid_focus = @collapseGridFocus @state.grid_focus
+            grid_focus = Utils.clone @state.grid_focus
+            row1 = Math.min(grid_focus.focus.row, grid_focus.anchor.row)
+            row2 = Math.max(grid_focus.focus.row, grid_focus.anchor.row)
+            col1 = Math.min(grid_focus.focus.col, grid_focus.anchor.col)
+            col2 = Math.max(grid_focus.focus.col, grid_focus.anchor.col)
+            g = @state.puzzle.grid
+
+            isEveryCellClosed = true
+            for row in [row1..row2]
+                for col in [col1..col2]
+                    if g[row][col].open
+                        isEveryCellClosed = false
+
             grid_focus.field_open = "none"
             @setState { grid_focus: grid_focus }
-            row = grid_focus.focus.row
-            col = grid_focus.focus.col
-            newvalue = not @state.puzzle.grid[row][col].open
-            op = Ot.opEditCellValue row, col, "open", newvalue
-            if @state.maintainRotationalSymmetry
-                op = Ot.compose @state.puzzle, op, (Ot.opEditCellValue \
-                    (@height() - 1 - row), (@width() - 1 - col), "open", newvalue)
+
+            oldValue = not isEveryCellClosed
+            newValue = isEveryCellClosed
+            op = Ot.identity(@state.puzzle)
+            # want to change every cell of 'open' value `oldValue` to have
+            # 'open' value `newValue`
+            for row in [row1..row2]
+                for col in [col1..col2]
+                    if g[row][col].open == oldValue
+                        op = Ot.compose @state.puzzle, op, \
+                            Ot.opEditCellValue row, col, "open", newValue
+                        if @state.maintainRotationalSymmetry
+                            op = Ot.compose @state.puzzle, op, \
+                                (Ot.opEditCellValue (@height() - 1 - row), (@width() - 1 - col), "open", newValue)
+
             @props.requestOp op
 
     # Stuff relating to the input fields.

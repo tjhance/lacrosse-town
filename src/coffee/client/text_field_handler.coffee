@@ -15,6 +15,7 @@ EditableTextField = (buildContent) -> React.createClass
                  onKeyUp={@updateSelection}
                  onKeyPress={@updateSelection}
                  onMouseUp={@updateSelection}
+                 onFocus={@updateSelection}
                  onInput={@onTextChange}
 
                  style={{'fontFamily': 'Courier New', 'position': 'relative'}}
@@ -26,7 +27,9 @@ EditableTextField = (buildContent) -> React.createClass
     shouldComponentUpdate: (nextProps, nextState) ->
         if not Utils.deepEquals(nextProps.stylingData, @stylingData)
             @stylingData = nextProps.stylingData
-            @updateContents()
+
+            # this will re-render the editor's contents with the new styling data:
+            @onTextChange()
         return false
 
     componentDidMount: ->
@@ -83,11 +86,6 @@ EditableTextField = (buildContent) -> React.createClass
 
     getContainerNode: ->
         React.findDOMNode(this.refs.editableDivContainer)
-
-    updateContents: () ->
-        @setContents @text
-
-        @scrollIfNecessary()
 
     setContents: (text) ->
         element = @getNode()
@@ -306,10 +304,14 @@ get_text_nodes = (el) ->
     return ans
 
 getOpForTextChange = (old_sel, old_text, new_sel, new_text) ->
+    skip = OtText.skip; take = OtText.take; insert = OtText.insert
+
+    if old_sel.length == 0 and new_sel.length == 0 and old_text == new_text
+        # return an identity op:
+        return [take(new_text.length)]
+
     Utils.assert old_sel.length >= 1
     Utils.assert new_sel.length == 1
-
-    skip = OtText.skip; take = OtText.take; insert = OtText.insert
 
     op_delete_selected = [take old_sel[0][0]]
     length_after_delete = old_text.length

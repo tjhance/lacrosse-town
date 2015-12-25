@@ -1,5 +1,6 @@
-# This file defines the AngularJS module and configures it,
-# mapping routes. Routes are
+# This file has routing and some basic high-level setup and a few
+# event handlers with no better home.
+# Routes are
 #   /new - Static page
 #   /puzzle - Page where you view and edit a puzzle.
 #             Controller is in puzzle.coffee
@@ -41,7 +42,10 @@ initPuzzleSyncer = (puzzleID) ->
     document.body.addEventListener('click', ((event) ->
         node = p.gridNode()
         if not (event.target == node or $.contains(node, event.target))
-            p.blur()
+            # This is in a timeout, because right now, the thing being
+            # focused hasn't focused yet and running things now in between
+            # could cause problems.
+            setTimeout((() -> p.blur()), 0)
       ), true)
 
     el = <PuzzlePage

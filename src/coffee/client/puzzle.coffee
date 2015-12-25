@@ -355,7 +355,7 @@ PuzzlePage = React.createClass
                         Maintain rotational symmetry
                   </div>
               </td><td>
-                  <div stye={{'float': 'left'}}>
+                  <div style={{'float': 'left'}}>
                       <div><strong>Across clues:</strong></div>
                       <CluesEditableTextField
                               defaultText={@state.initial_puzzle.across_clues}

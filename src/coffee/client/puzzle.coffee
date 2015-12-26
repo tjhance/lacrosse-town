@@ -429,7 +429,9 @@ PuzzlePage = React.createClass
                 answerLengths[number] = count
                 number = null
 
-        if @state.grid_focus == null
+        if @state.grid_focus == null or \
+                @state.grid_focus.focus.row != @state.grid_focus.anchor.row or
+                @state.grid_focus.focus.col != @state.grid_focus.anchor.col
             return {
                 primaryNumber: null,
                 secondaryNumber: null,

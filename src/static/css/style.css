@@ -84,3 +84,7 @@ div.clue-container {
     height: 300px;
     overflow-y: scroll;
 }
+
+div.display-answer-length-next-to-line::before {
+    content: attr(data-answer-length)
+}

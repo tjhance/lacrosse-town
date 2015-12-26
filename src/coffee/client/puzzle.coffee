@@ -400,10 +400,40 @@ PuzzlePage = React.createClass
         @props.requestOp(Ot.getClueOp(name, local_text_op))
 
     clueStylingData: (isAcross) ->
+        # compute the answer length, in cells, of each clue number
+        answerLengths = {}
+        if isAcross
+            gridForCalculatingLengths = @state.puzzle.grid
+        else
+            gridForCalculatingLengths = Utils.transpose(@state.puzzle.grid, @width(), @height())
+        for line in gridForCalculatingLengths
+            number = null
+            count = null
+            for cell in line
+                if cell.open
+                    if cell.number != null
+                        if number == null
+                            number = cell.number
+                            count = 1
+                        else
+                            count++
+                    else
+                        if number != null
+                            count++
+                else
+                    if number != null
+                        answerLengths[number] = count
+                        number = null
+
+            if number != null
+                answerLengths[number] = count
+                number = null
+
         if @state.grid_focus == null
             return {
                 primaryNumber: null,
-                secondaryNumber: null
+                secondaryNumber: null,
+                answerLengths: answerLengths
              }
         row = @state.grid_focus.focus.row
         col = @state.grid_focus.focus.col
@@ -417,11 +447,14 @@ PuzzlePage = React.createClass
                 break
         s = {
             primaryNumber: null,
-            secondaryNumber: null
+            secondaryNumber: null,
+            answerLengths: answerLengths
          }
+
         if @state.puzzle.grid[row][col].number != null
             keyName = if @state.grid_focus.is_across == isAcross then 'primaryNumber' else 'secondaryNumber'
             s[keyName] = @state.puzzle.grid[row][col].number
+
         return s
 
     render: ->
@@ -594,6 +627,12 @@ CluesEditableTextField = EditableTextField (lines, stylingData) ->
             if parsed.number and parsed.number == stylingData.secondaryNumber
                 $(childElem).addClass('clues-highlight-secondary')
                 $(childElem).addClass('node-in-view')
+
+            # display the length of the answer next to the clue, (where the length is
+            # calculated based on the cells)
+            if parsed.number and parsed.number of stylingData.answerLengths
+                $(childElem).addClass('display-answer-length-next-to-line')
+                $(childElem).attr('data-answer-length', '(' + stylingData.answerLengths[parsed.number] + ')')
 
         else
             childElem.appendChild(document.createElement('br'))

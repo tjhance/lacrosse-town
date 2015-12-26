@@ -19,6 +19,11 @@ repeatString = (str, num) ->
         i++
     return res
 
+transpose = (matr, width, height) ->
+    for i in [0 .. width-1]
+        for j in [0 .. height-1]
+            matr[j][i]
+
 # Puzzle-related utilities.
 
 clone = (obj) ->
@@ -107,4 +112,5 @@ exports.isValidInteger = isValidInteger
 exports.isWhitespace = isWhitespace
 exports.repeatString = repeatString
 exports.sum = sum
+exports.transpose = transpose
 exports.useHardSpaces = useHardSpaces

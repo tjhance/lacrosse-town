@@ -106,15 +106,14 @@ exports.OtTest =
         doit [insert("ABCD"), take(4)], [take(4), insert("WXYZ")],
                 [take(8), insert("WXYZ")], [insert("ABCD"), take(8)]
 
-        doit [take(4), insert("ABCD")], [insert("WXYZ"), skip(4)],
-                [insert("WXYZ"), skip(4), take(4)], [take(4), insert("ABCD")]
+        doit [take(4), insert("ABCD")], [skip(4), insert("WXYZ")],
+                [skip(4), take(4), insert("WXYZ")], [insert("ABCD"), take(4)]
 
-        # TODO fix these tests
-        #doit [skip(6), insert("ABCD"), take(2)], [skip(4), insert("WXYZ"), take(4)],
-        #        [insert("WXYZ"), take(6)], [take(4), skip(2), insert("ABCD"), take(2)]
+        doit [skip(6), insert("ABCD"), take(2)], [skip(4), insert("WXYZ"), take(4)],
+                [insert("WXYZ"), take(6)], [take(4), skip(2), insert("ABCD"), take(2)]
 
-        #doit [insert("ABCD"), take(4), insert("WXYZ")], [skip(4)],
-        #            [take(4), skip(4), take(4)], [insert("ABCDWXYZ")]
+        doit [insert("ABCD"), take(4), insert("WXYZ")], [skip(4)],
+                    [take(4), skip(4), take(4)], [insert("ABCDWXYZ")]
 
         test.done()
 
@@ -128,6 +127,12 @@ exports.OtTest =
         test.deepEqual (canonicalized test, [insert("x"), insert("y")]), [insert("xy")]
         test.deepEqual (canonicalized test, [insert("x"), take(1), insert("y")]),
                     [insert("x"), take(1), insert("y")]
+        test.deepEqual (canonicalized test, [insert("abc"), skip(3)]),
+                    [skip(3), insert("abc")]
+        test.deepEqual (canonicalized test, [skip(2), insert("abc"), skip(3)]),
+                    [skip(5), insert("abc")]
+        test.deepEqual (canonicalized test, [insert("llama"), skip(2), insert("abc"), skip(3)]),
+                    [skip(5), insert("llamaabc")]
 
         test.done()
 

@@ -86,10 +86,18 @@ text_diff2 = (text1, text2) ->
 # This is a helper function for below. The idea is that we are trying to build
 # a lists of instructions. This takes a lists, and an instruction to add
 # (or null). It also merges consecutive instructions of the same type.
+# It also ensures that when 'skip' and 'insert' are consecutive, the skip is
+# always first.
 # Mutuates its input.
 appendInst = (l, i) ->
     if l.length > 0 and l[l.length-1][0] == i[0]
         l[l.length-1][1] += i[1]
+    else if l.length > 0 and l[l.length-1][0] == INSERT and i[0] == SKIP
+        if l.length > 1 and l[l.length-2][0] == SKIP
+            l[l.length-2][1] += i[1]
+        else
+            l.push(l[l.length-1])
+            l[l.length-2] = i
     else
         l.push i
 

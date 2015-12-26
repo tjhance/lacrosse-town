@@ -1,6 +1,7 @@
 # The HTTP server.
 
 Db = require "./db"
+FindMatches = require "./find_matches"
 Utils = require "../shared/utils"
 PuzzleUtils = require "../shared/puzzle_utils"
 
@@ -38,6 +39,8 @@ exports.init = (config, callback) ->
             puzzle = PuzzleUtils.getEmptyPuzzle 15, 15, req.body.title
             Db.createPuzzle puzzle, (puzzleID) ->
                 res.redirect "/puzzle/#{puzzleID}"
+
+    app.post /^\/find-matches\/.*/, FindMatches.handle
 
     # Set up the socket.io server, which the puzzle view talks to in order to
     # sync the puzzles.

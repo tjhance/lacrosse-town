@@ -8,6 +8,9 @@ EditableTextField = (buildContent) -> React.createClass
         @baseText = @props.defaultText
         @stylingData = @props.stylingData
 
+    getText: ->
+        @baseText
+
     render: ->
         <div className="clue-container" ref="editableDivContainer">
             <div contentEditable={true}

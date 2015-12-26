@@ -19,6 +19,12 @@ async.waterfall [
         npm.load {}, (err) -> callback err
 
     (callback) ->
+        find_matches = require './find_matches'
+        find_matches.init () ->
+            console.info 'Loaded dictionaries'
+            callback()
+
+    (callback) ->
         db = require './db'
         db.init config, () ->
             console.info 'Initialized database'

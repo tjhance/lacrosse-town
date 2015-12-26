@@ -36,6 +36,10 @@ PuzzlePage = React.createClass
         # mode, don't sync with the server.
         offlineMode: false
 
+        # When the user uses the feature to auto-match a word,
+        # this object contains info about where the word is and what the pattern is.
+        findMatchesInfo: null
+
         # Information on how the user is focused on the grid. Contains a row and
         # column for the primary cell the user is focused on. The 'is_across'
         # field determines whether the user is secondarily focused on the
@@ -347,6 +351,9 @@ PuzzlePage = React.createClass
             else if event.keyCode == 85 # P
                 @openCellField "contents"
                 event.preventDefault()
+            else if event.keyCode == 71 # G
+                @openMatchFinder()
+                event.preventDefault()
         else
             shiftHeld = event.shiftKey
             if event.keyCode == 37 # LEFT
@@ -399,10 +406,10 @@ PuzzlePage = React.createClass
     clueEdited: (name, local_text_op) ->
         @props.requestOp(Ot.getClueOp(name, local_text_op))
 
-    clueStylingData: (isAcross) ->
+    clueStylingData: (is_across) ->
         # compute the answer length, in cells, of each clue number
         answerLengths = {}
-        if isAcross
+        if is_across
             gridForCalculatingLengths = @state.puzzle.grid
         else
             gridForCalculatingLengths = Utils.transpose(@state.puzzle.grid, @width(), @height())
@@ -440,8 +447,8 @@ PuzzlePage = React.createClass
         row = @state.grid_focus.focus.row
         col = @state.grid_focus.focus.col
         while true
-            row1 = if isAcross then row else row - 1
-            col1 = if isAcross then col - 1 else col
+            row1 = if is_across then row else row - 1
+            col1 = if is_across then col - 1 else col
             if row1 >= 0 and col1 >= 0 and @state.puzzle.grid[row1][col1].open
                 row = row1
                 col = col1
@@ -454,10 +461,162 @@ PuzzlePage = React.createClass
          }
 
         if @state.puzzle.grid[row][col].number != null
-            keyName = if @state.grid_focus.is_across == isAcross then 'primaryNumber' else 'secondaryNumber'
+            keyName = if @state.grid_focus.is_across == is_across then 'primaryNumber' else 'secondaryNumber'
             s[keyName] = @state.puzzle.grid[row][col].number
 
         return s
+
+    openMatchFinder: () ->
+        if @state.grid_focus == null or \
+                @state.grid_focus.focus.row != @state.grid_focus.anchor.row or \
+                @state.grid_focus.focus.col != @state.grid_focus.anchor.col
+            return
+
+        row = @state.grid_focus.focus.row
+        col = @state.grid_focus.focus.col
+        g = @state.puzzle.grid
+
+        if not g[row][col].open
+            return
+
+        # get the contiguous run of open cells containing the selection
+        # (we can assume for this that it's an 'across' word, since we did
+        # the transpose, above)
+        cells = []
+        if @state.grid_focus.is_across
+            c1 = col
+            c2 = col
+            while c1 > 0 and g[row][c1 - 1].open
+                c1--
+            while c2 < @width() - 1 and g[row][c2 + 1].open
+                c2++
+            for i in [c1 .. c2]
+                cells.push([row, i])
+        else
+            r1 = row
+            r2 = row
+            while r1 > 0 and g[r1 - 1][col].open
+                r1--
+            while r2 < @height() - 1 and g[r2 + 1][col].open
+                r2++
+            for i in [r1 .. r2]
+                cells.push([i, col])
+
+        contents = []
+        pattern = ""
+        for [r, c] in cells
+            contents.push(g[r][c].contents)
+            if g[r][c].contents == ""
+                pattern += "."
+            else
+                pattern += g[r][c].contents
+
+        firstCell = g[cells[0][0]][cells[0][1]]
+        clueTitle = (if firstCell.number != null then firstCell.number else "?") + " " + \
+                    (if @state.grid_focus.is_across then "Across" else "Down")
+        if firstCell.number != null
+            clueText = @clueTextForNumber(@state.grid_focus.is_across, firstCell.number)
+        else
+            clueText = ""
+
+        @setState
+            findMatchesInfo:
+                is_across: @state.grid_focus.is_across
+                cells: cells
+                contents: contents
+                pattern: pattern.toLowerCase()
+                clueTitle: clueTitle
+                clueText: clueText
+
+    # Looks at the the text of one of the clue fields to find the clue for a given
+    # number. Returns the text of that clue. If it can't be found, returns "".
+    clueTextForNumber: (is_across, number) ->
+        # get the text of the clues
+        text = this.refs[if is_across then "acrossClues" else "downClues"].getText()
+        # split it into lines
+        lines = text.split('\n')
+        for line in lines
+            parsed = parseClueLine(line)
+            if parsed == number
+                return parsed.secondPart
+        return ""
+
+    closeMatchFinder: () ->
+        @setState
+            findMatchesInfo: null
+
+    # If the user selects a word in the match-finder dialog, we enter that word
+    # into the grid here.
+    # Note that the board could have changed since the dialog was opened, and maybe
+    # the word doesn't match anymore. In that case, we fail.
+    onMatchFinderChoose: (word) ->
+        if not @state.findMatchesInfo
+            return
+
+        fail = () ->
+            alert('Unable to enter "' + word + '" into the grid; maybe the grid has been modified?')
+
+        info = @state.findMatchesInfo
+        g = @state.puzzle.grid
+
+        # Check that all the cells are still open
+        for [r, c] in info.cells
+            if not (0 <= r and r < @height() and 0 <= c and c < @width() and g[r][c].open)
+                fail()
+                return
+
+        # Check that the previous and subsequent cells are not open
+        prevR = cells[0][0]
+        prevC = cells[0][1]
+        nextR = cells[cells.length - 1][0]
+        nextC = cells[cells.length - 1][1]
+        if info.is_across
+            prevC--
+            nextC++
+        else
+            prevR--
+            prevR++
+        if (prevR >= 0 and prevR < @height() and prevC >= 0 and prevC <= @width and g[prevR][prevC].open) or \
+           (nextR >= 0 and nextR < @height() and nextC >= 0 and nextC <= @width and g[nextR][nextC].open)
+            fail()
+            return
+        
+        # Make the list of updates to make
+        updates = []
+        wordPos = 0
+        for [r, c] in cells
+            cell = g[r][c]
+            if cell.contents == ""
+                # cell contents are empty, so take the next letter of the match word.
+                if wordPos >= word.length
+                    fail()
+                    return
+                nextLetter = word.substring(wordPos, wordPos + 1)
+                wordPos++
+                updates.push({ row: r, col: c, contents: nextLetter.toUpperCase() })
+            else
+                # cell is not empty:
+                # check that contents of the cell match what the match word says they should be
+                if word.substring(wordPos, wordPos + cell.contents.length).toLowerCase() != \
+                        cell.contents.toLowerCase()
+                    fail()
+                    return
+                wordPos += cell.contents.length
+        if wordPos != word.length
+            # If there isn't enough room for the whole match word, fail.
+            fail()
+            return
+
+        # Now we have verified everything is OK and we have a list of updates.
+        # So now we just construct the op and apply it.
+        op = Ot.identity(@state.puzzle)
+        for update in updates
+            op = Ot.compose(@state.puzzle, op, \
+                    Ot.opEditCellValue(update.row, update.col, "contents", update.contents))
+
+        @props.requestOp op
+
+        @closeMatchFinder()
 
     render: ->
         if @state.puzzle == null
@@ -505,6 +664,8 @@ PuzzlePage = React.createClass
                               stylingData={@clueStylingData(false)}
                               ref="downClues" />
                   </div>
+              </td></tr><tr><td>
+                { @renderFindMatchesDialog() }
               </td></tr></table>
               <div className="offline_mode">
                 <input type="checkbox"
@@ -513,6 +674,17 @@ PuzzlePage = React.createClass
                     Offline mode
               </div>
             </div>
+
+    renderFindMatchesDialog: () ->
+        if @state.findMatchesInfo
+            <FindMatchesDialog
+                clueTitle={@state.findMatchesInfo.clueTitle}
+                clueText={@state.findMatchesInfo.clueText}
+                pattern={@state.findMatchesInfo.pattern}
+                onSelect={@onMatchFinderChoose}
+                onClose={@closeMatchFinder} />
+        else
+            null
 
 PuzzleGrid = React.createClass
     shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)

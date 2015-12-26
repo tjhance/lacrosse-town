@@ -24,12 +24,26 @@ isIdentity = (a) ->
 #             c
 # Takes a and b, and returns the composition c
 compose = (base, a, b) ->
+    # compose the grid ops
+    [aRowsOp, aColsOp] = getRowsOpAndColsOp(base, a)
+    width1 = OtText.applyTextOp(Utils.repeatString(".", base.width), aColsOp).length
+    height1 = OtText.applyTextOp(Utils.repeatString(".", base.height), aRowsOp).length
+    [bRowsOp, bColsOp] = getRowsOpAndColsOp({width: width1, height: height1}, b)
+
+    aNew = moveKeyUpdatesOverRowsAndColsOp([bRowsOp, bColsOp], a)
+
     c = {}
-    for key of a
-        c[key] = a[key]
+    for key of aNew
+        c[key] = aNew[key]
     for key of b
         c[key] = b[key]
 
+    if a.rows? or b.rows?
+        c.rows = OtText.composeText Utils.repeatString(".", base.height), aRowsOp, bRowsOp
+    if a.cols? or b.cols?
+        c.cols = OtText.composeText Utils.repeatString(".", base.width), aColsOp, bColsOp
+
+    # compose the 'clues' text fields
     merge_clue = (name, t) ->
         if name of a and name of b
             c[name] = OtText.composeText t, a[name], b[name]
@@ -63,31 +77,76 @@ compose = (base, a, b) ->
 # and b is an update saved on the server that was applied before a.
 # Right now, a overrides b when they conflict.
 xform = (base, a, b) ->
-    console.log(a)
-    console.log(b)
-    a1 = a
-    b1 = {}
-    for key of b
-        if key not of a
-            b1[key] = b[key]
+    # The implementation has to deal with the interplay between inserting
+    # and deleting rows and cols.
+    # Best to think of this graph:
+    #
+    #           /\
+    #      kb2 /  \ ka2
+    #         /    \
+    #        /      \
+    #       /\   kb1/\
+    #  gb1 /  \ka1 /  \ ga1
+    #     /    \  /    \
+    #    /      \/      \
+    #    \      /\      /
+    #  ka \ gb1/  \ga1 / kb
+    #      \  /    \  /
+    #       \/      \/
+    #        \      /
+    #     ga  \    /  gb
+    #          \  /
+    #           \/
+    # Our inputs a and b can be broken down into:
+    #       a = compose(ga, ka)
+    #       b = compose(gb, kb)
+    # where ga is the grid component (rows/cols) and ka is the cells/keys component
+    # so in the bottom diamond, we xform the two grid components
+    # in the left and right diamond, we xform a grid op with the keys op
+    # and finally we do the keys xform at the top
+
+    [gaRows, gaCols] = getRowsOpAndColsOp(base, a)
+    [gbRows, gbCols] = getRowsOpAndColsOp(base, b)
+
+    [gaRows1, gbRows1] = OtText.xformText(Utils.repeatString(".", base.height), gaRows, gbRows)
+    [gaCols1, gbCols1] = OtText.xformText(Utils.repeatString(".", base.height), gaCols, gbCols)
+    ga1 = [gaRows1, gaCols1]
+    gb1 = [gbRows1, gbCols1]
+
+    ka1 = moveKeyUpdatesOverRowsAndColsOp(gb1, a)
+    kb1 = moveKeyUpdatesOverRowsAndColsOp(ga1, b)
+
+    ka2 = ka1
+    kb2 = {}
+    for key of kb1
+        if key not of ka1
+            kb2[key] = kb1[key]
+
     for strname in ["across_clues", "down_clues"]
         if strname of a and strname of b
-            [a1[strname], b1[strname]] = OtText.xformText base[strname], a[strname], b[strname]
+            [ka2[strname], kb1[strname]] = OtText.xformText base[strname], a[strname], b[strname]
         else if strname of a
-            a1[strname] = a[strname]
+            ka2[strname] = a[strname]
         else if strname of b
-            b1[strname] = b[strname]
-            
-    return [a1, b1]
+            kb2[strname] = b[strname]
+
+    if a.rows? or b.rows?
+        [ka2.rows, kb2.rows] = [gaRows1, gbRows1]
+    if a.cols? or b.cols?
+        [ka2.cols, kb2.cols] = [gaCols1, gbCols1]
+
+    return [ka2, kb2]
 
 # Returns the state obtained by applying operation a to base.
 apply = (base, a) ->
     res = PuzzleUtils.clonePuzzle base
-    applyInPlace res, a
-    return res
 
-# Applies the operation a by MUTATING the input state.
-applyInPlace = (res, a) ->
+    if a.rows? or a.cols?
+        newGridInfo = applyRowAndColOpsToGrid(res, getRowsOpAndColsOp(res, a))
+        res.grid = newGridInfo.grid
+        res.width = newGridInfo.width
+        res.height = newGridInfo.height
+
     for key of a
         value = a[key]
         components = key.split "-"
@@ -102,6 +161,60 @@ applyInPlace = (res, a) ->
             when "down_clues"
                 res.down_clues = OtText.applyTextOp res.down_clues, value
 
+    return res
+
+# utilities for grid ot
+
+getRowsOpAndColsOp = (puzzle, a) ->
+    return [a.rows or OtText.identity(Utils.repeatString(".", puzzle.height)), \
+            a.cols or OtText.identity(Utils.repeatString(".", puzzle.width))]
+
+moveKeyUpdatesOverRowsAndColsOp = ([rowsOp, colsOp], changes) ->
+    rowIndexMap = OtText.getIndexMapForTextOp rowsOp
+    colIndexMap = OtText.getIndexMapForTextOp colsOp
+
+    result = {}
+
+    for key of changes
+        if key.indexOf("cell-") == 0
+            spl = key.split("-")
+            rowIndex = parseInt(spl[1], 10)
+            colIndex = parseInt(spl[2], 10)
+            rest = spl[3]
+            if rowIndex of rowIndexMap and colIndex of colIndexMap
+                newKey = "cell-#{rowIndexMap[rowIndex]}-#{colIndexMap[colIndex]}-#{rest}"
+                result[newKey] = changes[key]
+        else
+            result[key] = changes[key]
+
+    return result
+
+applyRowAndColOpsToGrid = (puzzle, [rowsOp, colsOp]) ->
+    rowIndexMap = OtText.getIndexMapForTextOp rowsOp
+    colIndexMap = OtText.getIndexMapForTextOp colsOp
+    
+    width = puzzle.width
+    height = puzzle.height
+    newWidth = OtText.applyTextOp(Utils.repeatString(".", width), colsOp).length
+    newHeight = OtText.applyTextOp(Utils.repeatString(".", height), rowsOp).length
+
+    newGrid = for i in [0 .. newHeight-1]
+                    for j in [0 .. newWidth-1]
+                        null
+
+    for i in [0 .. height - 1]
+        if i of rowIndexMap
+            for j in [0 .. width - 1]
+                if j of colIndexMap
+                    newGrid[rowIndexMap[i]][colIndexMap[j]] = puzzle.grid[i][j]
+
+    for i in [0 .. newHeight-1]
+        for j in [0 .. newWidth-1]
+            if newGrid[i][j] == null
+                newGrid[i][j] = PuzzleUtils.getEmptyCell()
+
+    return {width: newWidth, height: newHeight, grid: newGrid}
+
 # Functions to return operations.
 
 # Operation edits "contents", "number", or "open" value for a particular
@@ -112,7 +225,7 @@ opEditCellValue = (row, col, name, value) ->
     return res
 
 # Returns an operation op such that (apply puzzle, op) has grid of grid2.
-# TODO support grids that are not the same size.
+# TODO support grids that are not the same size if needed?
 opGridDiff = (puzzle, grid2) ->
     grid1 = puzzle.grid
     res = {}
@@ -122,6 +235,20 @@ opGridDiff = (puzzle, grid2) ->
                 if grid1[i][j][v] != grid2[i][j][v]
                     res["cell-#{i}-#{j}-#{v}"] = grid2[i][j][v]
     return res
+
+opSpliceRowsOrCols = (originalLen, forRow, index, numToInsert, numToDelete) ->
+    res = {}
+
+    res[if forRow then 'rows' else 'cols'] = \
+        OtText.opTextSplice(originalLen, index, Utils.repeatString(".", numToInsert), numToDelete)
+
+    return res
+
+# Return an operation that inserts or deletes rows or columns at the specified index
+opInsertRows = (puzzle, index, numToInsert) -> opSpliceRowsOrCols puzzle.height, true, index, numToInsert, 0
+opInsertCols = (puzzle, index, numToInsert) -> opSpliceRowsOrCols puzzle.width, false, index, numToInsert, 0
+opDeleteRows = (puzzle, index, numToDelete) -> opSpliceRowsOrCols puzzle.height, true, index, 0, numToDelete
+opDeleteCols = (puzzle, index, numToDelete) -> opSpliceRowsOrCols puzzle.width, false, index, 0, numToDelete
 
 # Returns an operation that applies the text_op to one of the clue fields.
 # The parameter 'which' is either 'across' or 'down'.
@@ -143,7 +270,10 @@ exports.isIdentity = isIdentity
 exports.compose = compose
 exports.xform = xform
 exports.apply = apply
-exports.applyInPlace = applyInPlace
 exports.opEditCellValue = opEditCellValue
 exports.opGridDiff = opGridDiff
 exports.getClueOp = getClueOp
+exports.opInsertRows = opInsertRows
+exports.opInsertCols = opInsertCols
+exports.opDeleteRows = opDeleteRows
+exports.opDeleteCols = opDeleteCols

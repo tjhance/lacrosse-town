@@ -19,6 +19,9 @@ take = (i) -> [TAKE, i]
 skip = (i) -> [SKIP, i]
 insert = (i) -> [INSERT, i]
 
+identity = (s) ->
+    [take(s.length)]
+
 # Takes a string and an operation (a list of instructions) and returns the
 # result of applying them (as in the above example).
 applyTextOp = (s, op) ->
@@ -93,8 +96,6 @@ appendInst = (l, i) ->
 # Returns [m1, m2] such that l1 o m1 = l2 o m2
 # Base state s is an argument but currently ignored.
 xformText = (s, l1, l2) ->
-    console.log l1, l2
-
     # Copy the lists, because we are going to mutate them.
     l1 = ([a,b] for [a,b] in l1)
     l2 = ([a,b] for [a,b] in l2)
@@ -219,6 +220,33 @@ canonicalized = (op) ->
             appendInst ans, [type,val]
     return ans
 
+# Returns an "index map" for the op
+# e.g. if the second character of a string becomes the fourth character
+# after an op is applied, the returned map will map 2 -> 4
+# (if the second character is deleted, 2 will not be in the map)
+getIndexMapForTextOp = (op) ->
+    res = {}
+    srcPos = 0
+    dstPos = 0
+    for [type, val] in op
+        if type == TAKE
+            for i in [0 .. val - 1]
+                res[srcPos + i] = dstPos + i
+            srcPos += val
+            dstPos += val
+        else if type == SKIP
+            srcPos += val
+        else if type == INSERT
+            dstPos += val.length
+        else
+            Utils.assert "bad op type"
+    return res
+
+# Returns a text op that does a splice at the given `index`, removing
+# `numToDelete` characters and inserting the `toInsert` string
+opTextSplice = (totalLen, index, toInsert, numToDelete) ->
+    canonicalized [take(index), skip(numToDelete), insert(toInsert), take(totalLen-index-numToDelete)]
+
 # Export stuff
 
 if module?
@@ -234,3 +262,6 @@ exports.xformText = xformText
 exports.composeText = composeText
 exports.toString = toString
 exports.canonicalized = canonicalized
+exports.getIndexMapForTextOp = getIndexMapForTextOp
+exports.opTextSplice = opTextSplice
+exports.identity = identity

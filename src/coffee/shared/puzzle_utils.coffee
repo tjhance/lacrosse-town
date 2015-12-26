@@ -9,17 +9,20 @@ else
 getEmptyPuzzle = (height, width, title) ->
     Utils.assert width > 0, "width is not positive"
     Utils.assert height > 0, "height is not positive"
-    getSquare = () ->
-        {
-            open: true
-            number: null
-            contents: ""
-        }
     return {
         title: if title? then title else ""
-        grid: getNumberedGrid ((getSquare() for i in [0..width-1]) for j in [0..height-1])
+        grid: getNumberedGrid ((getEmptyCell() for i in [0..width-1]) for j in [0..height-1])
+        width: width,
+        height: height,
         across_clues: "1. Clue here"
         down_clues: "1. Clue here"
+    }
+
+getEmptyCell = () ->
+    {
+        open: true
+        number: null
+        contents: ""
     }
 
 # Take a grid and returns one numbered correctly according to which squares are
@@ -55,6 +58,7 @@ if module?
 else
     exports = @PuzzleUtils = {}
 
+exports.getEmptyCell = getEmptyCell
 exports.getEmptyPuzzle = getEmptyPuzzle
 exports.getNumberedGrid = getNumberedGrid
 exports.clonePuzzle = clonePuzzle

@@ -53,9 +53,9 @@ PuzzlePage = React.createClass
         field_open: "none" # "none" or "number" or "contents"
 
     width: () ->
-        @state.puzzle.grid[0].length
+        @state.puzzle.width
     height: () ->
-        @state.puzzle.grid.length
+        @state.puzzle.height
 
     # Returns a grid of the the CSS classes for styling the cell
     getCellClasses: () ->

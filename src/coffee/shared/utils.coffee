@@ -11,6 +11,14 @@ isValidInteger = (s) ->
 
 sum = (l) -> l.reduce ((a, b) -> a + b) 0
 
+repeatString = (str, num) ->
+    res = ""
+    i = 0
+    while i < num
+        res += str
+        i++
+    return res
+
 # Puzzle-related utilities.
 
 clone = (obj) ->
@@ -97,5 +105,6 @@ exports.clone = clone
 exports.deepEquals = deepEquals
 exports.isValidInteger = isValidInteger
 exports.isWhitespace = isWhitespace
+exports.repeatString = repeatString
 exports.sum = sum
 exports.useHardSpaces = useHardSpaces

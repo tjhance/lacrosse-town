@@ -29,7 +29,7 @@ EditableTextField = (buildContent) -> React.createClass
             @stylingData = nextProps.stylingData
 
             # this will re-render the editor's contents with the new styling data:
-            @onTextChange()
+            @rerender()
         return false
 
     componentDidMount: ->
@@ -38,6 +38,17 @@ EditableTextField = (buildContent) -> React.createClass
     updateSelection: () ->
         [selection, text] = @getSelectionAndText()
         @selection = selection
+
+    rerender: () ->
+        [newSelection, newText] = @getSelectionAndText()
+
+        @selection = newSelection
+        @text = newText
+
+        @setContents @text
+        @setSelection @selection
+
+        @scrollIfNecessary()
 
     onTextChange: () ->
         [newSelection, newText] = @getSelectionAndText()
@@ -98,6 +109,20 @@ EditableTextField = (buildContent) -> React.createClass
             element.appendChild lineElement
 
     setSelection: (selection) ->
+        selObj = window.getSelection()
+        element = @getNode()
+
+        # if we're to set the selection to nothing,
+        # and there is some selection in the window OUTSIDE this text field
+        # then we don't do anything
+        if selection.length == 0
+            for i in [0 ... selObj.rangeCount]
+                range = selObj.getRangeAt(i)
+                if $(range.startContainer).closest(element).size() == 0
+                    return
+                if $(range.endContainer).closest(element).size() == 0
+                    return
+
         element = @getNode()
 
         countNewlines = (s) ->
@@ -119,7 +144,6 @@ EditableTextField = (buildContent) -> React.createClass
                     i += 1
                 return [textNodes[i], offset]
 
-        selObj = window.getSelection()
         selObj.removeAllRanges()
         for [left, right] in selection
             [contL, offsetL] = getContOffset left
@@ -130,7 +154,7 @@ EditableTextField = (buildContent) -> React.createClass
             selObj.addRange range
 
     getSelectionAndText: () ->
-        element = React.findDOMNode(this)
+        element = @getNode()
 
         # Ugh, some annoying crap for traversing the DOM nodes for dealing
         # with the crazy way browsers interpret spaces.
@@ -247,7 +271,9 @@ EditableTextField = (buildContent) -> React.createClass
         # Now we can use all the lt_* properties on the nodes to compute
         # the selection offsets.
 
-        getTotalOffset = (container, offsetWithinContainer) ->
+        getTotalOffset = (container, offsetWithinContainer) =>
+            if $(container).closest(@getNode()).size() == 0
+                return null
             if container.nodeType == 1
                 return if offsetWithinContainer == 0 then container.lt_start else container.lt_end
             else if container.nodeType == 3

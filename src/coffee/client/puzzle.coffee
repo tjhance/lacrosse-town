@@ -365,6 +365,10 @@ PuzzlePage = React.createClass
     # Focus on a cell when it is clicked on, or toggle its
     # acrossness/downness if it already has focus.
     onCellClick: (row, col) ->
+        # this sucks
+        $('div[contenteditable=true]').blur()
+        window.getSelection().removeAllRanges()
+
         grid_focus = if @state.grid_focus == null then @defaultGridFocus() else Utils.clone @state.grid_focus
 
         grid_focus = @removeCellField(grid_focus)

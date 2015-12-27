@@ -625,57 +625,47 @@ PuzzlePage = React.createClass
             </div>
         else
             <div className="puzzle_container">
-              <div>
-                  Commands:<br/>
-                  Ctrl+b to toggle a cell between black/white<br/>
-                  Type any letter to enter into the selected cell<br/>
-                  Hit backspace to empty a cell<br/>
-                  Ctrl+u to enter arbitrary text into a cell (not restricted to a single letter)<br/>
-                  Ctlr+i to edit the number of the cell (but the easiest way to set the numbers is the button at the bottom)
-              </div>
-              <table><tr><td>
-                  <div className="puzzle_grid">
-                    <PuzzleGrid
-                        ref="grid"
-                        grid={@state.puzzle.grid}
-                        grid_focus={@state.grid_focus}
-                        cell_classes={@getCellClasses()}
-                        onCellClick={@onCellClick}
-                        onCellFieldKeyPress={@onCellFieldKeyPress}
-                      />
-                    <input type="button" value="Re-assign numbers" onClick={this.renumber} />
-                    <input type="checkbox"
-                            defaultChecked={true}
-                            onChange={@toggleMaintainRotationalSymmetry} />
-                        Maintain rotational symmetry
-                  </div>
-              </td><td>
-                  <div style={{'float': 'left'}}>
-                      <div><strong>Across clues:</strong></div>
-                      <CluesEditableTextField
-                              defaultText={@state.initial_puzzle.across_clues}
-                              produceOp={(op) => @clueEdited('across', op)}
-                              stylingData={@clueStylingData(true)}
-                              ref="acrossClues" />
-                      <div><strong>Down clues:</strong></div>
-                      <CluesEditableTextField
-                              defaultText={@state.initial_puzzle.down_clues}
-                              produceOp={(op) => @clueEdited('down', op)}
-                              stylingData={@clueStylingData(false)}
-                              ref="downClues" />
-                  </div>
-              </td></tr><tr><td>
-                { @renderFindMatchesDialog() }
-              </td></tr></table>
-              <div className="offline_mode">
-                <input type="checkbox"
-                        defaultChecked={false}
-                        onChange={@toggleOffline} />
-                    Offline mode
-              </div>
+                <div className="puzzle_container_column">
+                    <div className="puzzle_container_box">
+                        {@renderPuzzleGrid()}
+                    </div>
+                    <div className="puzzle_container_box puzzle_container_panel">
+                        {@renderPuzzlePanel()}
+                    </div>
+                </div>
+                <div className="puzzle_container_column">
+                    <div className="puzzle_container_box">
+                        {@renderPuzzleClues('across')}
+                    </div>
+                    <div className="puzzle_container_box">
+                        {@renderPuzzleClues('down')}
+                    </div>
+                </div>
             </div>
 
-    renderFindMatchesDialog: () ->
+    renderPuzzleGrid: ->
+        <div className="puzzle_grid">
+          <PuzzleGrid
+              ref="grid"
+              grid={@state.puzzle.grid}
+              grid_focus={@state.grid_focus}
+              cell_classes={@getCellClasses()}
+              onCellClick={@onCellClick}
+              onCellFieldKeyPress={@onCellFieldKeyPress}
+            />
+        </div>
+
+    renderPuzzleClues: (type) ->
+        <div>
+            <div><strong>{if type == "across" then "Across" else "Down"} clues:</strong></div>
+            <CluesEditableTextField
+                  defaultText={@state.initial_puzzle.across_clues}
+                  produceOp={(op) => @clueEdited(type, op)}
+                  stylingData={@clueStylingData(type == "across")}
+                  ref={if type == "across" then "acrossClues" else "downClues"} />
+        </div>
+
+    renderPuzzlePanel: ->
         if @state.findMatchesInfo
             <FindMatchesDialog
                 clueTitle={@state.findMatchesInfo.clueTitle}
@@ -684,7 +674,30 @@ PuzzlePage = React.createClass
                 onSelect={@onMatchFinderChoose}
                 onClose={@closeMatchFinder} />
         else
-            null
+            <div>
+                <div>
+                  <input type="button" value="Re-assign numbers" onClick={this.renumber} />
+                  <input type="checkbox"
+                          defaultChecked={true}
+                          onChange={@toggleMaintainRotationalSymmetry} />
+                      Maintain rotational symmetry
+                  <div>
+                      Commands:<br/>
+                      Ctrl+b to toggle a cell between black/white<br/>
+                      Type any letter to enter into the selected cell<br/>
+                      Hit backspace to empty a cell<br/>
+                      Ctrl+u to enter arbitrary text into a cell (not restricted to a single letter)<br/>
+                      Ctlr+i to edit the number of the cell
+                          (but the easiest way to set the numbers is the button at the bottom)
+                  </div>
+                </div>
+                <div className="offline_mode">
+                    <input type="checkbox"
+                            defaultChecked={false}
+                            onChange={@toggleOffline} />
+                        Offline mode
+                </div>
+            </div>
 
 PuzzleGrid = React.createClass
     shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)

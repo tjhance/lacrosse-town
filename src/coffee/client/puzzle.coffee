@@ -683,9 +683,10 @@ PuzzlePage = React.createClass
                 </div>
                 <div className="rotational-symmetry-container">
                   <input type="checkbox"
+                          className="lt-checkbox"
                           defaultChecked={true}
                           onChange={@toggleMaintainRotationalSymmetry} />
-                      Maintain rotational symmetry
+                      <label className="lt-checkbox-label">Maintain rotational symmetry</label>
                 </div>
                 <div>
                       <strong>Commands:</strong>

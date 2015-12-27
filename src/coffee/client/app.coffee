@@ -48,6 +48,12 @@ initPuzzleSyncer = (puzzleID) ->
             setTimeout((() -> p.blur()), 0)
       ), true)
 
+    document.body.addEventListener('focus', ((event) ->
+        node = p.gridNode()
+        if node != document.body and not (event.target == node or $.contains(node, event.target))
+            setTimeout((() -> p.blur()), 0)
+      ), true)
+
     el = <PuzzlePage
         requestOp={requestOp}
         onToggleOffline={onToggleOffline}

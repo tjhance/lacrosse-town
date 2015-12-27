@@ -833,6 +833,8 @@ CluesEditableTextField = EditableTextField (lines, stylingData) ->
                 el = document.createTextNode(Utils.useHardSpaces(parsed.secondPart))
                 childElem.appendChild el
 
+            $(childElem).addClass('clue-line')
+
             # clues-highlight-{primary,secondary} classes are for visual styling
             # node-in-view signals to EditableTextField that the node should be scrolled into view.
             if parsed.number and parsed.number == stylingData.primaryNumber

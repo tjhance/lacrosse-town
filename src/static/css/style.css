@@ -195,6 +195,10 @@ div.clues-highlight-secondary {
     padding-right: 60px;
 }
 
+div.clue-line {
+    margin-bottom: 10px;
+}
+
 div.clue-container {
 	background-color: white;
     border: 2px solid black;

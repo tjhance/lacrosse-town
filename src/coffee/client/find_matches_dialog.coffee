@@ -38,7 +38,7 @@ FindMatchesDialog = React.createClass
             <div>{@props.pattern}</div>
             {@renderResults()}
             <div>
-                <input type="button" value="Close" onClick={@props.onClose} />
+                <input type="button" className="lt-button" value="Close" onClick={@props.onClose} />
             </div>
         </div>
 

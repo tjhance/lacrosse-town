@@ -689,7 +689,7 @@ PuzzlePage = React.createClass
                       <label className="lt-checkbox-label">Maintain rotational symmetry</label>
                 </div>
                 <div>
-                      <strong>Commands:</strong>
+                      <strong>Usage:</strong>
                       <ul>
                         <li>Type any letter to enter into the selected cell</li>
                         <li><span className="keyboard-shortcut">BACKSPACE</span>

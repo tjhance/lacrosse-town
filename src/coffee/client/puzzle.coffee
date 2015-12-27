@@ -537,8 +537,8 @@ PuzzlePage = React.createClass
         lines = text.split('\n')
         for line in lines
             parsed = parseClueLine(line)
-            if parsed == number
-                return parsed.secondPart
+            if parsed.number == number
+                return parsed.secondPart.trim()
         return ""
 
     closeMatchFinder: () ->
@@ -576,8 +576,8 @@ PuzzlePage = React.createClass
         else
             prevR--
             prevR++
-        if (prevR >= 0 and prevR < @height() and prevC >= 0 and prevC <= @width and g[prevR][prevC].open) or \
-           (nextR >= 0 and nextR < @height() and nextC >= 0 and nextC <= @width and g[nextR][nextC].open)
+        if (prevR >= 0 and prevR < @height() and prevC >= 0 and prevC < @width() and g[prevR][prevC].open) or \
+           (nextR >= 0 and nextR < @height() and nextC >= 0 and nextC < @width() and g[nextR][nextC].open)
             fail()
             return
         

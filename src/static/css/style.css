@@ -1,5 +1,6 @@
 body {
 	background-color: #fcfcde;
+	font-family: helvetica;
 }
 
 div.puzzle_container {
@@ -18,7 +19,8 @@ div.puzzle_container {
 }
 
 div.puzzle_container_panel {
-	max-width: 500px;
+	max-width: 600px;
+	font-size: 14px;
 }
 
 div.puzzle_container_column {
@@ -33,6 +35,11 @@ div.puzzle_grid {
 	padding: 0;
 }
 
+div.clue_box_title {
+	padding-left: 6px;
+	padding-bottom: 4px;
+}
+
 table.puzzle_grid_table {
     border-width: 0 0 1px 1px;
     border-spacing: 0;
@@ -43,6 +50,8 @@ table.puzzle_grid_table {
     -ms-user-select: none;
 
     margin: auto;
+
+    font-family: sans-serif;
 }
 tr.puzzle_grid_row {
 }

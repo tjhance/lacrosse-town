@@ -657,7 +657,9 @@ PuzzlePage = React.createClass
 
     renderPuzzleClues: (type) ->
         <div>
-            <div><strong>{if type == "across" then "Across" else "Down"} clues:</strong></div>
+            <div className="clue_box_title">
+                <strong>{if type == "across" then "Across" else "Down"} clues:</strong>
+            </div>
             <CluesEditableTextField
                   defaultText={@state.initial_puzzle.across_clues}
                   produceOp={(op) => @clueEdited(type, op)}
@@ -691,13 +693,21 @@ PuzzlePage = React.createClass
                           (but the easiest way to set the numbers is the button at the bottom)
                   </div>
                 </div>
-                <div className="offline_mode">
-                    <input type="checkbox"
-                            defaultChecked={false}
-                            onChange={@toggleOffline} />
-                        Offline mode
-                </div>
+                {@renderToggleOffline()}
             </div>
+
+
+    renderToggleOffline: ->
+        return null
+
+        # This is just for debugging, so it's commented out right now:
+
+        #<div className="offline_mode" style={{'display': 'none'}}>
+        #    <input type="checkbox"
+        #            defaultChecked={false}
+        #            onChange={@toggleOffline} />
+        #        Offline mode
+        #</div>
 
 PuzzleGrid = React.createClass
     shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)

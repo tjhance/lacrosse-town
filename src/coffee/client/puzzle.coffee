@@ -677,21 +677,34 @@ PuzzlePage = React.createClass
                 onClose={@closeMatchFinder} />
         else
             <div>
-                <div>
-                  <input type="button" value="Re-assign numbers" onClick={this.renumber} />
+                <div className="reassign-numbers-container">
+                  <input type="button" value="Re-assign numbers" onClick={this.renumber}
+                        className="lt-button" />
+                </div>
+                <div className="rotational-symmetry-container">
                   <input type="checkbox"
                           defaultChecked={true}
                           onChange={@toggleMaintainRotationalSymmetry} />
                       Maintain rotational symmetry
-                  <div>
-                      Commands:<br/>
-                      Ctrl+b to toggle a cell between black/white<br/>
-                      Type any letter to enter into the selected cell<br/>
-                      Hit backspace to empty a cell<br/>
-                      Ctrl+u to enter arbitrary text into a cell (not restricted to a single letter)<br/>
-                      Ctlr+i to edit the number of the cell
-                          (but the easiest way to set the numbers is the button at the bottom)
-                  </div>
+                </div>
+                <div>
+                      <strong>Commands:</strong>
+                      <ul>
+                        <li>Type any letter to enter into the selected cell</li>
+                        <li><span className="keyboard-shortcut">BACKSPACE</span>
+                            &nbsp;to empty a cell
+                            </li>
+                        <li><span className="keyboard-shortcut">CTRL+B</span>
+                            &nbsp;to toggle a cell between black/white
+                            </li>
+                        <li><span className="keyboard-shortcut">CTRL+U</span>
+                            &nbsp;to enter arbitrary text into a cell (not restricted to a single letter)
+                            </li>
+                        <li><span className="keyboard-shortcut">CTRL+I</span>
+                            &nbsp;to edit the number of the cell
+                            (but the easiest way to set the numbers is 'Re-assign numbers' buttons)
+                            </li>
+                      </ul>
                 </div>
                 {@renderToggleOffline()}
             </div>

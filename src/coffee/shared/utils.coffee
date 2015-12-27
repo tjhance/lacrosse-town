@@ -24,6 +24,12 @@ transpose = (matr, width, height) ->
         for j in [0 .. height-1]
             matr[j][i]
 
+# returns the submatrix [r1, r2) x [c1, c2)
+submatrix = (matr, r1, r2, c1, c2) ->
+    res = for i in [r1 ... r2]
+            for j in [c1 ... c2]
+                matr[i][j]
+
 # Puzzle-related utilities.
 
 clone = (obj) ->
@@ -98,6 +104,10 @@ useHardSpaces = (s) ->
             t.push c
     return t.join ""
 
+htmlEscape = (s) ->
+    s = "" + s
+    return s.replace('/&/g', '&amp;').replace(/</g, '&lt;').replace('/>/g', '&gt;')
+
 # Export stuff
 
 if module?
@@ -111,6 +121,8 @@ exports.deepEquals = deepEquals
 exports.isValidInteger = isValidInteger
 exports.isWhitespace = isWhitespace
 exports.repeatString = repeatString
+exports.submatrix = submatrix
 exports.sum = sum
 exports.transpose = transpose
 exports.useHardSpaces = useHardSpaces
+exports.htmlEscape = htmlEscape

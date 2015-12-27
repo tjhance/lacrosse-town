@@ -190,7 +190,7 @@ PuzzlePage = React.createClass
                 grid_focus.focus.row += 1
         @setState { grid_focus: @collapseGridFocus grid_focus }
 
-    doDelete: (keyCode) ->
+    doDelete: () ->
         grid_focus = Utils.clone @state.grid_focus
         if grid_focus != null
             grid_focus.cell_field = "none"
@@ -346,7 +346,6 @@ PuzzlePage = React.createClass
 
     # Handle a keypress by dispatching to the correct method (above).
     handleKeyPress: (event) ->
-        event.preventDefault()
         if event.ctrlKey
             if event.keyCode == 66 # B
                 @toggleOpenness()
@@ -372,8 +371,10 @@ PuzzlePage = React.createClass
                 if @moveGridCursor shiftHeld, 1, 0 then event.preventDefault()
             else if event.keyCode >= 65 and event.keyCode <= 90 # A-Z
                 @typeLetter event.keyCode
+                event.preventDefault()
             else if event.keyCode == 8 # backspace
                 @doDelete()
+                event.preventDefault()
 
     # Focus on a cell when it is clicked on, or toggle its
     # acrossness/downness if it already has focus.
@@ -624,6 +625,36 @@ PuzzlePage = React.createClass
         @props.requestOp op
 
         @closeMatchFinder()
+
+    # Copy/cut/paste stuff
+
+    doCopy: (event) ->
+        if @state.grid_focus == null
+            return
+
+        # Get the submatrix to copy
+        row1 = Math.min(@state.grid_focus.focus.row, @state.grid_focus.anchor.row)
+        row2 = Math.max(@state.grid_focus.focus.row, @state.grid_focus.anchor.row)
+        col1 = Math.min(@state.grid_focus.focus.col, @state.grid_focus.anchor.col)
+        col2 = Math.max(@state.grid_focus.focus.col, @state.grid_focus.anchor.col)
+        submatr = Utils.submatrix(@state.puzzle.grid, row1, row2 + 1, col1, col2 + 1)
+        
+        # Copy it to clipboard
+        ClipboardUtils.copy(event, col2 - col1 + 1, row2 - row1 + 1, submatr)
+
+    doCut: (event) ->
+        if @state.grid_focus == null
+            return
+        doCopy(event)
+        doDeleteAll()
+
+    doPaste: (event) ->
+        if @state.grid_focus == null
+            return
+
+        submatr = ClipboardUtils.paste()
+        if submatr?
+            false
 
     render: ->
         if @state.puzzle == null

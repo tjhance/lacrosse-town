@@ -54,6 +54,24 @@ initPuzzleSyncer = (puzzleID) ->
             setTimeout((() -> p.blur()), 0)
       ), true)
 
+    document.body.addEventListener('copy', ((event) ->
+        if (not $(event.target).hasClass('dont-bubble-keydown')) and \
+                $(event.target).closest('.dont-bubble-keydown').length == 0
+            p.doCopy event
+      ), true)
+
+    document.body.addEventListener('cut', ((event) ->
+        if (not $(event.target).hasClass('dont-bubble-keydown')) and \
+                $(event.target).closest('.dont-bubble-keydown').length == 0
+            p.doCut event
+      ), true)
+
+    document.body.addEventListener('paste', ((event) ->
+        if (not $(event.target).hasClass('dont-bubble-keydown')) and \
+                $(event.target).closest('.dont-bubble-keydown').length == 0
+            p.doPaste event
+      ), true)
+
     el = <PuzzlePage
         requestOp={requestOp}
         onToggleOffline={onToggleOffline}

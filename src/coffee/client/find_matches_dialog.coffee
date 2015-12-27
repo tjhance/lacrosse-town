@@ -34,7 +34,7 @@ FindMatchesDialog = React.createClass
     render: () ->
         <div className="find-matches-container">
             <div className="find-matches-text">Searching for matches of pattern</div>
-            <div className="find-matches-pattern">{@props.pattern}</div>
+            <div className="find-matches-pattern">{@renderPattern()}</div>
             <div className="find-matches-text">for clue</div>
             <div className="find-matches-clue">
                 <strong>{@props.clueTitle}.</strong>
@@ -48,6 +48,15 @@ FindMatchesDialog = React.createClass
                 <input type="button" className="lt-button" value="Close" onClick={@props.onClose} />
             </div>
         </div>
+
+    renderPattern: () ->
+        pattern = @props.pattern.toUpperCase()
+        for i in [0 .. pattern.length - 1]
+            c = pattern.charAt(i)
+            if c == "."
+                <span className="find-matches-pattern-blank">{"\xA0"}</span>
+            else
+                <span className="find-matches-pattern-blank">{c}</span>
 
     renderResults: () ->
         if @state.matchList

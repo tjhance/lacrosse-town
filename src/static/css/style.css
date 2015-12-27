@@ -268,10 +268,13 @@ div.find-matches-text {
 div.find-matches-pattern {
     text-align: center;
     padding-bottom: 5px;
+    font-size: 16px;
+    font-weight: bold;
 }
 div.find-matches-clue {
     text-align: center;
     padding-bottom: 5px;
+    font-size: 16px;
 }
 div.find-matches-results {
     text-align: center;
@@ -279,4 +282,16 @@ div.find-matches-results {
 }
 div.find-matches-close-button {
     text-align: center;
+}
+
+span.find-matches-pattern-blank {
+    border-bottom: 2px solid black;
+    padding: 1px 1px 0px 1px;
+    margin-right: 0.5em;
+    margin-bottom: 1ex;
+    width: 1.3em;
+    display: inline-block;
+    text-align: center;
+    font-style: normal;
+    line-height: normal;
 }

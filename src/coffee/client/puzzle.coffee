@@ -640,7 +640,7 @@ PuzzlePage = React.createClass
         submatr = Utils.submatrix(@state.puzzle.grid, row1, row2 + 1, col1, col2 + 1)
         
         # Copy it to clipboard
-        ClipboardUtils.copy(event, col2 - col1 + 1, row2 - row1 + 1, submatr)
+        ClipboardUtils.copyGridToClipboard(event, col2 - col1 + 1, row2 - row1 + 1, submatr)
 
     doCut: (event) ->
         if @state.grid_focus == null
@@ -652,9 +652,44 @@ PuzzlePage = React.createClass
         if @state.grid_focus == null
             return
 
-        submatr = ClipboardUtils.paste()
+        submatr = ClipboardUtils.getGridFromClipboard(event)
         if submatr?
-            false
+            # get the upper-left corner
+            row1 = Math.min(@state.grid_focus.focus.row, @state.grid_focus.anchor.row)
+            col1 = Math.min(@state.grid_focus.focus.col, @state.grid_focus.anchor.col)
+
+            @pasteGridAt(row1, col1, submatr)
+
+            event.preventDefault()
+
+    pasteGridAt: (row, col, grid) ->
+        base = @state.puzzle
+        op = Ot.identity(base)
+
+        # make sure the grid is big enough; if not, expand it
+        if col + grid.width >= @width()
+            op = Ot.compose(base, op, Ot.opInsertCols(base, @width(), col + grid.width - @width()))
+        if row + grid.height >= @height()
+            op = Ot.compose(base, op, Ot.opInsertRows(base, @height(), row + grid.height - @height()))
+
+        for i in [0 ... grid.height]
+            for j in [0 ... grid.width]
+                op = Ot.compose(base, op,
+                        Ot.opEditCellValue(row + i, col + j, "contents", grid.grid[i][j].contents))
+                op = Ot.compose(base, op,
+                        Ot.opEditCellValue(row + i, col + j, "number", grid.grid[i][j].number))
+                op = Ot.compose(base, op,
+                        Ot.opEditCellValue(row + i, col + j, "open", grid.grid[i][j].open))
+
+        @props.requestOp op
+
+        # select the region that was just pasted in
+        @setState
+            grid_focus:
+                focus: { row: row + grid.height - 1, col: col + grid.width - 1 }
+                anchor: { row: row, col: col }
+                is_across: @state.grid_focus.is_across
+                field_open: "none"
 
     render: ->
         if @state.puzzle == null

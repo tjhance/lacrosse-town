@@ -55,7 +55,6 @@ clonePuzzle = (puzzle) ->
 
 # Returns html for a grid.
 staticHtmlForGrid = (width, height, grid) ->
-    
     '<table data-crossword-width="' + Utils.htmlEscape(width) + '" data-crossword-height="' + Utils.htmlEscape(height) + '" style="border-width: 0 0 1px 1px; border-spacing: 0; border-collapse: collapse; border-style: solid; font-family: sans-serif;">' + (
         for i in [0 ... height]
             '<tr>' + (

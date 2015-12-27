@@ -249,6 +249,12 @@ PuzzlePage = React.createClass
         @setState { grid_focus: @removeCellField(@state.grid_focus) }
         @props.requestOp Ot.opGridDiff @state.puzzle, PuzzleUtils.getNumberedGrid @state.puzzle.grid
 
+    # Returns true if renumbering the grid would be a non-trivial operation,
+    # that is, if there are any cells which would be re-numbered
+    needToRenumber: () ->
+        op = Ot.opGridDiff @state.puzzle, PuzzleUtils.getNumberedGrid @state.puzzle.grid
+        return Ot.isIdentity(op)
+
     toggleOpenness: () ->
         if @state.grid_focus != null
             grid_focus = Utils.clone @state.grid_focus
@@ -680,7 +686,7 @@ PuzzlePage = React.createClass
             <div>
                 <div className="reassign-numbers-container">
                   <input type="button" value="Re-assign numbers" onClick={this.renumber}
-                        className="lt-button" />
+                        className="lt-button" disabled={@needToRenumber()} />
                 </div>
                 <div className="rotational-symmetry-container">
                   <input type="checkbox"

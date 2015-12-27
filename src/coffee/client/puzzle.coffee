@@ -438,7 +438,8 @@ PuzzlePage = React.createClass
 
         if @state.grid_focus == null or \
                 @state.grid_focus.focus.row != @state.grid_focus.anchor.row or
-                @state.grid_focus.focus.col != @state.grid_focus.anchor.col
+                @state.grid_focus.focus.col != @state.grid_focus.anchor.col or
+                (not @state.puzzle.grid[@state.grid_focus.focus.row][@state.grid_focus.focus.col].open)
             return {
                 primaryNumber: null,
                 secondaryNumber: null,

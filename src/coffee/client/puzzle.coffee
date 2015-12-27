@@ -661,7 +661,7 @@ PuzzlePage = React.createClass
                 <strong>{if type == "across" then "Across" else "Down"} clues:</strong>
             </div>
             <CluesEditableTextField
-                  defaultText={@state.initial_puzzle.across_clues}
+                  defaultText={if type == "across" then @state.initial_puzzle.across_clues else @state.initial_puzzle.down_clues}
                   produceOp={(op) => @clueEdited(type, op)}
                   stylingData={@clueStylingData(type == "across")}
                   ref={if type == "across" then "acrossClues" else "downClues"} />

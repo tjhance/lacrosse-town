@@ -22,7 +22,6 @@ EditableTextField = (buildContent) -> React.createClass
                  onFocus={@updateSelection}
                  onInput={@onTextChange}
 
-                 style={{'fontFamily': 'Courier New', 'position': 'relative'}}
                  className="clue-contenteditable dont-bubble-keydown"
 
                ref="editableDiv" ></div>

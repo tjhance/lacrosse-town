@@ -116,7 +116,6 @@ table.puzzle_grid_table {
     -ms-user-select: none;
 
     margin: auto;
-
     font-family: sans-serif;
 }
 tr.puzzle_grid_row {
@@ -173,14 +172,6 @@ td.open_cell_highlighted_intermediate {
     top: 15px;
 }
 
-.contenteditable_single_row {
-    font-family: 'Courier New';
-}
-.contenteditable_single_row:empty {
-    display: block;
-    height: 1em;
-}
-
 div.clues-highlight-primary {
     background-color: #ccffcc;
 
@@ -218,6 +209,7 @@ div.clue-contenteditable {
     max-width: 340px;
     min-height: 300px;
     outline: 0px solid transparent;
+    position: relative;
 }
 
 div.clue-right-border {
@@ -243,16 +235,6 @@ div.display-answer-length-next-to-line::after {
     display: inline-block;
     float: right;
     margin-right: -42px;
-    /*
-    margin-left: 345px;
-    width: 40px;
-    margin-right: -385px;
-    vertical-align: top;
-    */
-}
-
-a.select-list-option:focus {
-    background-color: #ff0000;
 }
 
 span.keyboard-shortcut {
@@ -276,7 +258,7 @@ div.find-matches-clue {
     padding-bottom: 5px;
     font-size: 16px;
 }
-div.find-matches-results {
+div.find-matches-result {
     text-align: center;
     padding-bottom: 5px;
 }
@@ -294,4 +276,35 @@ span.find-matches-pattern-blank {
     text-align: center;
     font-style: normal;
     line-height: normal;
+}
+
+/* SelectList stuff */
+
+div.lt-select-list {
+    width: 300px;
+    max-width: 300px;
+    height: 400px;
+    max-height: 400px;
+    overflow-y: scroll;
+    background-color: white;
+    display: inline-block;
+    text-align: left;
+    font-size: 16px;
+    border: 1px solid black;
+}
+
+a.lt-select-list-option {
+    background-color: white;
+    color: black;
+    text-decoration: none;
+    padding-left: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    font-weight: bold;
+    font-family: 'Courier New';
+}
+
+a.lt-select-list-option:focus {
+    background-color: #f2f9fc;
+    outline: 0px solid transparent;
 }

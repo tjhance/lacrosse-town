@@ -120,12 +120,12 @@ SelectList = React.createClass
             event.stopPropagation()
 
     render: () ->
-        <div className="dont-bubble-keydown">
+        <div className="dont-bubble-keydown" className="lt-select-list">
             { for i in [0 ... @props.matches.length]
                do (i) =>
                 <a href="#" style={{'display': 'block'}}
                         onKeyDown={(event) => @onKeyDown(event, i)}
-                        className={"select-list-option"}
+                        className={"lt-select-list-option"}
                         ref={"option-"+i}
                         key={"option-"+i}>
                     {@props.matches[i]}

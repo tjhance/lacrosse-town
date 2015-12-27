@@ -183,10 +183,16 @@ td.open_cell_highlighted_intermediate {
 
 div.clues-highlight-primary {
     background-color: #ccffcc;
+
+    margin-right: -60px;
+    padding-right: 60px;
 }
 
 div.clues-highlight-secondary {
     background-color: #f0f0f0;
+
+    margin-right: -60px;
+    padding-right: 60px;
 }
 
 div.clue-container {
@@ -196,10 +202,49 @@ div.clue-container {
     width: 400px;
     height: 300px;
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 
-div.display-answer-length-next-to-line::before {
-    content: attr(data-answer-length)
+div.clue-container-full-height {
+    position: relative;
+}
+
+div.clue-contenteditable {
+    width: 340px;
+    max-width: 340px;
+    min-height: 300px;
+    outline: 0px solid transparent;
+}
+
+div.clue-right-border {
+    position: absolute;
+
+    /* This is relative to clue-container-full-height, which is the full
+       height of the contenteditable div. Thus this creates a line which is
+       1px thick and the full height of the contenteditable.
+       It's nearly the case that we could just use border-right on the
+       clue-contenteditable to achieve the same effect. However, when done
+       that way, the border is *below* the over-extending
+       clues-highlight background colors, and that looks ugly */
+    left: 340px;
+    top: 0px;
+    bottom: 0px;
+
+    width: 1px;
+    background-color: black;
+}
+
+div.display-answer-length-next-to-line::after {
+    content: attr(data-answer-length);
+    display: inline-block;
+    float: right;
+    margin-right: -42px;
+    /*
+    margin-left: 345px;
+    width: 40px;
+    margin-right: -385px;
+    vertical-align: top;
+    */
 }
 
 a.select-list-option:focus {

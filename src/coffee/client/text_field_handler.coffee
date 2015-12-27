@@ -13,6 +13,7 @@ EditableTextField = (buildContent) -> React.createClass
 
     render: ->
         <div className="clue-container" ref="editableDivContainer">
+          <div className="clue-container-full-height">
             <div contentEditable={true}
                  onKeyDown={@updateSelection}
                  onKeyUp={@updateSelection}
@@ -22,9 +23,11 @@ EditableTextField = (buildContent) -> React.createClass
                  onInput={@onTextChange}
 
                  style={{'fontFamily': 'Courier New', 'position': 'relative'}}
-                 className="dont-bubble-keydown"
+                 className="clue-contenteditable dont-bubble-keydown"
 
                ref="editableDiv" ></div>
+            <div className="clue-right-border">&nbsp;</div>
+          </div>
         </div>
 
     shouldComponentUpdate: (nextProps, nextState) ->

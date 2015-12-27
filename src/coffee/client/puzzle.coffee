@@ -787,6 +787,8 @@ PuzzleGridCell = React.createClass
                     {if cell.contents == "" then "\xA0" else cell.contents}
                   </div>
                 </div>
+            else
+                <div>{"\xA0"}</div>
         }
         {
             if @props.grid_focus? and @props.grid_focus.field_open != "none"

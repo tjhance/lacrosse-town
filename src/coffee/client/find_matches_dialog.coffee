@@ -32,12 +32,19 @@ FindMatchesDialog = React.createClass
           })
 
     render: () ->
-        <div>
-            <strong>{@props.clueTitle}</strong>
-            <div style={{'whiteSpace': 'pre'}}>{@props.clueText}</div>
-            <div>{@props.pattern}</div>
-            {@renderResults()}
-            <div>
+        <div className="find-matches-container">
+            <div className="find-matches-text">Searching for matches of pattern</div>
+            <div className="find-matches-pattern">{@props.pattern}</div>
+            <div className="find-matches-text">for clue</div>
+            <div className="find-matches-clue">
+                <strong>{@props.clueTitle}.</strong>
+                <span style={{'whiteSpace': 'pre'}}>{"\xA0" + @props.clueText}</span>
+            </div>
+            <div className="find-matches-text">(Using UKACD dictionary)</div>
+            <div className="find-matches-result">
+                {@renderResults()}
+            </div>
+            <div className="find-matches-close-button">
                 <input type="button" className="lt-button" value="Close" onClick={@props.onClose} />
             </div>
         </div>
@@ -47,7 +54,6 @@ FindMatchesDialog = React.createClass
             <div>
                 <SelectList matches={@state.matchList}
                         onSelect={(index, value) => @props.onSelect(value)} />
-                <div>(Using UKACD dictionary)</div>
             </div>
         else if @state.error
             <div style={{'color': 'red'}}>

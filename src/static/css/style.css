@@ -258,3 +258,25 @@ a.select-list-option:focus {
 span.keyboard-shortcut {
     font-family: 'Courier New';
 }
+
+/* find-matches stuff */
+
+div.find-matches-text {
+    text-align: center;
+    padding-bottom: 5px;
+}
+div.find-matches-pattern {
+    text-align: center;
+    padding-bottom: 5px;
+}
+div.find-matches-clue {
+    text-align: center;
+    padding-bottom: 5px;
+}
+div.find-matches-results {
+    text-align: center;
+    padding-bottom: 5px;
+}
+div.find-matches-close-button {
+    text-align: center;
+}

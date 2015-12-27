@@ -686,6 +686,7 @@ PuzzlePage = React.createClass
             <div>
                 <div className="reassign-numbers-container">
                   <input type="button" value="Re-assign numbers" onClick={this.renumber}
+                        title="Sets the numbers in the grid based off of the locations of the black cells, according to standard crossword rules."
                         className="lt-button" disabled={@needToRenumber()} />
                 </div>
                 <div className="rotational-symmetry-container">

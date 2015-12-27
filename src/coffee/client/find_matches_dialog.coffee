@@ -63,45 +63,58 @@ FindMatchesDialog = React.createClass
 #    options: a list of string options
 #    onSelect: a callback taking arguments (index, value)
 SelectList = React.createClass
-    getInitialState: () ->
-        index: 0
+    componentDidMount: () ->
+        @focusIndex(0)
 
     coerceIndex: (index) ->
         if index < 0
             0
         else if index >= @props.matches.length
-            matches.length - 1
+            @props.matches.length - 1
         else
             index
 
-    goUp: () ->
-        @setState { index: @coerceIndex(@state.index - 1) }
+    focusIndex: (index) ->
+        ref = this.refs['option-' + index]
+        if ref?
+            anode = React.findDOMNode(ref) # the 'a' node
+            anode.focus()
 
-    goDown: () ->
-        @setState { index: @coerceIndex(@state.index + 1) }
+    goUp: (index) ->
+        @focusIndex(@coerceIndex(index - 1))
 
-    enter: () ->
-        if 0 <= @state.index and @state.index < @props.matches.length
-            @props.onSelect(@state.index, @props.matches[@state.index])
+    goDown: (index) ->
+        @focusIndex(@coerceIndex(index + 1))
 
-    onKeyDown: (event) ->
+    enter: (index) ->
+        if 0 <= index and index < @props.matches.length
+            @props.onSelect(index, @props.matches[index])
+
+    onKeyDown: (event, i) ->
         if event.which == 38
-            @goUp()
+            @goUp(i)
+            event.preventDefault()
+            event.stopPropagation()
         else if event.which == 40
-            @goDown()
+            @goDown(i)
+            event.preventDefault()
+            event.stopPropagation()
+        else if event.which == 13
+            @enter(i)
+            event.preventDefault()
+            event.stopPropagation()
 
     render: () ->
-        optionClassName = (i) =>
-            if i == @state.index
-                "select-list-option select-list-option-selected"
-            else
-                "select-list-option select-list-option-unselected"
-
-        <div onKeyDown={@onKeyDown}>
+        <div className="dont-bubble-keydown">
             { for i in [0 ... @props.matches.length]
-                <div className={optionClassName(i)} key={"option-"+i}>
+               do (i) =>
+                <a href="#" style={{'display': 'block'}}
+                        onKeyDown={(event) => @onKeyDown(event, i)}
+                        className={"select-list-option"}
+                        ref={"option-"+i}
+                        key={"option-"+i}>
                     {@props.matches[i]}
-                </div>
+                </a>
             }
         </div>
 

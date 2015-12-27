@@ -88,3 +88,7 @@ div.clue-container {
 div.display-answer-length-next-to-line::before {
     content: attr(data-answer-length)
 }
+
+a.select-list-option:focus {
+    background-color: #ff0000;
+}

@@ -566,10 +566,10 @@ PuzzlePage = React.createClass
                 return
 
         # Check that the previous and subsequent cells are not open
-        prevR = cells[0][0]
-        prevC = cells[0][1]
-        nextR = cells[cells.length - 1][0]
-        nextC = cells[cells.length - 1][1]
+        prevR = info.cells[0][0]
+        prevC = info.cells[0][1]
+        nextR = info.cells[info.cells.length - 1][0]
+        nextC = info.cells[info.cells.length - 1][1]
         if info.is_across
             prevC--
             nextC++
@@ -584,7 +584,7 @@ PuzzlePage = React.createClass
         # Make the list of updates to make
         updates = []
         wordPos = 0
-        for [r, c] in cells
+        for [r, c] in info.cells
             cell = g[r][c]
             if cell.contents == ""
                 # cell contents are empty, so take the next letter of the match word.

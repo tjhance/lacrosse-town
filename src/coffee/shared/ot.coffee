@@ -56,6 +56,49 @@ compose = (base, a, b) ->
 
     return c
 
+inverse = (base, op) ->
+    [rowsOp, colsOp] = getRowsOpAndColsOp(base, op)
+    rowsOpInv = OtText.inverseText(Utils.repeatString(".", base.height), rowsOp)
+    colsOpInv = OtText.inverseText(Utils.repeatString(".", base.width), colsOp)
+
+    rowIndexMap = OtText.getIndexMapForTextOp rowsOp
+    colIndexMap = OtText.getIndexMapForTextOp colsOp
+    rowIndexMapInv = OtText.getIndexMapForTextOp rowsOpInv
+    colIndexMapInv = OtText.getIndexMapForTextOp colsOpInv
+
+    res = {}
+
+    # any cell deleted in the op must be restored in the inverse op
+    for i in [0 ... base.height]
+        for j in [0 ... base.width]
+            if (not (i of rowIndexMap)) or (not (j of colIndexMap))
+                for type in ["open", "contents", "number"]
+                    res["cell-#{i}-#{j}-#{type}"] = base.grid[i][j][type]
+
+    # any key modified explicitly by the op must be set back to the
+    # original in the inverse op
+    for key of op
+        spl = key.split("-")
+        if spl[0] == "cell"
+            i = parseInt(spl[1], 10)
+            j = parseInt(spl[2], 10)
+            type = spl[3]
+            if (i of rowIndexMapInv) and (j of colIndexMapInv)
+                i1 = rowIndexMapInv[i]
+                j1 = colIndexMapInv[j]
+                res["cell-#{i1}-#{j1}-#{type}"] = base.grid[i1][j1][type]
+
+    if op.rows?
+        res.rows = rowsOpInv
+    if op.cols?
+        res.cols = colsOpInv
+
+    for t in ['across_clues', 'down_clues']
+        if t of op
+            res[t] = OtText.inverseText(base[t], op[t])
+
+    return res
+
 # The operational transformation.
 #
 #             s3
@@ -268,6 +311,7 @@ else
 exports.identity = identity
 exports.isIdentity = isIdentity
 exports.compose = compose
+exports.inverse = inverse
 exports.xform = xform
 exports.apply = apply
 exports.opEditCellValue = opEditCellValue

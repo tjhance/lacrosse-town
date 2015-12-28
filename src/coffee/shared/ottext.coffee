@@ -210,6 +210,21 @@ composeText = (s, l1, l2) ->
 
     return m
 
+inverseText = (base, l) ->
+    m = []
+    pos = 0
+    for [type, val] in l
+        if type == TAKE
+            appendInst m, take(val)
+            pos += val
+        else if type == SKIP
+            deletedText = base.substring(pos, pos + val)
+            appendInst m, insert(deletedText)
+            pos += val
+        else if type == INSERT
+            appendInst m, skip(val.length)
+    return m
+
 toString = (op) ->
     opToString = (o) ->
         switch o[0]
@@ -273,3 +288,4 @@ exports.canonicalized = canonicalized
 exports.getIndexMapForTextOp = getIndexMapForTextOp
 exports.opTextSplice = opTextSplice
 exports.identity = identity
+exports.inverseText = inverseText

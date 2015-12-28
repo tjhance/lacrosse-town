@@ -31,6 +31,8 @@ opInsertRows = wrapImmutabilityTest Ot.opInsertRows
 opInsertCols = wrapImmutabilityTest Ot.opInsertCols
 opDeleteRows = wrapImmutabilityTest Ot.opDeleteRows
 opDeleteCols = wrapImmutabilityTest Ot.opDeleteCols
+inverseText = wrapImmutabilityTest OtText.inverseText
+inverse = wrapImmutabilityTest Ot.inverse
 
 # Helpers
 
@@ -540,5 +542,87 @@ exports.OtTest =
                height: 4,
                across_clues: '1. Clue here',
                down_clues: '1. Clue here' })
+
+        test.done()
+
+    inverse: (test) ->
+        doit = (base, op, res) ->
+            test.deepEqual(applyTextOp(test, applyTextOp(test, base, op), res), base)
+            test.deepEqual(inverseText(test, base, op), res)
+
+        doit "abcdefghijk", [take(11)], [take(11)]
+
+        doit "abcdefghijk",
+            [take(2), insert("ABC"), take(3), skip(2), take(1), skip(2), insert("BLAH"), take(1)],
+            [take(2), skip(3), take(3), insert("fg"), take(1), skip(4), insert("ij"), take(1)]
+            
+        test.done()
+
+    inverseGridOp: (test) ->
+        doit = (base, op, res) ->
+            test.deepEqual(apply(test, apply(test, base, op), res), base)
+            test.deepEqual(inverse(test, base, op), res)
+
+        doit PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+             { "cell-0-0-number": 2 },
+             { "cell-0-0-number": 1 }
+
+        doit PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+             {
+                "cols": [skip(1), take(2)]
+             },
+             {
+                "cols": [insert("."), take(2)]
+                "cell-0-0-contents": "",
+                "cell-0-0-number": 1,
+                "cell-0-0-open": true,
+                "cell-1-0-contents": "",
+                "cell-1-0-number": 4,
+                "cell-1-0-open": true,
+                "cell-2-0-contents": "",
+                "cell-2-0-number": 5,
+                "cell-2-0-open": true,
+             }
+
+        doit PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+             {
+                "rows": [skip(1), take(2)]
+             },
+             {
+                "rows": [insert("."), take(2)]
+                "cell-0-0-contents": "",
+                "cell-0-0-number": 1,
+                "cell-0-0-open": true,
+                "cell-0-1-contents": "",
+                "cell-0-1-number": 2,
+                "cell-0-1-open": true,
+                "cell-0-2-contents": "",
+                "cell-0-2-number": 3,
+                "cell-0-2-open": true,
+             }
+
+        doit PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+             {
+                "rows": [insert("."), take(3)],
+                "cell-1-0-contents": "A"
+             },
+             {
+                "rows": [skip(1), take(3)]
+                "cell-0-0-contents": "",
+             }
+
+        doit PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+             {
+                "cols": [insert("."), take(3)],
+                "cell-2-1-open": false
+                "across_clues": [insert("X"), take(12)]
+                "down_clues": [skip(3), take(11)]
+             },
+             {
+                "cols": [skip(1), take(3)]
+                "cell-2-0-open": true,
+                "across_clues": [skip(1), take(12)]
+                "down_clues": [insert("1. "), take(11)]
+             }
 
         test.done()

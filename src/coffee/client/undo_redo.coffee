@@ -38,6 +38,10 @@ window.UndoRedo = (initialState) ->
     state = initialState
 
     @applyOp = (op, undoable) ->
+        # Don't push useless identity operations
+        if Ot.isIdentity(op)
+            return
+
         # If we do an 'undoable' op, we lose the ability to 'redo' any previously
         # undone ops.
         if undoable

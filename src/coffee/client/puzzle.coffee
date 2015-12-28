@@ -237,10 +237,12 @@ PuzzlePage = React.createClass
                 row2 = Math.max(grid_focus.focus.row, grid_focus.anchor.row)
                 col1 = Math.min(grid_focus.focus.col, grid_focus.anchor.col)
                 col2 = Math.max(grid_focus.focus.col, grid_focus.anchor.col)
+                op = Ot.identity(@state.puzzle)
                 for row in [row1..row2]
                     for col in [col1..col2]
                         if g[row][col].open and g[row][col].contents != ""
-                            @props.requestOp Ot.opEditCellValue row, col, "contents", ""
+                            op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "contents", "")
+                @props.requestOp op
 
             @setState { grid_focus: grid_focus }
 

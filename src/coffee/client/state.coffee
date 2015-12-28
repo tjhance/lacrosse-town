@@ -94,6 +94,9 @@ window.ClientSyncer = (puzzleID) ->
     # we are not currently waiting on any update.
     outstandingID = null
 
+    # Object to track state for undo/redo operations.
+    undoRedo = null
+
     @addWatcher = (watcher) ->
         watchers.push watcher
     notifyWatchers = (newState, op) ->
@@ -144,6 +147,8 @@ window.ClientSyncer = (puzzleID) ->
         op_a = Ot.identity data.puzzle
         op_b = Ot.identity data.puzzle
 
+        undoRedo = new UndoRedo(root)
+
         # Notify the watchers. Here, op is null because this is the initial
         # state to work with - there is no old state to apply an op from.
         notifyWatchers tip, null
@@ -173,10 +178,34 @@ window.ClientSyncer = (puzzleID) ->
             op_b = op_b1
             tip = Ot.apply tip, op_c2
 
+            undoRedo.applyOp(op_c2, false) # false -> non-undoable operation
+
             notifyWatchers tip, op_c2
 
     # Receive a local operation
     @localOp = (op) ->
+        undoRedo.applyOp(op, true) # true -> undoable operation
+        _localOp(op)
+
+    # Try to do an 'undo' operation. Return true if successful.
+    @undo = () ->
+        op = undoRedo.undo()
+        if op?
+            _localOp(op)
+            return true
+        else
+            return false
+
+    # Try to do a 'redo' operation. Return true if successful.
+    @redo = () ->
+        op = undoRedo.redo()
+        if op?
+            _localOp(op)
+            return true
+        else
+            return false
+
+    _localOp = (op) ->
         tip = Ot.apply tip, op
         op_b = Ot.compose buffer, op_b, op
 

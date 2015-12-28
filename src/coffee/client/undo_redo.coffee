@@ -43,7 +43,7 @@ window.UndoRedo = (initialState) ->
         if undoable
             stackForward = []
 
-        lastEntry = stackForward[stackForward.length - 1]
+        lastEntry = stackBackward[stackBackward.length - 1]
 
         # Update 'stackBackward'
         if (not undoable) and lastEntry? and (not lastEntry.undoable)
@@ -57,7 +57,7 @@ window.UndoRedo = (initialState) ->
                 backward_op: backward_op
         else
             # Just add the new op to the end of the backward stack
-            state.push
+            stackBackward.push
                 undoable: undoable
                 forward_op: op
                 backward_op: Ot.inverse(state, op)
@@ -82,7 +82,7 @@ window.UndoRedo = (initialState) ->
         if not bringUndoableOpToTop()
             return null
 
-        lastEntry = stackBackward[stacBackward.length - 1]
+        lastEntry = stackBackward[stackBackward.length - 1]
         Utils.assert(lastEntry.undoable)
 
         stackBackward.pop()
@@ -100,7 +100,7 @@ window.UndoRedo = (initialState) ->
             # already done
             return true
 
-        if stackBackard.length <= 1
+        if stackBackward.length <= 1
             # no undoable op, can't do anything
             return false
 
@@ -138,7 +138,7 @@ window.UndoRedo = (initialState) ->
         new_op1 = { undoable: false, backward_op: null, forward_op: null }
         [new_op0.backward_op, new_op1.forward_op] = Ot.xform(state1, op1.backward_op, op0.forward_op)
 
-        op2 = stackBackward[stackBackard.length - 3]
+        op2 = stackBackward[stackBackward.length - 3]
         if op2? and (not op2.undoable)
             # we need to merge op2 and new_op1
 
@@ -154,13 +154,13 @@ window.UndoRedo = (initialState) ->
             combined_op = Ot.compose(state3, op2.forward_op, new_op1.forward_op)
             combined_op_inv = Ot.inverse(state3, combined_op)
 
-            stackForward.pop()
-            stackForward[stackForward.length - 2] = {
+            stackBackward.pop()
+            stackBackward[stackBackward.length - 2] = {
                 undoable: false,
                 forward_op: combined_op,
                 backward_op: combined_op_inv,
             }
-            stackForward[stackForward.length - 1] = new_op0
+            stackBackward[stackBackward.length - 1] = new_op0
         else
             #      undoable  not    undoable
             #
@@ -174,27 +174,9 @@ window.UndoRedo = (initialState) ->
             new_op0.forward_op = Ot.inverse(state0, new_op0.backward_op)
             new_op1.backward_op = Ot.inverse(state2, new_op1.forward_op)
 
-            stackForward[stackForward.length - 2] = new_op1
-            stackForward[stackForward.length - 1] = new_op0
+            stackBackward[stackBackward.length - 2] = new_op1
+            stackBackward[stackBackward.length - 1] = new_op0
 
-###
-# Simple pointer-based stack implementation
-Stack = () ->
-    head = { obj: null, ptr: null }
+        return true
 
-    @isEmpty = () =>
-        return head.ptr != null
-
-    @pop = () ->
-        Utils.assert(head.ptr != null, "cannot pop empty list")
-        obj = head.obj
-        head = head.ptr
-        return obj
-
-    @top = (n) ->
-        Utils.assert(head.ptr != null, "cannot pop empty list")
-        return head.obj
-
-    @push = (o) ->
-        head = { obj: o, ptr: head }
-###
+    return this

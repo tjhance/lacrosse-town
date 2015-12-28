@@ -39,6 +39,16 @@ initPuzzleSyncer = (puzzleID) ->
             p.handleKeyPress event
      ), false)
 
+    document.body.addEventListener('keydown', ((event) ->
+        if event.which == 90 # Z
+            if event.ctrlKey and event.shiftKey
+                syncer.redo()
+                event.preventDefault()
+            else if event.ctrlKey
+                syncer.undo()
+                event.preventDefault()
+     ), true)
+
     document.body.addEventListener('click', ((event) ->
         node = p.gridNode()
         if not (event.target == node or $.contains(node, event.target))

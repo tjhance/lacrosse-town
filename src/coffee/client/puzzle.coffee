@@ -789,25 +789,41 @@ PuzzlePage = React.createClass
                       <label className="lt-checkbox-label">Maintain rotational symmetry</label>
                 </div>
                 <div>
-                      <strong>Usage:</strong>
+                      <h2 className="instructions-header">Tips for solving:</h2>
                       <ul>
-                        <li>Type any letter to enter into the selected cell</li>
+                        <li>Arrow keys to move around.</li>
+                        <li>Type any letter to enter into the selected cell.</li>
                         <li><span className="keyboard-shortcut">BACKSPACE</span>
-                            &nbsp;to empty a cell
+                            &nbsp;to empty a cell.
                             </li>
                         <li><span className="keyboard-shortcut">CTRL+G</span>
                             &nbsp;to search a dictionary for matches of a partially-filled in answer.
                             </li>
+                        <li><span className="keyboard-shortcut">CTRL+U</span>
+                            &nbsp;to enter arbitrary text into a cell (not restricted to a single letter).
+                            </li>
+                        <li><span className="keyboard-shortcut">CTRL+Z</span>&nbsp;and&nbsp;<span className="keyboard-shortcut">CTRL+SHIFT+Z</span>
+                            t&nbsp;o undo and redo.
+                            </li>
+                      </ul>
+                      <h2 className="instructions-header">Tips for editing the grid (or for solving diagramless crosswords):</h2>
+                      <ul>
                         <li><span className="keyboard-shortcut">CTRL+B</span>
                             &nbsp;to toggle a cell between black/white
                             </li>
-                        <li><span className="keyboard-shortcut">CTRL+U</span>
-                            &nbsp;to enter arbitrary text into a cell (not restricted to a single letter)
-                            </li>
+                        <li>Use the 'Re-assign numbers' button to fill in numbers, inferring them from
+                            &nbsp;the positions of the black cells.</li>
                         <li><span className="keyboard-shortcut">CTRL+I</span>
-                            &nbsp;to edit the number of the cell
-                            (but the easiest way to set the numbers is 'Re-assign numbers' buttons)
+                            &nbsp;to manually edit the number of the cell.
                             </li>
+                        <li>Put the clues in the text field on the right. The application will automatically
+                            associate lines that start with a number (e.g., "1.") with the corresponding
+                            cells on the grid.
+                            </li>
+                        <li>Hold&nbsp;<span className="keyboard-shortcut">SHIFT</span>&nbsp;and use the arrow keys to select a rectangular region.
+                        <li><span className="keyboard-shortcut">CTRL+X</span>&nbsp;to cut.</li>
+                        <li><span className="keyboard-shortcut">CTRL+C</span>&nbsp;to copy.</li>
+                        <li><span className="keyboard-shortcut">CTRL+V</span>&nbsp;to paste.</li>
                       </ul>
                 </div>
                 {@renderToggleOffline()}

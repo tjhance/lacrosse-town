@@ -19,6 +19,7 @@ div.puzzle_container {
 }
 
 div.puzzle_container_panel {
+    width: 600px;
 	max-width: 600px;
 	font-size: 14px;
 }
@@ -265,6 +266,10 @@ div.display-answer-length-next-to-line::after {
 span.keyboard-shortcut {
     font-family: 'Courier New';
     font-weight: bold;
+}
+
+.instructions-header {
+    font-size: 18px;
 }
 
 /* find-matches stuff */

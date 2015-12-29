@@ -556,6 +556,7 @@ PuzzlePage = React.createClass
                 pattern: pattern.toLowerCase()
                 clueTitle: clueTitle
                 clueText: clueText
+                savedGridFocus: Utils.clone @state.grid_focus
 
     # Looks at the the text of one of the clue fields to find the clue for a given
     # number. Returns the text of that clue. If it can't be found, returns "".
@@ -604,7 +605,7 @@ PuzzlePage = React.createClass
             nextC++
         else
             prevR--
-            prevR++
+            nextR++
         if (prevR >= 0 and prevR < @height() and prevC >= 0 and prevC < @width() and g[prevR][prevC].open) or \
            (nextR >= 0 and nextR < @height() and nextC >= 0 and nextC < @width() and g[nextR][nextC].open)
             fail()
@@ -646,6 +647,10 @@ PuzzlePage = React.createClass
         @props.requestOp op
 
         @closeMatchFinder()
+
+        # restore the grid_focus that existed at the time of entering the match-finder state
+        @setState
+            grid_focus: info.savedGridFocus
 
     # Copy/cut/paste stuff
 

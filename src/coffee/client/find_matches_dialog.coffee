@@ -17,7 +17,18 @@ FindMatchesDialog = React.createClass
         matchList: null
         error: null
 
+    componentWillReceiveProps: (newProps) ->
+        if newProps.pattern != @props.pattern
+            @setState(@getInitialState())
+
     componentDidMount: () ->
+        @doAjax()
+
+    componentDidUpdate: () ->
+        if not @state.matchList and not @state.error
+            @doAjax()
+
+    doAjax: () ->
         # Make the ajax request
         $.ajax({
             type: 'POST',

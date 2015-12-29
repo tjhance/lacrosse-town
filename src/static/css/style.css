@@ -328,9 +328,27 @@ a.lt-select-list-option {
     padding-bottom: 4px;
     font-weight: bold;
     font-family: 'Courier New';
+    cursor: pointer;
 }
 
+/* Highlight a cell via background-color if either:
+   - It is hovered
+   - It is focused AND the lt-select-list as a whole is not hovered
+*/
 a.lt-select-list-option:focus {
     background-color: #f2f9fc;
+}
+
+.lt-select-list:hover
+a.lt-select-list-option:focus {
+    background-color: white;
+}
+
+a.lt-select-list-option:hover {
+    background-color: #f2f9fc !important;
+}
+
+/* Remove outline from focused elements */
+a.lt-select-list-option:focus {
     outline: 0px solid transparent;
 }

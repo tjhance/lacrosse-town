@@ -572,8 +572,12 @@ PuzzlePage = React.createClass
         return ""
 
     closeMatchFinder: () ->
+        # close the match-finder panel, and also restore the grid_focus to whatever it was
+        # before entering the match-finding state
+        grid_focus = if @state.findMatchesInfo.savedGridFocus? then @state.findMatchesInfo.savedGridFocus else null
         @setState
             findMatchesInfo: null
+            grid_focus: grid_focus
 
     # If the user selects a word in the match-finder dialog, we enter that word
     # into the grid here.
@@ -647,10 +651,6 @@ PuzzlePage = React.createClass
         @props.requestOp op
 
         @closeMatchFinder()
-
-        # restore the grid_focus that existed at the time of entering the match-finder state
-        @setState
-            grid_focus: info.savedGridFocus
 
     # Copy/cut/paste stuff
 

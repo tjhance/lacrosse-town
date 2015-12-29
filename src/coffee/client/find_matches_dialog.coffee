@@ -73,7 +73,8 @@ FindMatchesDialog = React.createClass
         if @state.matchList
             <div>
                 <SelectList matches={@state.matchList}
-                        onSelect={(index, value) => @props.onSelect(value)} />
+                        onSelect={(index, value) => @props.onSelect(value)}
+                        onClose={() => @props.onClose()} />
             </div>
         else if @state.error
             <div style={{'color': 'red'}}>
@@ -129,14 +130,26 @@ SelectList = React.createClass
             @enter(i)
             event.preventDefault()
             event.stopPropagation()
+        else if event.which == 27 # escape
+            @props.onClose()
+
+    onClick: (event, i) ->
+        @enter(i)
+        # even with this, we still fail to restore focus to the grid when closing
+        # ... why?
+        event.preventDefault()
+        event.stopPropagation()
 
     render: () ->
-        <div className="dont-bubble-keydown" className="lt-select-list">
+        <div className="dont-bubble-keydown" className="lt-select-list"
+                onMouseEnter={() => @setState({mousedOver: true})}
+                onMouseLeave={() => @setState({mousedOver: false})} >
             { for i in [0 ... @props.matches.length]
                do (i) =>
                 <a href="#" style={{'display': 'block'}}
                         onKeyDown={(event) => @onKeyDown(event, i)}
                         className={"lt-select-list-option"}
+                        onClick={(event) => @onClick(event, i)}
                         ref={"option-"+i}
                         key={"option-"+i}>
                     {@props.matches[i]}

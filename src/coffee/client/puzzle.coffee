@@ -790,6 +790,9 @@ PuzzlePage = React.createClass
                         <li><span className="keyboard-shortcut">BACKSPACE</span>
                             &nbsp;to empty a cell
                             </li>
+                        <li><span className="keyboard-shortcut">CTRL+G</span>
+                            &nbsp;to search a dictionary for matches of a partially-filled in answer.
+                            </li>
                         <li><span className="keyboard-shortcut">CTRL+B</span>
                             &nbsp;to toggle a cell between black/white
                             </li>

@@ -264,6 +264,7 @@ div.display-answer-length-next-to-line::after {
 
 span.keyboard-shortcut {
     font-family: 'Courier New';
+    font-weight: bold;
 }
 
 /* find-matches stuff */

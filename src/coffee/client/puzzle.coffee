@@ -815,7 +815,7 @@ PuzzlePanel = React.createClass
                       <h2 className="instructions-header">Tips for solving:</h2>
                       <ul>
                         <li>Arrow keys to move around.</li>
-                        <li>Type any letter to enter into the selected cell.</li>
+                        <li>Type any letter to enter it into the selected cell.</li>
                         <li><span className="keyboard-shortcut">BACKSPACE</span>
                             &nbsp;to empty a cell.
                             </li>
@@ -826,7 +826,7 @@ PuzzlePanel = React.createClass
                             &nbsp;to enter arbitrary text into a cell (not restricted to a single letter).
                             </li>
                         <li><span className="keyboard-shortcut">CTRL+Z</span>&nbsp;and&nbsp;<span className="keyboard-shortcut">CTRL+SHIFT+Z</span>
-                            t&nbsp;o undo and redo.
+                            &nbsp;to undo and redo.
                             </li>
                       </ul>
                       <h2 className="instructions-header">Tips for editing the grid (or for solving diagramless crosswords):</h2>

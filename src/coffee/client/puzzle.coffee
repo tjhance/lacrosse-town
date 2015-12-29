@@ -729,7 +729,17 @@ PuzzlePage = React.createClass
                         {@renderPuzzleGrid()}
                     </div>
                     <div className="puzzle_container_box puzzle_container_panel">
-                        {@renderPuzzlePanel()}
+                        <PuzzlePanel
+                            findMatchesInfo={@state.findMatchesInfo}
+                            onMatchFinderChoose={@onMatchFinderChoose}
+                            onMatchFinderChoose={@onMatchFinderChoose}
+                            onMatchFinderClose={@closeMatchFinder}
+                            renumber={@renumber}
+                            needToRenumber={@needToRenumber()}
+                            toggleMaintainRotationalSymmetry={@toggleMaintainRotationalSymmetry}
+                            maintainRotationalSymmetry={@state.maintainRotationalSymmetry}
+                            />
+                        {@renderToggleOffline()}
                     </div>
                 </div>
                 <div className="puzzle_container_column">
@@ -766,26 +776,39 @@ PuzzlePage = React.createClass
                   ref={if type == "across" then "acrossClues" else "downClues"} />
         </div>
 
-    renderPuzzlePanel: ->
-        if @state.findMatchesInfo
+    renderToggleOffline: ->
+        return null
+
+        # This is just for debugging, so it's commented out right now:
+
+        #<div className="offline_mode" style={{'display': 'none'}}>
+        #    <input type="checkbox"
+        #            defaultChecked={false}
+        #            onChange={@toggleOffline} />
+        #        Offline mode
+        #</div>
+
+PuzzlePanel = React.createClass
+    render: ->
+        if @props.findMatchesInfo
             <FindMatchesDialog
-                clueTitle={@state.findMatchesInfo.clueTitle}
-                clueText={@state.findMatchesInfo.clueText}
-                pattern={@state.findMatchesInfo.pattern}
-                onSelect={@onMatchFinderChoose}
-                onClose={@closeMatchFinder} />
+                clueTitle={@props.findMatchesInfo.clueTitle}
+                clueText={@props.findMatchesInfo.clueText}
+                pattern={@props.findMatchesInfo.pattern}
+                onSelect={@props.onMatchFinderChoose}
+                onClose={@props.onMatchFinderClose} />
         else
             <div>
                 <div className="reassign-numbers-container">
-                  <input type="button" value="Re-assign numbers" onClick={this.renumber}
+                  <input type="button" value="Re-assign numbers" onClick={@props.renumber}
                         title="Sets the numbers in the grid based off of the locations of the black cells, according to standard crossword rules."
-                        className="lt-button" disabled={@needToRenumber()} />
+                        className="lt-button" disabled={@props.needToRenumber} />
                 </div>
                 <div className="rotational-symmetry-container">
                   <input type="checkbox"
                           className="lt-checkbox"
-                          defaultChecked={true}
-                          onChange={@toggleMaintainRotationalSymmetry} />
+                          defaultChecked={@props.maintainRotationalSymmetry}
+                          onChange={@props.toggleMaintainRotationalSymmetry} />
                       <label className="lt-checkbox-label">Maintain rotational symmetry</label>
                 </div>
                 <div>
@@ -809,7 +832,7 @@ PuzzlePage = React.createClass
                       <h2 className="instructions-header">Tips for editing the grid (or for solving diagramless crosswords):</h2>
                       <ul>
                         <li><span className="keyboard-shortcut">CTRL+B</span>
-                            &nbsp;to toggle a cell between black/white
+                            &nbsp;to toggle a cell between black/white.
                             </li>
                         <li>Use the 'Re-assign numbers' button to fill in numbers, inferring them from
                             &nbsp;the positions of the black cells.</li>
@@ -820,27 +843,13 @@ PuzzlePage = React.createClass
                             associate lines that start with a number (e.g., "1.") with the corresponding
                             cells on the grid.
                             </li>
-                        <li>Hold&nbsp;<span className="keyboard-shortcut">SHIFT</span>&nbsp;and use the arrow keys to select a rectangular region.
+                        <li>Hold&nbsp;<span className="keyboard-shortcut">SHIFT</span>&nbsp;and use the arrow keys to select a rectangular region.</li>
                         <li><span className="keyboard-shortcut">CTRL+X</span>&nbsp;to cut.</li>
                         <li><span className="keyboard-shortcut">CTRL+C</span>&nbsp;to copy.</li>
                         <li><span className="keyboard-shortcut">CTRL+V</span>&nbsp;to paste.</li>
                       </ul>
                 </div>
-                {@renderToggleOffline()}
             </div>
-
-
-    renderToggleOffline: ->
-        return null
-
-        # This is just for debugging, so it's commented out right now:
-
-        #<div className="offline_mode" style={{'display': 'none'}}>
-        #    <input type="checkbox"
-        #            defaultChecked={false}
-        #            onChange={@toggleOffline} />
-        #        Offline mode
-        #</div>
 
 PuzzleGrid = React.createClass
     shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)

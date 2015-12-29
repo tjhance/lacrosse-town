@@ -39,7 +39,7 @@ getGridFromClipboard = (event) ->
                     y = node.getAttribute('data-crossword-cell-y')
                     if x? and y?
                         open = node.getAttribute('data-crossword-cell-open') == "true"
-                        number = node.getAttribute('data-crossword-cell-open')
+                        number = node.getAttribute('data-crossword-cell-number')
                         number = parseInt(number, 10)
                         if (not number) and number != 0
                             number = null

@@ -246,6 +246,25 @@ PuzzlePage = React.createClass
 
             @setState { grid_focus: grid_focus }
 
+    doDeleteAll: () ->
+        grid_focus = @state.grid_focus
+        if grid_focus == null
+            return
+        g = @state.puzzle.grid
+
+        row1 = Math.min(grid_focus.focus.row, grid_focus.anchor.row)
+        row2 = Math.max(grid_focus.focus.row, grid_focus.anchor.row)
+        col1 = Math.min(grid_focus.focus.col, grid_focus.anchor.col)
+        col2 = Math.max(grid_focus.focus.col, grid_focus.anchor.col)
+        op = Ot.identity(@state.puzzle)
+        for row in [row1..row2]
+            for col in [col1..col2]
+                op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "contents", "")
+                op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "number", null)
+                op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "open", true)
+        console.log(op)
+        @props.requestOp op
+
     # Perform an automatic renumbering.
     renumber: () ->
         @setState { grid_focus: @removeCellField(@state.grid_focus) }
@@ -647,8 +666,8 @@ PuzzlePage = React.createClass
     doCut: (event) ->
         if @state.grid_focus == null
             return
-        doCopy(event)
-        doDeleteAll()
+        @doCopy(event)
+        @doDeleteAll()
 
     doPaste: (event) ->
         if @state.grid_focus == null
@@ -803,7 +822,7 @@ PuzzleGrid = React.createClass
     shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)
 
     render: ->
-        <table className="puzzle_grid_table">
+        <table className="puzzle_grid_table"><tbody>
             { for row in [0 ... @props.grid.length]
                do (row) =>
                 <PuzzleGridRow
@@ -818,7 +837,7 @@ PuzzleGrid = React.createClass
                     onCellClick={(col) => @props.onCellClick(row, col)}
                 />
             }
-        </table>
+        </tbody></table>
 
 PuzzleGridRow = React.createClass
     shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)

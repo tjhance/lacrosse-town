@@ -262,7 +262,6 @@ PuzzlePage = React.createClass
                 op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "contents", "")
                 op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "number", null)
                 op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "open", true)
-        console.log(op)
         @props.requestOp op
 
     # Perform an automatic renumbering.
@@ -652,6 +651,32 @@ PuzzlePage = React.createClass
 
         @closeMatchFinder()
 
+    # setting dimensions
+    onSetDimensions: (width, height) ->
+        # NOTE: this actually has one pretty annoying consequence: if the dimensions
+        # are, say, 15x15 and two users set them to 20x20 at the same time, each user
+        # will add 5 rows and 5 cols, so the dimension will end up at 25x25 when they
+        # probably just wanted 20x20. I guess this is a symptom of the row/col OT
+        # being overly sophisticated? Well, we could fix this at the OT layer. (TODO)
+
+        op = Ot.identity(@state.puzzle)
+
+        if width < @width()
+            op = Ot.compose(@state.puzzle, op,
+                    Ot.opDeleteCols(@state.puzzle, width, @width() - width))
+        else if width > @width()
+            op = Ot.compose(@state.puzzle, op,
+                    Ot.opInsertCols(@state.puzzle, @width(), width - @width()))
+
+        if height < @height()
+            op = Ot.compose(@state.puzzle, op,
+                    Ot.opDeleteRows(@state.puzzle, height, @height() - height))
+        else if height > @height()
+            op = Ot.compose(@state.puzzle, op,
+                    Ot.opInsertRows(@state.puzzle, @height(), height - @height()))
+
+        @props.requestOp op
+
     # Copy/cut/paste stuff
 
     doCopy: (event) ->
@@ -735,6 +760,9 @@ PuzzlePage = React.createClass
                             onMatchFinderChoose={@onMatchFinderChoose}
                             onMatchFinderClose={@closeMatchFinder}
                             renumber={@renumber}
+                            width={@state.puzzle.width}
+                            height={@state.puzzle.height}
+                            onSetDimensions={@onSetDimensions}
                             needToRenumber={@needToRenumber()}
                             toggleMaintainRotationalSymmetry={@toggleMaintainRotationalSymmetry}
                             maintainRotationalSymmetry={@state.maintainRotationalSymmetry}
@@ -799,6 +827,11 @@ PuzzlePanel = React.createClass
                 onClose={@props.onMatchFinderClose} />
         else
             <div>
+                <DimensionWidget
+                    width={@props.width}
+                    height={@props.height}
+                    onSet={@props.onSetDimensions}
+                    />
                 <div className="reassign-numbers-container">
                   <input type="button" value="Re-assign numbers" onClick={@props.renumber}
                         title="Sets the numbers in the grid based off of the locations of the black cells, according to standard crossword rules."
@@ -850,6 +883,83 @@ PuzzlePanel = React.createClass
                       </ul>
                 </div>
             </div>
+
+DimensionWidget = React.createClass
+    # props:
+    #   width
+    #   height
+    #   onSet(width, height)
+    getInitialState: () ->
+        isEditing: false
+
+    mixins: [React.addons.PureRenderMixin]
+
+    render: () ->
+        if @state.isEditing
+            <div className="dimension-panel">
+                <span className="dimension-panel-edit-1">Width:</span>
+                <span className="dimension-panel-edit-2"><input type="text" defaultValue={@props.width} onKeyDown={@onKeyDown} ref={@widthInputFun} className="dont-bubble-keydown" /></span>
+                <span className="dimension-panel-edit-3">Height:</span>
+                <span className="dimension-panel-edit-4"><input type="text" defaultValue={@props.height} onKeyDown={@onKeyDown} ref={@heightInputFun} className="dont-bubble-keydown" /></span>
+                <span className="dimension-panel-static-4"><input type="button" className="lt-button" value="Submit" onClick={@onSubmit} /></span>
+            </div>
+        else
+            <div className="dimension-panel">
+                <span className="dimension-panel-static-1">Width:</span>
+                <span className="dimension-panel-static-2">{@props.width}</span>
+                <span className="dimension-panel-static-3">Height:</span>
+                <span className="dimension-panel-static-4">{@props.height}</span>
+                <span className="dimension-panel-static-4"><input type="button" className="lt-button" value="Edit" onClick={@onClickEdit} /></span>
+            </div>
+
+    widthInputFun: (elem) ->
+        if elem? and (not @widthInput?)
+            # when creating this field, focus on it
+            node = React.findDOMNode(elem)
+
+            # code to focus on the input element 'node' at the END
+            # from http://stackoverflow.com/questions/1056359/set-mouse-focus-and-move-cursor-to-end-of-input-using-jquery
+            node.focus()
+            if node.setSelectionRange
+                len = $(node).val().length * 2
+                node.setSelectionRange(len, len)
+            else
+                $(node).val($(node).val())
+
+        @widthInput = elem
+
+
+    heightInputFun: (elem) ->
+        @heightInput = elem
+
+    onClickEdit: () ->
+        @setState
+            isEditing: true
+
+    onSubmit: () ->
+        widthStr = React.findDOMNode(@widthInput).value
+        heightStr = React.findDOMNode(@heightInput).value
+        if (not Utils.isValidInteger(widthStr)) or (not Utils.isValidInteger(heightStr))
+            return
+        width = parseInt(widthStr, 10)
+        height = parseInt(heightStr, 10)
+        if width <= 0 or height <= 0 or width >= 200 or height >= 200
+            return
+        @props.onSet(width, height)
+        @setState
+            isEditing: false
+
+    onCancelEdit: () ->
+        @setState
+            isEditing: false
+
+    onKeyDown: (event) ->
+        if event.which == 13 # enter
+            @onSubmit()
+            event.preventDefault()
+        else if event.which == 27 # escape
+            @onCancelEdit()
+            event.preventDefault()
 
 PuzzleGrid = React.createClass
     shouldComponentUpdate: (nextProps, nextState) -> not Utils.deepEquals(@props, nextProps)

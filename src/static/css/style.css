@@ -357,3 +357,46 @@ a.lt-select-list-option:hover {
 a.lt-select-list-option:focus {
     outline: 0px solid transparent;
 }
+
+/* dimensions panel */
+
+.dimension-panel {
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.dimension-panel-edit-1 {
+    font-weight: bold;
+    padding-right: 5px;
+}
+
+.dimension-panel-edit-2 {
+    padding-right: 10px;
+}
+
+.dimension-panel-edit-3 {
+    font-weight: bold;
+    padding-right: 5px;
+}
+
+.dimension-panel-edit-4 {
+    padding-right: 10px;
+}
+
+.dimension-panel-static-1 {
+    font-weight: bold;
+    padding-right: 5px;
+}
+
+.dimension-panel-static-2 {
+    padding-right: 10px;
+}
+
+.dimension-panel-static-3 {
+    font-weight: bold;
+    padding-right: 5px;
+}
+
+.dimension-panel-static-4 {
+    padding-right: 10px;
+}

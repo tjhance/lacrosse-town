@@ -898,10 +898,10 @@ DimensionWidget = React.createClass
         if @state.isEditing
             <div className="dimension-panel">
                 <span className="dimension-panel-edit-1">Width:</span>
-                <span className="dimension-panel-edit-2"><input type="text" defaultValue={@props.width} onKeyDown={@onKeyDown} ref={@widthInputFun} className="dont-bubble-keydown" /></span>
+                <span className="dimension-panel-edit-2"><input type="text" defaultValue={@props.width} onKeyDown={@onKeyDown} ref={@widthInputFun} className="dont-bubble-keydown" size="4" /></span>
                 <span className="dimension-panel-edit-3">Height:</span>
-                <span className="dimension-panel-edit-4"><input type="text" defaultValue={@props.height} onKeyDown={@onKeyDown} ref={@heightInputFun} className="dont-bubble-keydown" /></span>
-                <span className="dimension-panel-static-4"><input type="button" className="lt-button" value="Submit" onClick={@onSubmit} /></span>
+                <span className="dimension-panel-edit-4"><input type="text" defaultValue={@props.height} onKeyDown={@onKeyDown} ref={@heightInputFun} className="dont-bubble-keydown" size="4" /></span>
+                <span className="dimension-panel-edit-5"><input type="button" className="lt-button" value="Submit" onClick={@onSubmit} /></span>
             </div>
         else
             <div className="dimension-panel">
@@ -909,7 +909,7 @@ DimensionWidget = React.createClass
                 <span className="dimension-panel-static-2">{@props.width}</span>
                 <span className="dimension-panel-static-3">Height:</span>
                 <span className="dimension-panel-static-4">{@props.height}</span>
-                <span className="dimension-panel-static-4"><input type="button" className="lt-button" value="Edit" onClick={@onClickEdit} /></span>
+                <span className="dimension-panel-static-5"><input type="button" className="lt-button" value="Edit" onClick={@onClickEdit} /></span>
             </div>
 
     widthInputFun: (elem) ->

@@ -46,6 +46,8 @@ window.UndoRedo = (initialState) ->
         # undone ops.
         if undoable
             stackForward = []
+        else
+            xformStackForward op
 
         lastEntry = stackBackward[stackBackward.length - 1]
 
@@ -55,7 +57,7 @@ window.UndoRedo = (initialState) ->
             prevState = Ot.apply(state, lastEntry.backward_op)
             forward_op = Ot.compose(prevState, lastEntry.forward_op, op)
             backward_op = Ot.inverse(prevState, forward_op)
-            stackBackward[stackForward.length - 1] =
+            stackBackward[stackBackward.length - 1] =
                 undoable: false
                 forward_op: forward_op
                 backward_op: backward_op
@@ -182,5 +184,32 @@ window.UndoRedo = (initialState) ->
             stackBackward[stackBackward.length - 1] = new_op0
 
         return true
+
+    # tranforms everything in stackForward
+    xformStackForward = (op) ->
+        #
+        #         ------->------>------>
+        #        ^       ^      ^      ^
+        #     op |       |      |      |
+        #        |       |      |      |
+        #   state ------->------>------>
+        #           [2]     [1]    [0]
+        #             stackForward
+
+        st = state
+        i = stackForward.length - 1
+        while i >= 0
+            [f_op_new, op_new] = Ot.xform(st, stackForward[i].forward_op, op)
+            st_new = Ot.apply(st, stackForward[i].forward_op)
+            f_op_back_new = Ot.inverse(Ot.apply(st, op), f_op_new)
+
+            st = st_new
+            op = op_new
+            stackForward[i] =
+                undoable: stackForward[i].undoable,
+                forward_op: f_op_new,
+                backward_op: f_op_back_new
+
+            i--
 
     return this

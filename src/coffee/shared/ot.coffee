@@ -167,7 +167,7 @@ xform = (base, a, b) ->
 
     for strname in ["across_clues", "down_clues"]
         if strname of a and strname of b
-            [ka2[strname], kb1[strname]] = OtText.xformText base[strname], a[strname], b[strname]
+            [ka2[strname], kb2[strname]] = OtText.xformText base[strname], a[strname], b[strname]
         else if strname of a
             ka2[strname] = a[strname]
         else if strname of b

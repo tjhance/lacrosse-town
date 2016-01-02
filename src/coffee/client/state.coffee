@@ -147,7 +147,7 @@ window.ClientSyncer = (puzzleID) ->
         op_a = Ot.identity data.puzzle
         op_b = Ot.identity data.puzzle
 
-        undoRedo = new UndoRedo(root)
+        undoRedo = new UndoRedo.UndoRedo(root)
 
         # Notify the watchers. Here, op is null because this is the initial
         # state to work with - there is no old state to apply an op from.

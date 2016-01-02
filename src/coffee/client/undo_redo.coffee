@@ -6,6 +6,8 @@ else
     Utils = @Utils
 
 UndoRedo = (initialState) ->
+    initialState = Utils.clone initialState
+
     # Here's how we track state: 
     #
     #  [op 1] [op 2] [op 3] [op 4] [op 5] [op 6]
@@ -49,6 +51,8 @@ UndoRedo = (initialState) ->
         if Ot.isIdentity(op)
             return
 
+        op = Utils.clone op
+
         # If we do an 'undoable' op, we lose the ability to 'redo' any previously
         # undone ops.
         if undoable
@@ -87,7 +91,7 @@ UndoRedo = (initialState) ->
         stackForward.pop()
         stackBackward.push(nextEntry)
         state = Ot.apply(state, nextEntry.forward_op)
-        return nextEntry.forward_op
+        return Utils.clone nextEntry.forward_op
 
     # Do an undo and return the op applied to 'state'.
     # Returns 'null' if it's impossible to do an undo.
@@ -101,7 +105,7 @@ UndoRedo = (initialState) ->
         stackBackward.pop()
         stackForward.push(lastEntry)
         state = Ot.apply(state, lastEntry.backward_op)
-        return lastEntry.backward_op
+        return Utils.clone lastEntry.backward_op
 
     # Rearrange 'stackBackward' so that an 'undoable' op is on top.
     # Returns true if successful.

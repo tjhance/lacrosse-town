@@ -235,7 +235,6 @@ window.ClientSyncer = (puzzleID) ->
             opID : id
             rootID : rootID
         }
-        console.log updateMessage
         if connected
             socket.emit "update", updateMessage
 

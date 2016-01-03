@@ -11,7 +11,7 @@ It also has two functions which should be called:
     applyOpToPuzzleState: call this with an op to update it.
 
 The user of this class should call `applyOpToPuzzleState` for any op which is applied.
-This includes both ops from the server AND ops from the user. Tha means that when
+This includes both ops from the server AND ops from the user. That means that when
 this object calls `requestOp`, `applyOpToPuzzleState` should be called immediately after.
 
 The React element responds to most user-input commands by creating an op and
@@ -189,6 +189,13 @@ PuzzlePage = React.createClass
             else if (not grid_focus.is_across) and grid_focus.focus.row < @height() - 1
                 grid_focus.focus.row += 1
         @setState { grid_focus: @collapseGridFocus grid_focus }
+
+    doSpace: () ->
+        if @state.grid_focus
+            if @state.grid_focus.is_across
+                @moveGridCursor false, 0, 1
+            else
+                @moveGridCursor false, 1, 0
 
     doDelete: () ->
         grid_focus = Utils.clone @state.grid_focus
@@ -394,6 +401,9 @@ PuzzlePage = React.createClass
                 event.preventDefault()
             else if event.keyCode == 8 # backspace
                 @doDelete()
+                event.preventDefault()
+            else if event.keyCode == 32 # space
+                @doSpace()
                 event.preventDefault()
 
     # Focus on a cell when it is clicked on, or toggle its

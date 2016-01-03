@@ -61,15 +61,13 @@ EditableTextField = (buildContent) -> React.createClass
         selection = @selection
         text = @baseText
 
-        #try
-        op = getOpForTextChange selection, text, newSelection, newText
-        Utils.assert (newText == OtText.applyTextOp text, op)
-        #catch
+        try
+            op = getOpForTextChange selection, text, newSelection, newText
+            Utils.assert (newText == OtText.applyTextOp text, op)
+        catch
             # Fallback in case the complicated logic doesn't work
-        #    asStr = (sel) ->
-        #        "[#{("(#{a}, #{b})" for [a,b] in sel).join(", ")}]"
-
-        #    op = OtText.text_diff2 text, newText
+            op = getOpForTextChange2 text, newText
+            Utils.assert (newText == OtText.applyTextOp text, op)
 
         @selection = newSelection
         @text = newText
@@ -379,5 +377,22 @@ getOpForTextChange = (old_sel, old_text, new_sel, new_text) ->
                             (OtText.canonicalized op_delete_selected),
                             (OtText.canonicalized op2)
     return op
+
+# Like `getOpForTextChange`, but it never fails
+getOpForTextChange2 = (old_text, new_text) ->
+    prefix = 0
+    while prefix < old_text.length and prefix < new_text.length and old_text.charAt(prefix) == new_text.charAt(prefix)
+        prefix++
+
+    suffix = 0
+    while suffix < old_text.length - prefix and suffix < new_text.length - prefix and old_text.charAt(old_text.length - suffix - 1) == new_text.charAt(new_text.length - suffix - 1)
+        suffix++
+
+    return OtText.canonicalized [
+        OtText.take(prefix),
+        OtText.skip(old_text.length - prefix - suffix),
+        OtText.insert(new_text.substring(prefix, new_text.length - suffix)),
+        OtText.take(suffix)
+      ]
 
 window.EditableTextField = EditableTextField

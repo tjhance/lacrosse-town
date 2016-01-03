@@ -7,7 +7,12 @@ assert = (condition, message) ->
 
 isValidInteger = (s) ->
     isDigit = (c) -> c.charCodeAt(0) >= "0".charCodeAt(0) and c.charCodeAt(0) <= "9".charCodeAt(0)
-    s.length > 0 and ([0..s.length-1].every (i) -> (isDigit s[i]) or (i == 0 and s[i] == '-'))
+    s.length > 0 and ([0..s.length-1].every (i) -> (isDigit s[i]) or (i == 0 and s[i] == '-')) and \
+        (s.length == 1 or s.charAt(0) != "0")
+
+# from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+isInteger = (value) ->
+  return (typeof value == "number" and isFinite(value) and Math.floor(value) == value)
 
 sum = (l) -> l.reduce ((a, b) -> a + b) 0
 
@@ -126,3 +131,4 @@ exports.sum = sum
 exports.transpose = transpose
 exports.useHardSpaces = useHardSpaces
 exports.htmlEscape = htmlEscape
+exports.isInteger = isInteger

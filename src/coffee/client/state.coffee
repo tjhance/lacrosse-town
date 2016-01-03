@@ -206,6 +206,8 @@ window.ClientSyncer = (puzzleID) ->
             return false
 
     _localOp = (op) ->
+        Ot.assertValidOp tip, op
+
         tip = Ot.apply tip, op
         op_b = Ot.compose buffer, op_b, op
 

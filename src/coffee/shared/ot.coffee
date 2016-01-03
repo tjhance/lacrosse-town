@@ -301,6 +301,45 @@ getClueOp = (which, text_op) ->
     res["#{which}_clues"] = text_op
     return res
 
+assertValidOp = (base, op) ->
+    if op.cols?
+        newWidth = OtText.assertValidTextOp(Utils.repeatString(".", base.width), op.cols)
+    else
+        newWidth = base.width
+
+    if op.rows?
+        newHeight = OtText.assertValidTextOp(Utils.repeatString(".", base.height), op.rows)
+    else
+        newHeight = base.height
+
+    for key of op
+        if key == "rows" or key == "cols"
+            # already handled this case
+        else if key == "across_clues"
+            OtText.assertValidTextOp(base.across_clues, op[key])
+        else if key == "down_clues"
+            OtText.assertValidTextOp(base.down_clues, op[key])
+        else
+            spl = key.split('-')
+            Utils.assert spl.length == 4
+            Utils.assert spl[0] == "cell"
+            Utils.assert Utils.isValidInteger spl[1]
+            y = parseInt(spl[1])
+            Utils.assert Utils.isValidInteger spl[2]
+            x = parseInt(spl[2])
+            Utils.assert 0 <= y
+            Utils.assert y < newHeight
+            Utils.assert 0 <= x
+            Utils.assert x < newWidth
+            if spl[3] == "number"
+                Utils.assert op[key] == null or typeof(op[key]) == 'number'
+            else if spl[3] == "contents"
+                Utils.assert typeof(op[key]) == 'string'
+            else if spl[3] == "open"
+                Utils.assert typeof(op[key]) == 'boolean'
+            else
+                Utils.assert false, "unknown cell property"
+
 # Export stuff
 
 if module?
@@ -321,3 +360,4 @@ exports.opInsertRows = opInsertRows
 exports.opInsertCols = opInsertCols
 exports.opDeleteRows = opDeleteRows
 exports.opDeleteCols = opDeleteCols
+exports.assertValidOp = assertValidOp

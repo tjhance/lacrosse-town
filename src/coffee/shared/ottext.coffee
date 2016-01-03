@@ -270,6 +270,34 @@ getIndexMapForTextOp = (op) ->
 opTextSplice = (totalLen, index, toInsert, numToDelete) ->
     canonicalized [take(index), skip(numToDelete), insert(toInsert), take(totalLen-index-numToDelete)]
 
+# Asserts that the op is valid and applies to the given string.
+# Returns the length of the resulting string after application.
+assertValidTextOp = (s, op) ->
+    oldLength = 0
+    newLength = 0
+    prevType = -1
+    for o in op
+        Utils.assert(o[0] == TAKE or o[0] == SKIP or o[0] == INSERT)
+        switch o[0]
+            when TAKE
+                Utils.assert(Utils.isInteger(o[1]) and o[1] >= 1)
+                oldLength += o[1]
+                newLength += o[1]
+            when SKIP
+                Utils.assert(Utils.isInteger(o[1]) and o[1] >= 1)
+                oldLength += o[1]
+            when INSERT
+                Utils.assert(typeof(o[1]) == 'string' and o[1].length >= 1)
+                newLength += o[1].length
+        if prevType != -1
+            curType = o[0]
+            Utils.assert((prevType == TAKE and curType != TAKE) or
+                         (prevType == SKIP and curType != SKIP) or
+                         (prevType == INSERT and curType == TAKE))
+        prevType = o[0]
+    Utils.assert(oldLength == s.length)
+    return newLength
+
 # Export stuff
 
 if module?
@@ -289,3 +317,4 @@ exports.getIndexMapForTextOp = getIndexMapForTextOp
 exports.opTextSplice = opTextSplice
 exports.identity = identity
 exports.inverseText = inverseText
+exports.assertValidTextOp = assertValidTextOp

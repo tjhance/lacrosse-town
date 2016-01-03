@@ -9,7 +9,7 @@ exports.init = (callback) ->
         # TODO should strip other characters like spaces
         word.toLowerCase()
 
-    fs.readFile 'dictionaries/UKACD.txt', 'utf8', (err, data) ->
+    fs.readFile 'dictionaries/UKACD-normalized.txt', 'utf8', (err, data) ->
         if err
             console.error err
         else

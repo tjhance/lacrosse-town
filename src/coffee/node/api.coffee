@@ -12,4 +12,4 @@ handleNew = (req, callback) ->
     # TODO this is duplicated
     puzzle = PuzzleUtils.getEmptyPuzzle 15, 15, req.body.title
     Db.createPuzzle puzzle, (puzzleID) ->
-        callback {success: true, url: req.headers.host + "/puzzle/#{puzzleID}"}
+        callback {success: true, url: "http://" + req.headers.host + "/puzzle/#{puzzleID}"}

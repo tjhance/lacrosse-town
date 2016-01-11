@@ -24,6 +24,13 @@ There is also `grid_focus`, which describes the focus state of the grid: which
 cell the grid is focused on, if any.
 ###
 
+ClipboardUtils = require('./clipboard_utils')
+FindMatchesDialog = require('./find_matches_dialog').FindMatchesDialog
+Ot = require('../shared/ot')
+Utils = require('../shared/utils')
+PuzzleUtils = require('../shared/puzzle_utils')
+EditableTextField = require('./text_field_handler').EditableTextField
+
 PuzzlePage = React.createClass
     getInitialState: () ->
         puzzle: null
@@ -1127,4 +1134,4 @@ parseClueLine = (line) ->
           }
 
 
-window.PuzzlePage = PuzzlePage
+module.exports.PuzzlePage = PuzzlePage

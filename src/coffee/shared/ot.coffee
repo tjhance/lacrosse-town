@@ -1,11 +1,6 @@
-if require?
-    PuzzleUtils = require "./puzzle_utils"
-    Utils = require "./utils"
-    OtText = require "./ottext"
-else
-    PuzzleUtils = @PuzzleUtils
-    Utils = @Utils
-    OtText = @OtText
+PuzzleUtils = require "./puzzle_utils"
+Utils = require "./utils"
+OtText = require "./ottext"
 
 # Abstract operational transformation functions
 # Many of these functions (may) need to know the grid that the operation
@@ -342,22 +337,17 @@ assertValidOp = (base, op) ->
 
 # Export stuff
 
-if module?
-    exports = module.exports
-else
-    exports = @Ot = {}
-
-exports.identity = identity
-exports.isIdentity = isIdentity
-exports.compose = compose
-exports.inverse = inverse
-exports.xform = xform
-exports.apply = apply
-exports.opEditCellValue = opEditCellValue
-exports.opGridDiff = opGridDiff
-exports.getClueOp = getClueOp
-exports.opInsertRows = opInsertRows
-exports.opInsertCols = opInsertCols
-exports.opDeleteRows = opDeleteRows
-exports.opDeleteCols = opDeleteCols
-exports.assertValidOp = assertValidOp
+module.exports.identity = identity
+module.exports.isIdentity = isIdentity
+module.exports.compose = compose
+module.exports.inverse = inverse
+module.exports.xform = xform
+module.exports.apply = apply
+module.exports.opEditCellValue = opEditCellValue
+module.exports.opGridDiff = opGridDiff
+module.exports.getClueOp = getClueOp
+module.exports.opInsertRows = opInsertRows
+module.exports.opInsertCols = opInsertCols
+module.exports.opDeleteRows = opDeleteRows
+module.exports.opDeleteCols = opDeleteCols
+module.exports.assertValidOp = assertValidOp

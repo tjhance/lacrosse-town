@@ -115,20 +115,15 @@ htmlEscape = (s) ->
 
 # Export stuff
 
-if module?
-    exports = module.exports
-else
-    exports = @Utils = {}
-
-exports.assert = assert
-exports.clone = clone
-exports.deepEquals = deepEquals
-exports.isValidInteger = isValidInteger
-exports.isWhitespace = isWhitespace
-exports.repeatString = repeatString
-exports.submatrix = submatrix
-exports.sum = sum
-exports.transpose = transpose
-exports.useHardSpaces = useHardSpaces
-exports.htmlEscape = htmlEscape
-exports.isInteger = isInteger
+module.exports.assert = assert
+module.exports.clone = clone
+module.exports.deepEquals = deepEquals
+module.exports.isValidInteger = isValidInteger
+module.exports.isWhitespace = isWhitespace
+module.exports.repeatString = repeatString
+module.exports.submatrix = submatrix
+module.exports.sum = sum
+module.exports.transpose = transpose
+module.exports.useHardSpaces = useHardSpaces
+module.exports.htmlEscape = htmlEscape
+module.exports.isInteger = isInteger

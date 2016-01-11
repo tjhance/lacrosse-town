@@ -157,4 +157,4 @@ SelectList = React.createClass
             }
         </div>
 
-window.FindMatchesDialog = FindMatchesDialog
+module.exports.FindMatchesDialog = FindMatchesDialog

@@ -7,6 +7,10 @@
 
 # TODO could use some lightweight routing framework?
 
+NewPage = require('./new').NewPage
+ClientSyncer = require('./state').ClientSyncer
+PuzzlePage = require('./puzzle').PuzzlePage
+
 initApp = () ->
     pathname = window.location.pathname
     parts = pathname.split('/')

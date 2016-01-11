@@ -78,7 +78,11 @@
 # received, so we re-send it (with the same ID, so the server can dismiss
 # it as a duplicate if necessary).
 
-window.ClientSyncer = (puzzleID) ->
+Ot = require('../shared/ot')
+Utils = require('../shared/utils')
+UndoRedo = require('./undo_redo')
+
+module.exports.ClientSyncer = (puzzleID) ->
     watchers = []
 
     # The states and operations that we keep track of. These start as null

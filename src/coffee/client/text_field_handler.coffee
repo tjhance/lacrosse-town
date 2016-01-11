@@ -1,6 +1,9 @@
 # This is an incredibly stateful, very "non reacty" object.
 # TODO move the 'stateful' part outside react, make the react object more stateless
 
+OtText = require('../shared/ottext')
+Utils = require('../shared/utils')
+
 EditableTextField = (buildContent) -> React.createClass
     componentWillMount: ->
         @selection = []
@@ -395,4 +398,4 @@ getOpForTextChange2 = (old_text, new_text) ->
         OtText.take(suffix)
       ]
 
-window.EditableTextField = EditableTextField
+module.exports.EditableTextField = EditableTextField

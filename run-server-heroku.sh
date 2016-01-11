@@ -1,5 +1,4 @@
-./node_modules/grunt-cli/bin/grunt -v cjsx
-./node_modules/grunt-cli/bin/grunt -v coffee
+./node_modules/grunt-cli/bin/grunt -v browserify
 
 # generate a config file using the info passed in through environment variables
 config=config/temp-config-heroku.json

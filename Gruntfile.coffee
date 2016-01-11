@@ -3,6 +3,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-newer')
   grunt.loadNpmTasks('grunt-coffee-react')
+  grunt.loadNpmTasks('grunt-browserify')
 
   grunt.initConfig
     cjsx:
@@ -21,12 +22,19 @@ module.exports = (grunt) ->
         dest: "src/static/js-shared/"
         ext: ".js"
 
+    browserify:
+      client:
+        #files:
+        src: ["src/coffee/{client,shared}/**/*.coffee"]
+        dest: "src/static/bundle.js"
+        options:
+          transform: ["cjsxify"]
+          browserifyOptions:
+            extensions: ['.coffee']
+
     watch:
       options:
         atBegin: true
-      coffeescript_client:
-        files: ["src/coffee/client/**/*.coffee"]
-        tasks: ["newer:cjsx:client"]
-      coffeescript_shared:
-        files: ["src/coffee/shared/**/*.coffee"]
-        tasks: ["newer:coffee:shared"]
+      coffeescript_bundle:
+        files: ["src/coffee/{client,shared}/**/*.coffee"]
+        tasks: ["newer:browserify:client"]

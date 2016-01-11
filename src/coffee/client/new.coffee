@@ -5,4 +5,4 @@ NewPage = React.createClass
           <input type="submit" value="Create!" />
         </form>
 
-window.NewPage = NewPage
+module.exports.NewPage = NewPage

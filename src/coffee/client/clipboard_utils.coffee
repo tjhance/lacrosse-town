@@ -1,5 +1,7 @@
 # Utilities for copying and pasting grids.
 
+PuzzleUtils = require "../shared/puzzle_utils"
+
 # Copies the given puzzle grid to the clipboard
 copyGridToClipboard = (event, width, height, grid) ->
     if event.clipboardData
@@ -76,7 +78,5 @@ allNodes = (node) ->
     recurse(node)
     return res
 
-window.ClipboardUtils = {
-    copyGridToClipboard: copyGridToClipboard,
-    getGridFromClipboard: getGridFromClipboard,
-}
+module.exports.copyGridToClipboard = copyGridToClipboard
+module.exports.getGridFromClipboard = getGridFromClipboard

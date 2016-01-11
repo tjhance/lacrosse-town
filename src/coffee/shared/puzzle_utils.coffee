@@ -1,9 +1,6 @@
 # Some puzzle utilities
 
-if require?
-    Utils = require "./utils"
-else
-    Utils = @Utils
+Utils = require "./utils"
 
 # Returns an empty puzzle object.
 getEmptyPuzzle = (height, width, title) ->
@@ -82,13 +79,8 @@ staticHtmlForGrid = (width, height, grid) ->
             ).join('') + '</tr>'
     ).join('') + '</table>'
 
-if module?
-    exports = module.exports
-else
-    exports = @PuzzleUtils = {}
-
-exports.getEmptyCell = getEmptyCell
-exports.getEmptyPuzzle = getEmptyPuzzle
-exports.getNumberedGrid = getNumberedGrid
-exports.clonePuzzle = clonePuzzle
-exports.staticHtmlForGrid = staticHtmlForGrid
+module.exports.getEmptyCell = getEmptyCell
+module.exports.getEmptyPuzzle = getEmptyPuzzle
+module.exports.getNumberedGrid = getNumberedGrid
+module.exports.clonePuzzle = clonePuzzle
+module.exports.staticHtmlForGrid = staticHtmlForGrid

@@ -1,3 +1,5 @@
+Utils = require('./utils')
+
 # An operation on a string is a list of instructions.
 # Take i: take the next i characters (i.e., leave them unchanged)
 # Skip i: skip the next i characters (i.e., delete them)
@@ -300,21 +302,16 @@ assertValidTextOp = (s, op) ->
 
 # Export stuff
 
-if module?
-    exports = module.exports
-else
-    exports = @OtText = {}
-
-exports.take = take
-exports.skip = skip
-exports.insert = insert
-exports.applyTextOp = applyTextOp
-exports.xformText = xformText
-exports.composeText = composeText
-exports.toString = toString
-exports.canonicalized = canonicalized
-exports.getIndexMapForTextOp = getIndexMapForTextOp
-exports.opTextSplice = opTextSplice
-exports.identity = identity
-exports.inverseText = inverseText
-exports.assertValidTextOp = assertValidTextOp
+module.exports.take = take
+module.exports.skip = skip
+module.exports.insert = insert
+module.exports.applyTextOp = applyTextOp
+module.exports.xformText = xformText
+module.exports.composeText = composeText
+module.exports.toString = toString
+module.exports.canonicalized = canonicalized
+module.exports.getIndexMapForTextOp = getIndexMapForTextOp
+module.exports.opTextSplice = opTextSplice
+module.exports.identity = identity
+module.exports.inverseText = inverseText
+module.exports.assertValidTextOp = assertValidTextOp

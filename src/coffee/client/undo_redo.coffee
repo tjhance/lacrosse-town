@@ -1,9 +1,5 @@
-if require?
-    Ot = require "../shared/ot"
-    Utils = require "../shared/utils"
-else
-    Ot = @Ot
-    Utils = @Utils
+Ot = require "./../shared/ot"
+Utils = require "./../shared/utils"
 
 UndoRedo = (initialState) ->
     initialState = Utils.clone initialState
@@ -225,9 +221,4 @@ UndoRedo = (initialState) ->
 
     return this
 
-if module?
-    exports = module.exports
-else
-    exports = @UndoRedo = {}
-
-exports.UndoRedo = UndoRedo
+module.exports.UndoRedo = UndoRedo

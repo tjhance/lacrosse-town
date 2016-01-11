@@ -867,36 +867,36 @@ PuzzlePanel = React.createClass
                         <li>Arrow keys to move around.</li>
                         <li>Type any letter to enter it into the selected cell.</li>
                         <li><span className="keyboard-shortcut">BACKSPACE</span>
-                            &nbsp;to empty a cell.
+                            {" "}to empty a cell.
                             </li>
                         <li><span className="keyboard-shortcut">CTRL+G</span>
-                            &nbsp;to search a dictionary for matches of a partially-filled in answer.
+                            {" "}to search a dictionary for matches of a partially-filled in answer.
                             </li>
                         <li><span className="keyboard-shortcut">CTRL+U</span>
-                            &nbsp;to enter arbitrary text into a cell (not restricted to a single letter).
+                            {" "}to enter arbitrary text into a cell (not restricted to a single letter).
                             </li>
-                        <li><span className="keyboard-shortcut">CTRL+Z</span>&nbsp;and&nbsp;<span className="keyboard-shortcut">CTRL+SHIFT+Z</span>
-                            &nbsp;to undo and redo.
+                        <li><span className="keyboard-shortcut">CTRL+Z</span>{" "}and{" "}<span className="keyboard-shortcut">CTRL+SHIFT+Z</span>
+                            {" "}to undo and redo.
                             </li>
                       </ul>
                       <h2 className="instructions-header">Tips for editing the grid (or for solving diagramless crosswords):</h2>
                       <ul>
                         <li><span className="keyboard-shortcut">CTRL+B</span>
-                            &nbsp;to toggle a cell between black/white.
+                            {" "}to toggle a cell between black/white.
                             </li>
                         <li>Use the 'Re-assign numbers' button to fill in numbers, inferring them from
-                            &nbsp;the positions of the black cells.</li>
+                            {" "}the positions of the black cells.</li>
                         <li><span className="keyboard-shortcut">CTRL+I</span>
-                            &nbsp;to manually edit the number of the cell.
+                            {" "}to manually edit the number of the cell.
                             </li>
                         <li>Put the clues in the text field on the right. The application will automatically
                             associate lines that start with a number (e.g., "1.") with the corresponding
                             cells on the grid.
                             </li>
-                        <li>Hold&nbsp;<span className="keyboard-shortcut">SHIFT</span>&nbsp;and use the arrow keys to select a rectangular region.</li>
-                        <li><span className="keyboard-shortcut">CTRL+X</span>&nbsp;to cut.</li>
-                        <li><span className="keyboard-shortcut">CTRL+C</span>&nbsp;to copy.</li>
-                        <li><span className="keyboard-shortcut">CTRL+V</span>&nbsp;to paste.</li>
+                        <li>Hold{" "}<span className="keyboard-shortcut">SHIFT</span>{" "}and use the arrow keys to select a rectangular region.</li>
+                        <li><span className="keyboard-shortcut">CTRL+X</span>{" "}to cut.</li>
+                        <li><span className="keyboard-shortcut">CTRL+C</span>{" "}to copy.</li>
+                        <li><span className="keyboard-shortcut">CTRL+V</span>{" "}to paste.</li>
                       </ul>
                 </div>
             </div>

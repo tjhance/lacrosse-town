@@ -14,6 +14,8 @@
 #           the tip is changed.
 #   localOp - takes an operation to apply to the tip.
 #   setOffline - sets whether offline mode is on (starts in online mode).
+#   loadInitialData - sets the initial state of the puzzle
+#       (the initial puzzle state is embedded in the page)
 #
 # Communication with the server and conflict resolution is all internal to
 # this object. It uses socket.io to connect to the server. It deals with
@@ -60,9 +62,13 @@
 #
 # Communication with the server (node/socket_server.coffee) is as follows.
 # On the initial socket.io connection, ask for the latest puzzle state
-# (using a "hello" packet). The server will respond with this and in the future
-# send any updates to the state as it can. The client deals with these updates
-# as explained above.
+# (using a "hello" packet). The server will respond with all updates from
+# the client's version to the latest version. It will keep sending updates
+# as more updates come in from the other clients.
+#
+# (There is also the capability to start without any initial state, and
+# ask the server for the state to start with, but this is currently
+# unused.)
 #
 # Meanwhile, the client can send any updates to the server using an
 # "update" packet. Again, it should only have one outstanding packet at
@@ -118,6 +124,8 @@ module.exports.ClientSyncer = (puzzleID) ->
     socket.on "connect", () ->
         console.log "socket connected!"
         if root == null
+            # THIS PATH IS CURRENTLY UNUSED
+
             # Send a initial "hello" packet asking for the latest state.
             socket.emit "hello", {
                 puzzleID : puzzleID
@@ -142,7 +150,10 @@ module.exports.ClientSyncer = (puzzleID) ->
 
     # The "state" update is the first one we receive, containing the state of
     # puzzle to start out.
-    socket.on "state", (data) ->
+    @loadInitialData = (data) ->
+        if root != null
+            throw new Error("loadInitialData called but root is not null")
+
         console.debug "received state message"
         rootID = data.stateID
         root = data.puzzle
@@ -152,10 +163,6 @@ module.exports.ClientSyncer = (puzzleID) ->
         op_b = Ot.identity data.puzzle
 
         undoRedo = new UndoRedo.UndoRedo(root)
-
-        # Notify the watchers. Here, op is null because this is the initial
-        # state to work with - there is no old state to apply an op from.
-        notifyWatchers tip, null
     
     # The server continuously sends us "update" packets with updates to be
     # be applied to the root.

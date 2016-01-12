@@ -24,16 +24,26 @@ exports.init = (config, callback) ->
     STATIC_ROOT = "#{__dirname}/../../static/"
     app.use "/static", express.static STATIC_ROOT
 
+    # These next few requests use `sendAppWithData`, which renders
+    # a basic 'app' page: with one configureable variable, a JS object
+    # called PAGE_DATA.
+    # The 'app' routes itself via the URL.
+
     # /new/
-    # Just return index.html.
-    # AngularJS will load the correct template.
     app.get /\/new/, (req, res) ->
-        res.sendfile "index.html", {root:STATIC_ROOT}
+        sendAppWithData(res, null)
 
     # /puzzle/${puzzle id}
-    # Again, just return index.html.
-    app.get /^\/puzzle\/.*/, (req, res) ->
-        res.sendfile "index.html", {root:STATIC_ROOT}
+    app.get /^\/puzzle\/(.*)/, (req, res) ->
+        puzzleID = req.params[0]
+        Db.loadPuzzleLatestState puzzleID, (puzzle) ->
+            if puzzle == null
+                res.status(404).send('Puzzle not found')
+            else
+                data =
+                    puzzle: puzzle.state
+                    stateID: puzzle.stateID
+                sendAppWithData(res, data)
 
     # /new/ POST request
     # Creates a new puzzle with a random ID and saves it, then redicts to
@@ -60,3 +70,42 @@ exports.init = (config, callback) ->
     console.info "Initialized webserver on port #{port}"
 
     callback()
+
+# TODO need a template system...
+
+APP_TEMPLATE = '<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Lacross Town - Collaborative Crossword Solving Editor</title>
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+
+    <!-- javascript libraries -->
+	<script type="text/javascript" src="/static/lib/js/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="/static/lib/js/react/react.js"></script>
+
+    <!-- non-static data for the page -->
+    <script type="text/javascript">
+        var PAGE_DATA = JSON.parse(decodeURIComponent("REPLACE_ME"));
+    </script>
+
+    <!-- javascript app code -->
+    <script type="text/javascript" src="/static/bundle.js"></script>
+  </head>
+  <body>
+    <div class="view-container"></div>
+    <script type="text/javascript">
+        window.initApp();
+    </script>
+  </body>
+</html>'
+
+sendAppWithData = (res, data) ->
+    jsonData = JSON.stringify(data)
+    encodedData = encodeURIComponent(jsonData)
+    html = APP_TEMPLATE.replace('REPLACE_ME', encodedData)
+    res.header("Content-Type", "text/html")
+    res.send(html)

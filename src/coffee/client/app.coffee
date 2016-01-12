@@ -19,17 +19,15 @@ initApp = () ->
         container = $('.view-container').get(0)
         React.render(el, container)
     else if parts[1] == 'puzzle'
-        initPuzzleSyncer(parts[2])
+        initPuzzleSyncer(parts[2], window.PAGE_DATA)
 
 
 #TODO This should get its own file
-initPuzzleSyncer = (puzzleID) ->
-    syncer = new ClientSyncer(puzzleID)
+initPuzzleSyncer = (puzzleID, initialData) ->
+    syncer = new ClientSyncer(puzzleID, initialData)
     syncer.addWatcher (newState, op) ->
-        if op?
-            p.applyOpToPuzzleState op
-        else
-            p.setPuzzleState newState
+        p.applyOpToPuzzleState op
+    syncer.loadInitialData(initialData)
 
     requestOp = (op) ->
         syncer.localOp op
@@ -92,5 +90,7 @@ initPuzzleSyncer = (puzzleID) ->
      />
     container = $('.view-container').get(0)
     p = React.render(el, container)
+
+    p.setPuzzleState initialData.puzzle
 
 window.initApp = initApp

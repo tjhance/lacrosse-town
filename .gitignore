@@ -38,3 +38,6 @@ nosetests.xml
 # Compiled js
 src/static/js
 src/static/js-shared
+
+# local config file
+config/development.json

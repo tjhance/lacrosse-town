@@ -8,7 +8,8 @@ over the same crossword puzzle.
 Setting up a development instance
 ============
 
-You need a postgres server. Put the postgres credentials in `config/development.json`.
+You need a postgres server. Create a database using the schema in `src/schema.sql`.
+Put the database credentials in `config/development.json`.
 (See `config/development-template.json` for an example.)
 
 Run `npm install` to install packages.

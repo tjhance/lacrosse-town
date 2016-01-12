@@ -10,6 +10,9 @@ exports.init = (config, callback) ->
     express = require "express"
     app = express()
 
+    # compression
+    app.use express.compress()
+
     # Set up logging.
     app.use express.logger()
 

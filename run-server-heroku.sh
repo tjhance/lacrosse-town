@@ -5,4 +5,4 @@ config=config/temp-config-heroku.json
 echo "{\"db\": \"$DATABASE_URL\", \"port\": \"$PORT\"}" > $config
 
 # start the server
-coffee src/coffee/node/server.coffee $config
+NODE_ENV=production coffee src/coffee/node/server.coffee $config

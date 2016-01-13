@@ -319,13 +319,20 @@ EditableTextField = (buildContent) -> React.createClass
             viewTop = $(container).scrollTop()
             viewBot = viewTop + $(container).height()
 
-            if nodeTop <= viewTop and not (nodeBot >= viewBot)
-                # node is high so scroll up
-                $(container).scrollTop(nodeTop)
-            else if nodeBot >= viewBot and not (nodeTop <= viewTop)
-                # node is low so scroll down
-                $(container).scrollTop(nodeBot - (viewBot - viewTop))
+            if (nodeTop <= viewTop and not (nodeBot >= viewBot)) or \
+               (nodeBot >= viewBot and not (nodeTop <= viewTop))
+                # try to scroll so that the top is about 40% of the way down the
+                # viewport.
+                desired_y = (viewBot - viewTop) * 0.4
+                # if it's a really big one that would get cut off, move up
+                if desired_y + (nodeBot - nodeTop) > (viewBot - viewTop)
+                    desired_y = (viewBot - viewTop) - (nodeBot - nodeTop)
+                # now if it's too high, settle on 0
+                if desired_y < 0
+                    desired_y = 0
+                console.log 'desired y', desired_y
 
+                $(container).scrollTop(nodeTop - desired_y)
 
 get_text_nodes = (el) ->
     ans = []

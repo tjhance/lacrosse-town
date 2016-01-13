@@ -38,10 +38,26 @@ div.puzzle_container_panel {
 
 div.puzzle_container_column {
 	display: table-cell;
+	vertical-align: top;
 }
 
-div.puzzle_container_box {
+div.puzzle_container_box_grid {
 	padding: 10px;
+}
+div.puzzle_container_box_panel {
+	padding: 10px;
+}
+div.puzzle_container_box_across {
+	padding-top: 2px;
+	padding-bottom: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+div.puzzle_container_box_down {
+	padding-top: 2px;
+	padding-bottom: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 div.puzzle_grid {
@@ -258,15 +274,18 @@ div.clues-highlight-secondary {
 }
 
 div.clue-line {
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 div.clue-container {
 	background-color: white;
     border: 2px solid black;
-    margin: 5px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    margin-right: 5px;
+    margin-top: 0px;
     width: 400px;
-    height: 300px;
+    height: 250px;
     overflow-y: scroll;
     overflow-x: hidden;
 }
@@ -278,7 +297,7 @@ div.clue-container-full-height {
 div.clue-contenteditable {
     width: 340px;
     max-width: 340px;
-    min-height: 300px;
+    min-height: 250px;
     outline: 0px solid transparent;
     position: relative;
 }

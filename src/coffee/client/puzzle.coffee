@@ -866,10 +866,10 @@ PuzzlePage = React.createClass
                     <h1 className="puzzle_title_header">{@state.puzzle.title}</h1>
                 </div>
                 <div className="puzzle_container_column">
-                    <div className="puzzle_container_box">
+                    <div className="puzzle_container_box_grid">
                         {@renderPuzzleGrid()}
                     </div>
-                    <div className="puzzle_container_box puzzle_container_panel">
+                    <div className="puzzle_container_box_panel puzzle_container_panel">
                         <PuzzlePanel
                             findMatchesInfo={@state.findMatchesInfo}
                             onMatchFinderChoose={@onMatchFinderChoose}
@@ -887,10 +887,10 @@ PuzzlePage = React.createClass
                     </div>
                 </div>
                 <div className="puzzle_container_column">
-                    <div className="puzzle_container_box">
+                    <div className="puzzle_container_box_across">
                         {@renderPuzzleClues('across')}
                     </div>
-                    <div className="puzzle_container_box">
+                    <div className="puzzle_container_box_down">
                         {@renderPuzzleClues('down')}
                     </div>
                 </div>

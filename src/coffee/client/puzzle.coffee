@@ -1217,8 +1217,11 @@ PuzzleGridCell = React.createClass
 
 SelectedClueTextWidget = React.createClass
     render: ->
+        <div className="selected-clue-text-widget">{@renderMain()}</div>
+
+    renderMain: ->
         if @props.data.length == 0
-            <div></div>
+            <div>&nbsp;</div>
         else
             <div className="selected-clue-text-display">
               { for i in [0 ... @props.data.length]

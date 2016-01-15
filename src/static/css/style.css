@@ -425,6 +425,8 @@ a.lt-select-list-option:focus {
 /* dimensions panel */
 
 .dimension-panel {
+    margin-top: 12px;
+    padding-top: 0px;
     padding-bottom: 10px;
     text-align: center;
 }
@@ -466,27 +468,32 @@ a.lt-select-list-option:focus {
 }
 
 /* clue display below the grid */
-.selected-clue-text-display {
+
+div.selected-clue-text-display {
     border: 1px solid black;
     margin-bottom: 10px;
 }
 
-.selected-clue-text-display-item {
+div.selected-clue-text-widget {
+    min-height: 46px;
+}
+
+div.selected-clue-text-display-item {
 
 }
 
-.selected-clue-text-display-item-0 {
+div.selected-clue-text-display-item-0 {
     padding-bottom: 4px;
 }
 
-.selected-clue-text-display-item-1 {
+div.selected-clue-text-display-item-1 {
     padding-top: 4px;
 }
 
-.selected-clue-text-display-item-primary {
+div.selected-clue-text-display-item-primary {
     background-color: #ccffcc;
 }
 
-.selected-clue-text-display-item-secondary {
+div.selected-clue-text-display-item-secondary {
     background-color: #f0f0f0;
 }

@@ -666,7 +666,10 @@ PuzzlePage = React.createClass
     # number. Returns the text of that clue. If it can't be found, returns "".
     clueTextForNumber: (is_across, number) ->
         # get the text of the clues
-        text = this.refs[if is_across then "acrossClues" else "downClues"].getText()
+        ref = this.refs[if is_across then "acrossClues" else "downClues"]
+        if not ref?
+            return ""
+        text = ref.getText()
         # split it into lines
         lines = text.split('\n')
         for line in lines
@@ -861,6 +864,31 @@ PuzzlePage = React.createClass
               Loading puzzle...
             </div>
         else
+            acrossClueStylingData = @clueStylingData(true)
+            downClueStylingData = @clueStylingData(false)
+
+            selectedClueText = (stylingData, type) =>
+                number = null
+                prevelance = null
+                if stylingData.primaryNumber != null
+                    number = stylingData.primaryNumber
+                    prevelance = "primary"
+                if stylingData.secondaryNumber != null
+                    number = stylingData.secondaryNumber
+                    prevelance = "secondary"
+                if number != null
+                    # TODO depending on this is bad :\
+                    # (we aren't guaranteed to update when the text changes, so we
+                    # need to re-architect something)
+                    text = @clueTextForNumber(type == 'Across', number)
+                    return ["#{number} #{type}.", text, prevelance]
+                else
+                    return null
+            selectedClueTextData = []
+            selectedClueTextData.push(selectedClueText(acrossClueStylingData, 'Across'))
+            selectedClueTextData.push(selectedClueText(downClueStylingData, 'Down'))
+            selectedClueTextData = (a for a in selectedClueTextData when a != null)
+
             <div className="puzzle_container">
                 <div className="puzzle_title">
                     <h1 className="puzzle_title_header">{@state.puzzle.title}</h1>
@@ -871,6 +899,7 @@ PuzzlePage = React.createClass
                     </div>
                     <div className="puzzle_container_box_panel puzzle_container_panel">
                         <PuzzlePanel
+                            selectedClueTextData={selectedClueTextData}
                             findMatchesInfo={@state.findMatchesInfo}
                             onMatchFinderChoose={@onMatchFinderChoose}
                             onMatchFinderChoose={@onMatchFinderChoose}
@@ -888,10 +917,10 @@ PuzzlePage = React.createClass
                 </div>
                 <div className="puzzle_container_column">
                     <div className="puzzle_container_box_across">
-                        {@renderPuzzleClues('across')}
+                        {@renderPuzzleClues('across', acrossClueStylingData)}
                     </div>
                     <div className="puzzle_container_box_down">
-                        {@renderPuzzleClues('down')}
+                        {@renderPuzzleClues('down', downClueStylingData)}
                     </div>
                 </div>
             </div>
@@ -909,7 +938,7 @@ PuzzlePage = React.createClass
             />
         </div>
 
-    renderPuzzleClues: (type) ->
+    renderPuzzleClues: (type, stylingData) ->
         <div>
             <div className="clue_box_title">
                 <strong>{if type == "across" then "Across" else "Down"} clues:</strong>
@@ -917,7 +946,7 @@ PuzzlePage = React.createClass
             <CluesEditableTextField
                   defaultText={if type == "across" then @state.initial_puzzle.across_clues else @state.initial_puzzle.down_clues}
                   produceOp={(op) => @clueEdited(type, op)}
-                  stylingData={@clueStylingData(type == "across")}
+                  stylingData={stylingData}
                   ref={if type == "across" then "acrossClues" else "downClues"} />
         </div>
 
@@ -945,6 +974,8 @@ PuzzlePanel = React.createClass
                 onClose={@props.onMatchFinderClose} />
         else
             <div>
+                <SelectedClueTextWidget
+                    data={@props.selectedClueTextData} />
                 <DimensionWidget
                     width={@props.width}
                     height={@props.height}
@@ -1183,6 +1214,20 @@ PuzzleGridCell = React.createClass
                 return cell.contents
         else
             return null
+
+SelectedClueTextWidget = React.createClass
+    render: ->
+        if @props.data.length == 0
+            <div></div>
+        else
+            <div className="selected-clue-text-display">
+              { for i in [0 ... @props.data.length]
+                    datum = @props.data[i]
+                    <div className={"selected-clue-text-display-item selected-clue-text-display-item-" + datum[2] + (if @props.data.length == 2 then " selected-clue-text-display-item-" + i else "")}>
+                        <strong>{datum[0]}</strong>{" " + datum[1]}
+                    </div>
+              }
+            </div>
 
 CluesEditableTextField = EditableTextField (lines, stylingData) ->
     i = -1

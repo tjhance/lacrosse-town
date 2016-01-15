@@ -464,3 +464,29 @@ a.lt-select-list-option:focus {
 .dimension-panel-static-4 {
     padding-right: 10px;
 }
+
+/* clue display below the grid */
+.selected-clue-text-display {
+    border: 1px solid black;
+    margin-bottom: 10px;
+}
+
+.selected-clue-text-display-item {
+
+}
+
+.selected-clue-text-display-item-0 {
+    padding-bottom: 4px;
+}
+
+.selected-clue-text-display-item-1 {
+    padding-top: 4px;
+}
+
+.selected-clue-text-display-item-primary {
+    background-color: #ccffcc;
+}
+
+.selected-clue-text-display-item-secondary {
+    background-color: #f0f0f0;
+}

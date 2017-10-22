@@ -387,7 +387,7 @@ PuzzlePage = React.createClass
             else if event.keyCode == 73 # I
                 @openCellField "number"
                 event.preventDefault()
-            else if event.keyCode == 85 # P
+            else if event.keyCode == 85 # U
                 @openCellField "contents"
                 event.preventDefault()
             else if event.keyCode == 71 # G
@@ -1060,7 +1060,11 @@ PuzzleGridCell = React.createClass
 
     onCellFieldCreate: (field) ->
         if field?
-            React.findDOMNode(field).focus()
+            node = React.findDOMNode(field)
+            node.focus()
+            if node.setSelectionRange
+              node.setSelectionRange(0, $(node).val().length * 2)
+
 
     getCellFieldInitialValue: () ->
         if @props.grid_focus != null

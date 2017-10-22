@@ -236,6 +236,8 @@ EditableTextField = (buildContent) -> React.createClass
                 if elem.tagName == "BR"
                     finish_line()
                     elem.lt_end_newline = true
+                else if elem.tagName == "STYLE"
+                    elem.lt_skip = true
                 else
                     cssdisplay = $(elem).css('display')
                     is_inline = cssdisplay? and cssdisplay.indexOf('inline') != -1
@@ -258,6 +260,8 @@ EditableTextField = (buildContent) -> React.createClass
         # Traverse the DOM nodes again, annotate all nodes with lt_start and lt_end
         totalOffset = 0
         recurse2 = (elem) ->
+            if elem.lt_skip
+                return
             if elem.lt_start_newline
                 totalOffset += 1
             elem.lt_start = totalOffset

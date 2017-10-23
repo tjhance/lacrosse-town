@@ -30,6 +30,7 @@ Ot = require('../shared/ot')
 Utils = require('../shared/utils')
 PuzzleUtils = require('../shared/puzzle_utils')
 EditableTextField = require('./text_field_handler').EditableTextField
+KeyboardUtils = require('./keyboard_utils')
 
 PuzzlePage = React.createClass
     getInitialState: () ->
@@ -380,7 +381,7 @@ PuzzlePage = React.createClass
 
     # Handle a keypress by dispatching to the correct method (above).
     handleKeyPress: (event) ->
-        if event.ctrlKey
+        if (if KeyboardUtils.usesCmd() then event.metaKey else event.ctrlKey)
             if event.keyCode == 66 # B
                 @toggleOpenness()
                 event.preventDefault()
@@ -835,6 +836,7 @@ PuzzlePage = React.createClass
 
 PuzzlePanel = React.createClass
     render: ->
+        meta = KeyboardUtils.getMetaKeyName()
         if @props.findMatchesInfo
             <FindMatchesDialog
                 clueTitle={@props.findMatchesInfo.clueTitle}
@@ -869,24 +871,24 @@ PuzzlePanel = React.createClass
                         <li><span className="keyboard-shortcut">BACKSPACE</span>
                             {" "}to empty a cell.
                             </li>
-                        <li><span className="keyboard-shortcut">CTRL+G</span>
+                        <li><span className="keyboard-shortcut">{meta}+G</span>
                             {" "}to search a dictionary for matches of a partially-filled in answer.
                             </li>
-                        <li><span className="keyboard-shortcut">CTRL+U</span>
+                        <li><span className="keyboard-shortcut">{meta}+U</span>
                             {" "}to enter arbitrary text into a cell (not restricted to a single letter).
                             </li>
-                        <li><span className="keyboard-shortcut">CTRL+Z</span>{" "}and{" "}<span className="keyboard-shortcut">CTRL+SHIFT+Z</span>
+                        <li><span className="keyboard-shortcut">{meta}+Z</span>{" "}and{" "}<span className="keyboard-shortcut">{meta}+SHIFT+Z</span>
                             {" "}to undo and redo.
                             </li>
                       </ul>
                       <h2 className="instructions-header">Tips for editing the grid (or for solving diagramless crosswords):</h2>
                       <ul>
-                        <li><span className="keyboard-shortcut">CTRL+B</span>
+                        <li><span className="keyboard-shortcut">{meta}+B</span>
                             {" "}to toggle a cell between black/white.
                             </li>
                         <li>Use the 'Re-assign numbers' button to fill in numbers, inferring them from
                             {" "}the positions of the black cells.</li>
-                        <li><span className="keyboard-shortcut">CTRL+I</span>
+                        <li><span className="keyboard-shortcut">{meta}+I</span>
                             {" "}to manually edit the number of the cell.
                             </li>
                         <li>Put the clues in the text field on the right. The application will automatically
@@ -894,9 +896,9 @@ PuzzlePanel = React.createClass
                             cells on the grid.
                             </li>
                         <li>Hold{" "}<span className="keyboard-shortcut">SHIFT</span>{" "}and use the arrow keys to select a rectangular region.</li>
-                        <li><span className="keyboard-shortcut">CTRL+X</span>{" "}to cut.</li>
-                        <li><span className="keyboard-shortcut">CTRL+C</span>{" "}to copy.</li>
-                        <li><span className="keyboard-shortcut">CTRL+V</span>{" "}to paste.</li>
+                        <li><span className="keyboard-shortcut">{meta}+X</span>{" "}to cut.</li>
+                        <li><span className="keyboard-shortcut">{meta}+C</span>{" "}to copy.</li>
+                        <li><span className="keyboard-shortcut">{meta}+V</span>{" "}to paste.</li>
                       </ul>
                 </div>
             </div>

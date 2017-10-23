@@ -10,6 +10,7 @@
 NewPage = require('./new').NewPage
 ClientSyncer = require('./state').ClientSyncer
 PuzzlePage = require('./puzzle').PuzzlePage
+KeyboardUtils = require('./keyboard_utils')
 
 initApp = () ->
     pathname = window.location.pathname
@@ -42,11 +43,12 @@ initPuzzleSyncer = (puzzleID, initialData) ->
      ), false)
 
     document.body.addEventListener('keydown', ((event) ->
+        meta = (if KeyboardUtils.usesCmd() then event.metaKey else event.ctrlKey)
         if event.which == 90 # Z
-            if event.ctrlKey and event.shiftKey
+            if meta and event.shiftKey
                 syncer.redo()
                 event.preventDefault()
-            else if event.ctrlKey
+            else if meta
                 syncer.undo()
                 event.preventDefault()
      ), true)

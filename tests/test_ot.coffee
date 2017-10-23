@@ -33,6 +33,7 @@ opDeleteRows = wrapImmutabilityTest Ot.opDeleteRows
 opDeleteCols = wrapImmutabilityTest Ot.opDeleteCols
 inverseText = wrapImmutabilityTest OtText.inverseText
 inverse = wrapImmutabilityTest Ot.inverse
+isIdentity = wrapImmutabilityTest Ot.isIdentity
 
 # Helpers
 
@@ -556,6 +557,52 @@ exports.OtTest =
             [take(2), insert("ABC"), take(3), skip(2), take(1), skip(2), insert("BLAH"), take(1)],
             [take(2), skip(3), take(3), insert("fg"), take(1), skip(4), insert("ij"), take(1)]
             
+        test.done()
+
+    isIdentity: (test) ->
+        doit = (b, a) ->
+            test.deepEqual(b, isIdentity(test, a))
+        doit true, {}
+        doit(false, { "cols": [skip(1), take(2)] })
+        doit(false, { "rows": [skip(1), take(2)] })
+        doit(false, { "cell-0-0-contents", "" })
+        doit(true, compose(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "cols": [insert("."), take(3)] },
+            { "cols": [skip(1), take(3)] }))
+        doit(true, compose(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "rows": [insert("."), take(3)] },
+            { "rows": [skip(1), take(3)] }))
+        doit(true, compose(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "across_clues": [insert("."), take(12)] },
+            { "across_clues": [skip(1), take(12)] }))
+        doit(true, compose(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "down_clues": [insert("."), take(12)] },
+            { "down_clues": [skip(1), take(12)] }))
+        doit(true, xform(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "cols": [skip(1), take(2)] },
+            { "cols": [skip(1), take(2)] })[0])
+        doit(true, xform(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "rows": [skip(1), take(2)] },
+            { "rows": [skip(1), take(2)] })[0])
+        doit(true, xform(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "across_clues": [skip(1), take(11)] },
+            { "across_clues": [skip(1), take(11)] })[0])
+        doit(true, xform(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "down_clues": [skip(1), take(11)] },
+            { "down_clues": [skip(1), take(11)] })[0])
+        doit(true, xform(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "cols": [skip(1), take(2)] },
+            { "cols": [skip(1), take(2)] })[1])
+        doit(true, xform(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "rows": [skip(1), take(2)] },
+            { "rows": [skip(1), take(2)] })[1])
+        doit(true, xform(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "across_clues": [skip(1), take(11)] },
+            { "across_clues": [skip(1), take(11)] })[1])
+        doit(true, xform(test, PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+            { "down_clues": [skip(1), take(11)] },
+            { "down_clues": [skip(1), take(11)] })[1])
+
         test.done()
 
     inverseGridOp: (test) ->

@@ -49,6 +49,14 @@ compose = (base, a, b) ->
     merge_clue "across_clues", base["across_clues"]
     merge_clue "down_clues", base["down_clues"]
 
+    removeIfIdentity = (name) ->
+        if c[name] && OtText.isIdentity(c[name])
+            delete c[name]
+    removeIfIdentity 'rows'
+    removeIfIdentity 'cols'
+    removeIfIdentity 'across_clues'
+    removeIfIdentity 'down_clues'
+
     return c
 
 inverse = (base, op) ->
@@ -172,6 +180,18 @@ xform = (base, a, b) ->
         [ka2.rows, kb2.rows] = [gaRows1, gbRows1]
     if a.cols? or b.cols?
         [ka2.cols, kb2.cols] = [gaCols1, gbCols1]
+
+    removeIfIdentity = (c, name) ->
+        if c[name] && OtText.isIdentity(c[name])
+            delete c[name]
+    removeIfIdentity ka2, 'rows'
+    removeIfIdentity ka2, 'cols'
+    removeIfIdentity ka2, 'across_clues'
+    removeIfIdentity ka2, 'down_clues'
+    removeIfIdentity kb2, 'rows'
+    removeIfIdentity kb2, 'cols'
+    removeIfIdentity kb2, 'across_clues'
+    removeIfIdentity kb2, 'down_clues'
 
     return [ka2, kb2]
 

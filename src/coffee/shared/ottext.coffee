@@ -24,6 +24,9 @@ insert = (i) -> [INSERT, i]
 identity = (s) ->
     [take(s.length)]
 
+isIdentity = (op) ->
+  return op.length == 0 || (op.length == 1 && op[0][0] == TAKE)
+
 # Takes a string and an operation (a list of instructions) and returns the
 # result of applying them (as in the above example).
 applyTextOp = (s, op) ->
@@ -313,5 +316,6 @@ module.exports.canonicalized = canonicalized
 module.exports.getIndexMapForTextOp = getIndexMapForTextOp
 module.exports.opTextSplice = opTextSplice
 module.exports.identity = identity
+module.exports.isIdentity = isIdentity
 module.exports.inverseText = inverseText
 module.exports.assertValidTextOp = assertValidTextOp

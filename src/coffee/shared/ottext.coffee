@@ -154,6 +154,46 @@ xformText = (s, l1, l2) ->
 
     return [m2, m1]
 
+xformRange = (s, op, range) ->
+    [start, end] = range
+    i = 0
+    pos = 0
+    while i < op.length
+        if op[i][0] == TAKE
+            pos += op[i][1]
+            i++
+        else
+            delCount = 0
+            insCount = 0
+            if op[i][0] == SKIP
+                delCount = op[i][1]
+                i++
+            if i < op.length && op[i][0] == INSERT
+                insCount = op[i][1].length
+                i++
+
+            spliceStart = pos
+            spliceEnd = pos + delCount
+
+            if spliceStart <= start && spliceEnd >= end
+                start = spliceStart
+                end = spliceStart
+            else if spliceEnd <= start
+                start += insCount - delCount
+                end += insCount - delCount
+            else if spliceStart >= end
+                break
+            else if spliceStart >= start && spliceEnd <= end
+                end += insCount - delCount
+            else if spliceEnd < end
+                start = spliceStart + insCount
+                end += insCount - delCount
+            else
+                end = spliceEnd
+
+            pos += insCount
+    return [start, end]
+
 # Compose the two operations, returning l1 o l2
 composeText = (s, l1, l2) ->
     # Copy the lists, because we are going to mutate them.
@@ -319,3 +359,4 @@ module.exports.identity = identity
 module.exports.isIdentity = isIdentity
 module.exports.inverseText = inverseText
 module.exports.assertValidTextOp = assertValidTextOp
+module.exports.xformRange = xformRange

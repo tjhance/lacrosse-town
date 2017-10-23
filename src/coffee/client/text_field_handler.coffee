@@ -84,8 +84,7 @@ EditableTextField = (buildContent) -> React.createClass
         if modelTextNew == @text
             selection = @selection
         else if @baseText == @text
-            # TODO OT the selection over the op
-            selection = []
+            selection = (OtText.xformRange(@baseText, op, range) for range in @selection)
         else
             selection = []
 

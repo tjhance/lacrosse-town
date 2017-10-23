@@ -79,6 +79,9 @@ APP_TEMPLATE = '<!doctype html>
     <meta charset="utf-8">
     <title>Lacross Town - Collaborative Crossword Solving Editor</title>
 
+    <!-- favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="/static/images/favicon.ico" />
+
     <!-- stylesheets -->
     <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
 

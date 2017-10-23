@@ -14,7 +14,7 @@ PuzzlePage = require('./puzzle').PuzzlePage
 initApp = () ->
     pathname = window.location.pathname
     parts = pathname.split('/')
-    if pathname == '/new'
+    if pathname == '/new' || pathname == '/' || pathname == ''
         el = <NewPage />
         container = $('.view-container').get(0)
         React.render(el, container)

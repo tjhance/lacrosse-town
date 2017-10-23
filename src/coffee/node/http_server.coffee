@@ -32,6 +32,8 @@ exports.init = (config, callback) ->
     # /new/
     app.get /\/new/, (req, res) ->
         sendAppWithData(res, null)
+    app.get '/', (req, res) ->
+        sendAppWithData(res, null)
 
     # /puzzle/${puzzle id}
     app.get /^\/puzzle\/(.*)/, (req, res) ->

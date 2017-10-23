@@ -11,15 +11,29 @@ getEmptyPuzzle = (height, width, title) ->
         grid: getNumberedGrid ((getEmptyCell() for i in [0..width-1]) for j in [0..height-1])
         width: width,
         height: height,
-        across_clues: "1. Clue here"
-        down_clues: "1. Clue here"
+        across_clues: "1. Clue here",
+        down_clues: "1. Clue here",
+        col_props: (getEmptyColProps() for i in [0..width-1]),
+        row_props: (getEmptyRowProps() for i in [0..height-1]),
     }
 
 getEmptyCell = () ->
     {
-        open: true
-        number: null
-        contents: ""
+        open: true,
+        number: null,
+        contents: "",
+        rightbar: false,
+        bottombar: false,
+    }
+
+getEmptyRowProps = () ->
+    {
+        leftbar: false,
+    }
+
+getEmptyColProps = () ->
+    {
+        topbar: false,
     }
 
 # Take a grid and returns one numbered correctly according to which squares are
@@ -44,6 +58,8 @@ getNumberedGrid = (grid) ->
         open: grid[i][j].open
         number: getNumber i, j
         contents: grid[i][j].contents
+        rightbar: grid[i][j].rightbar
+        bottombar: grid[i][j].bottombar
     } for j in [0..width-1]) for i in [0..height-1])
 
 # Clone objects
@@ -80,6 +96,8 @@ staticHtmlForGrid = (width, height, grid) ->
     ).join('') + '</table>'
 
 module.exports.getEmptyCell = getEmptyCell
+module.exports.getEmptyRowProps = getEmptyRowProps
+module.exports.getEmptyColProps = getEmptyColProps
 module.exports.getEmptyPuzzle = getEmptyPuzzle
 module.exports.getNumberedGrid = getNumberedGrid
 module.exports.clonePuzzle = clonePuzzle

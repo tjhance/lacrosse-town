@@ -75,8 +75,18 @@ inverse = (base, op) ->
     for i in [0 ... base.height]
         for j in [0 ... base.width]
             if (not (i of rowIndexMap)) or (not (j of colIndexMap))
-                for type in ["open", "contents", "number"]
+                for type in ["open", "contents", "number", "rightbar", "bottombar"]
                     res["cell-#{i}-#{j}-#{type}"] = base.grid[i][j][type]
+
+    for i in [0 ... base.height]
+        if (not (i of rowIndexMap))
+            for type in ["leftbar"]
+                res["rowprop-#{i}-#{type}"] = base.row_props[i][type]
+
+    for j in [0 ... base.width]
+        if (not (j of colIndexMap))
+            for type in ["topbar"]
+                res["colprop-#{j}-#{type}"] = base.col_props[j][type]
 
     # any key modified explicitly by the op must be set back to the
     # original in the inverse op
@@ -90,6 +100,18 @@ inverse = (base, op) ->
                 i1 = rowIndexMapInv[i]
                 j1 = colIndexMapInv[j]
                 res["cell-#{i1}-#{j1}-#{type}"] = base.grid[i1][j1][type]
+        else if spl[0] == "rowprop"
+            i = parseInt(spl[1], 10)
+            type = spl[2]
+            if i of rowIndexMapInv
+                i1 = rowIndexMapInv[i]
+                res["rowprop-#{i1}-#{type}"] = base.row_props[i1][type]
+        else if spl[0] == "colprop"
+            j = parseInt(spl[1], 10)
+            type = spl[2]
+            if j of colIndexMapInv
+                j1 = colIndexMapInv[j]
+                res["colprop-#{j1}-#{type}"] = base.col_props[j1][type]
 
     if op.rows?
         res.rows = rowsOpInv
@@ -204,6 +226,8 @@ apply = (base, a) ->
         res.grid = newGridInfo.grid
         res.width = newGridInfo.width
         res.height = newGridInfo.height
+        res.row_props = newGridInfo.row_props
+        res.col_props = newGridInfo.col_props
 
     for key of a
         value = a[key]
@@ -214,6 +238,14 @@ apply = (base, a) ->
                 col = parseInt components[2]
                 name = components[3]
                 res.grid[row][col][name] = value
+            when "rowprop"
+                row = parseInt components[1]
+                name = components[2]
+                res.row_props[row][name] = value
+            when "colprop"
+                col = parseInt components[1]
+                name = components[2]
+                res.col_props[col][name] = value
             when "across_clues"
                 res.across_clues = OtText.applyTextOp res.across_clues, value
             when "down_clues"
@@ -242,6 +274,20 @@ moveKeyUpdatesOverRowsAndColsOp = ([rowsOp, colsOp], changes) ->
             if rowIndex of rowIndexMap and colIndex of colIndexMap
                 newKey = "cell-#{rowIndexMap[rowIndex]}-#{colIndexMap[colIndex]}-#{rest}"
                 result[newKey] = changes[key]
+        else if key.indexOf("rowprop-") == 0
+            spl = key.split("-")
+            rowIndex = parseInt(spl[1], 10)
+            rest = spl[2]
+            if rowIndex of rowIndexMap
+                newKey = "rowprop-#{rowIndexMap[rowIndex]}-#{rest}"
+                result[newKey] = changes[key]
+        else if key.indexOf("colprop-") == 0
+            spl = key.split("-")
+            colIndex = parseInt(spl[1], 10)
+            rest = spl[2]
+            if colIndex of colIndexMap
+                newKey = "colprop-#{colIndexMap[colIndex]}-#{rest}"
+                result[newKey] = changes[key]
         else
             result[key] = changes[key]
 
@@ -259,19 +305,31 @@ applyRowAndColOpsToGrid = (puzzle, [rowsOp, colsOp]) ->
     newGrid = for i in [0 .. newHeight-1]
                     for j in [0 .. newWidth-1]
                         null
+    newRowProps = (null for i in [0 .. newHeight-1])
+    newColProps = (null for i in [0 .. newWidth-1])
 
     for i in [0 .. height - 1]
         if i of rowIndexMap
             for j in [0 .. width - 1]
                 if j of colIndexMap
                     newGrid[rowIndexMap[i]][colIndexMap[j]] = puzzle.grid[i][j]
+    for i in [0 .. height - 1]
+        if i of rowIndexMap
+            newRowProps[rowIndexMap[i]] = puzzle.row_props[i]
+    for j in [0 .. width - 1]
+        if j of colIndexMap
+            newColProps[colIndexMap[j]] = puzzle.col_props[j]
 
     for i in [0 .. newHeight-1]
         for j in [0 .. newWidth-1]
             if newGrid[i][j] == null
                 newGrid[i][j] = PuzzleUtils.getEmptyCell()
+    for i in [0 .. newHeight-1]
+        newRowProps[i] = PuzzleUtils.getEmptyRowProps()
+    for j in [0 .. newWidth-1]
+        newColProps[j] = PuzzleUtils.getEmptyColProps()
 
-    return {width: newWidth, height: newHeight, grid: newGrid}
+    return {width: newWidth, height: newHeight, grid: newGrid, row_props: newRowProps, col_props: newColProps}
 
 # Functions to return operations.
 
@@ -289,7 +347,7 @@ opGridDiff = (puzzle, grid2) ->
     res = {}
     for i in [0..grid1.length-1]
         for j in [0..grid1[0].length-1]
-            for v in ["contents", "number", "open"]
+            for v in ["contents", "number", "open", "rightbar", "bottombar"]
                 if grid1[i][j][v] != grid2[i][j][v]
                     res["cell-#{i}-#{j}-#{v}"] = grid2[i][j][v]
     return res
@@ -301,6 +359,25 @@ opSpliceRowsOrCols = (originalLen, forRow, index, numToInsert, numToDelete) ->
         OtText.opTextSplice(originalLen, index, Utils.repeatString(".", numToInsert), numToDelete)
 
     return res
+
+opSetBar = (row, col, dir, value) ->
+    res = {}
+    if dir == 'left' || dir == 'right'
+        if dir == 'left'
+            row -= 1
+        if row == -1
+            res["rowprop-#{row}-leftbar"] = value
+        else
+            res["cell-#{row}-#{col}-rightbar"] = value
+    else if dir == 'up' || dir == 'down'
+        if dir == 'up'
+            col -= 1
+        if col == -1
+            res["colprop-#{col}-topbar"] = value
+        else
+            res["cell-#{row}-#{col}-bottombar"] = value
+    else
+        throw new Error "invalid direction"
 
 # Return an operation that inserts or deletes rows or columns at the specified index
 opInsertRows = (puzzle, index, numToInsert) -> opSpliceRowsOrCols puzzle.height, true, index, numToInsert, 0
@@ -337,23 +414,35 @@ assertValidOp = (base, op) ->
         else
             spl = key.split('-')
             Utils.assert spl.length == 4
-            Utils.assert spl[0] == "cell"
-            Utils.assert Utils.isValidInteger spl[1]
-            y = parseInt(spl[1])
-            Utils.assert Utils.isValidInteger spl[2]
-            x = parseInt(spl[2])
-            Utils.assert 0 <= y
-            Utils.assert y < newHeight
-            Utils.assert 0 <= x
-            Utils.assert x < newWidth
-            if spl[3] == "number"
-                Utils.assert op[key] == null or typeof(op[key]) == 'number'
-            else if spl[3] == "contents"
-                Utils.assert typeof(op[key]) == 'string'
-            else if spl[3] == "open"
-                Utils.assert typeof(op[key]) == 'boolean'
+            if spl[0] == "cell"
+                Utils.assert Utils.isValidInteger spl[1]
+                y = parseInt(spl[1], 10)
+                Utils.assert Utils.isValidInteger spl[2]
+                x = parseInt(spl[2], 10)
+                Utils.assert 0 <= y
+                Utils.assert y < newHeight
+                Utils.assert 0 <= x
+                Utils.assert x < newWidth
+                if spl[3] == "number"
+                    Utils.assert op[key] == null or typeof(op[key]) == 'number'
+                else if spl[3] == "contents"
+                    Utils.assert typeof(op[key]) == 'string'
+                else if spl[3] == "open" || spl[3] == "rightbar" || spl[3] == "bottombar"
+                    Utils.assert typeof(op[key]) == 'boolean'
+                else
+                    Utils.assert false, "unknown cell property"
             else
-                Utils.assert false, "unknown cell property"
+                Utils.assert(spl[0] == "rowprop" || spl[0] == "colprop")
+                isRow = (spl[0] == "rowprop")
+                Utils.assert Utils.isValidInteger spl[1]
+                index = parseInt(spl[1], 10)
+                Utils.assert 0 <= index
+                Utils.assert(index <= (if isRow then newHeight else newWidth))
+                if isRow
+                    Utils.assert spl[2] == "leftbar"
+                else
+                    Utils.assert spl[2] == "topbar"
+                Utils.assert typeof(op[key]) == 'boolean'
 
 # Export stuff
 
@@ -370,4 +459,5 @@ module.exports.opInsertRows = opInsertRows
 module.exports.opInsertCols = opInsertCols
 module.exports.opDeleteRows = opDeleteRows
 module.exports.opDeleteCols = opDeleteCols
+module.exports.opSetBar = opSetBar
 module.exports.assertValidOp = assertValidOp

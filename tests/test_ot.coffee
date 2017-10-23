@@ -148,26 +148,28 @@ exports.OtTest =
             height: 4,
             across_clues: "1. Clue here",
             down_clues: "1. Clue here",
+            col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 3])
+            row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 4])
             grid: [
                 [
-                    { open: true, number: 1, contents: "" },
-                    { open: true, number: 2, contents: "" },
-                    { open: true, number: 3, contents: "" },
+                    { open: true, number: 1, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: 2, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: 3, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 4, contents: "" },
-                    { open: true, number: null, contents: "A" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 4, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "A", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 5, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 5, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 6, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 6, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ]
              ]
           })
@@ -178,21 +180,23 @@ exports.OtTest =
             height: 3,
             across_clues: "1. Clue here",
             down_clues: "1. Clue here",
+            col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 3])
+            row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 3])
             grid: [
                 [
-                    { open: true, number: 1, contents: "" },
-                    { open: true, number: 2, contents: "" },
-                    { open: true, number: 3, contents: "" },
+                    { open: true, number: 1, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: 2, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: 3, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 5, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 5, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 6, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 6, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ]
              ]
           })
@@ -203,22 +207,24 @@ exports.OtTest =
             height: 4,
             across_clues: "1. Clue here",
             down_clues: "1. Clue here",
+            col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 2])
+            row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 4])
             grid: [
                 [
-                    { open: true, number: 1, contents: "" },
-                    { open: true, number: 3, contents: "" },
+                    { open: true, number: 1, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: 3, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 4, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 4, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 5, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 5, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 6, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 6, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ]
              ]
           })
@@ -229,31 +235,33 @@ exports.OtTest =
             height: 5,
             across_clues: "1. Clue here",
             down_clues: "1. Clue here",
+            col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 3])
+            row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 5])
             grid: [
                 [
-                    { open: true, number: 1, contents: "" },
-                    { open: true, number: 2, contents: "" },
-                    { open: true, number: 3, contents: "" },
+                    { open: true, number: 1, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: 2, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: 3, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 4, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 4, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 5, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 5, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 6, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 6, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ]
              ]
           })
@@ -264,30 +272,32 @@ exports.OtTest =
             height: 4,
             across_clues: "1. Clue here",
             down_clues: "1. Clue here",
+            col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 4])
+            row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 4])
             grid: [
                 [
-                    { open: true, number: 1, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: 2, contents: "" },
-                    { open: true, number: 3, contents: "" },
+                    { open: true, number: 1, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: 2, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: 3, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 4, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 4, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 5, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 5, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ],
                 [
-                    { open: true, number: 6, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
-                    { open: true, number: null, contents: "" },
+                    { open: true, number: 6, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: "", rightbar: false, bottombar: false },
                 ]
              ]
           })
@@ -319,40 +329,43 @@ exports.OtTest =
             {
               title: 'test title',
               grid: [
-                 [ { open: true, number: 1, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' } ],
-                 [ { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' } ],
-                 [ { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' } ],
-                 [ { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' } ],
-                 [ { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' } ],
-                 [ { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: null, contents: '' },
-                   { open: true, number: 2, contents: 'D' } ] ],
+                 [ { open: true, number: 1, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                 [ { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                 [ { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                 [ { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                 [ { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                 [ { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: 2, contents: 'D', rightbar: false, bottombar: false } ] ],
               width: 5,
               height: 6,
               across_clues: '1. Clue here',
-              down_clues: '1. Clue here' })
+              down_clues: '1. Clue here'
+              col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 5])
+              row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 6])
+              })
 
         composedOps = \
             for i in [0 .. ops.length]
@@ -401,14 +414,16 @@ exports.OtTest =
              {
                title: 'test title',
                grid: [
-                  [ { open: true, number: 1, contents: 'A' },
-                    { open: true, number: 2, contents: 'B' } ],
-                  [ { open: true, number: 3, contents: '' },
-                    { open: true, number: null, contents: 'D' } ] ],
+                  [ { open: true, number: 1, contents: 'A', rightbar: false, bottombar: false },
+                    { open: true, number: 2, contents: 'B', rightbar: false, bottombar: false } ],
+                  [ { open: true, number: 3, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'D', rightbar: false, bottombar: false } ] ],
                width: 2,
                height: 2,
                across_clues: '1. Clue here'
                down_clues: '1. Clue here'
+               col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 2])
+               row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 2])
              })
 
         # test inserting/deleting rows
@@ -429,24 +444,27 @@ exports.OtTest =
              {
                 title: 'test title',
                 grid: [
-                     [ { open: true, number: 1, contents: 'A' },
-                       { open: true, number: 2, contents: '' } ],
-                     [ { open: true, number: 4, contents: 'C' },
-                       { open: true, number: null, contents: '' } ],
-                     [ { open: true, number: 5, contents: 'D' },
-                       { open: true, number: null, contents: '' } ],
-                     [ { open: true, number: null, contents: '' },
-                       { open: true, number: null, contents: '' } ],
-                     [ { open: true, number: null, contents: '' },
-                       { open: true, number: null, contents: '' } ],
-                     [ { open: true, number: null, contents: '' },
-                       { open: true, number: null, contents: '' } ],
-                     [ { open: true, number: 6, contents: 'E' },
-                       { open: true, number: null, contents: '' } ] ],
+                     [ { open: true, number: 1, contents: 'A', rightbar: false, bottombar: false },
+                       { open: true, number: 2, contents: '', rightbar: false, bottombar: false } ],
+                     [ { open: true, number: 4, contents: 'C', rightbar: false, bottombar: false },
+                       { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                     [ { open: true, number: 5, contents: 'D', rightbar: false, bottombar: false },
+                       { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                     [ { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                       { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                     [ { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                       { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                     [ { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                       { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                     [ { open: true, number: 6, contents: 'E', rightbar: false, bottombar: false },
+                       { open: true, number: null, contents: '', rightbar: false, bottombar: false } ] ],
                 width: 2,
                 height: 7,
                 across_clues: '1. Clue here',
-                down_clues: '1. Clue here' })
+                down_clues: '1. Clue here'
+                col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 2])
+                row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 7])
+                })
 
         # test inserting/deleting cols
         doit(PuzzleUtils.getEmptyPuzzle(2, 5, "test title"),
@@ -466,24 +484,27 @@ exports.OtTest =
              {
                title: 'test title',
                grid: [
-                  [ { open: true, number: 1, contents: 'A' },
-                    { open: true, number: 3, contents: 'C' },
-                    { open: true, number: 4, contents: 'D' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: 5, contents: 'E' } ],
-                  [ { open: true, number: 6, contents: '' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' } ] ],
+                  [ { open: true, number: 1, contents: 'A', rightbar: false, bottombar: false },
+                    { open: true, number: 3, contents: 'C', rightbar: false, bottombar: false },
+                    { open: true, number: 4, contents: 'D', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: 5, contents: 'E', rightbar: false, bottombar: false } ],
+                  [ { open: true, number: 6, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false } ] ],
                width: 7,
                height: 2,
                across_clues: '1. Clue here',
-               down_clues: '1. Clue here' })
+               down_clues: '1. Clue here'
+               col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 7])
+               row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 2])
+               })
 
         # test where both insert and delete
         doit(PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
@@ -519,30 +540,33 @@ exports.OtTest =
              {
                title: 'test title',
                grid: [
-                  [ { open: true, number: 4, contents: 'A' },
-                    { open: true, number: null, contents: 'C' },
-                    { open: true, number: null, contents: 'D' },
-                    { open: true, number: null, contents: 'E' },
-                    { open: true, number: null, contents: 'F' } ],
-                  [ { open: true, number: null, contents: 'e' },
-                    { open: true, number: null, contents: 'f' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' } ],
-                  [ { open: true, number: null, contents: 'g' },
-                    { open: true, number: null, contents: 'h' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' },
-                    { open: true, number: null, contents: '' } ],
-                  [ { open: true, number: 5, contents: 'G' },
-                    { open: true, number: null, contents: 'I' },
-                    { open: true, number: null, contents: 'J' },
-                    { open: true, number: null, contents: 'K' },
-                    { open: true, number: null, contents: 'L' } ] ],
+                  [ { open: true, number: 4, contents: 'A', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'C', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'D', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'E', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'F', rightbar: false, bottombar: false } ],
+                  [ { open: true, number: null, contents: 'e', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'f', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                  [ { open: true, number: null, contents: 'g', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'h', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
+                  [ { open: true, number: 5, contents: 'G', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'I', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'J', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'K', rightbar: false, bottombar: false },
+                    { open: true, number: null, contents: 'L', rightbar: false, bottombar: false } ] ],
                width: 5,
                height: 4,
                across_clues: '1. Clue here',
-               down_clues: '1. Clue here' })
+               down_clues: '1. Clue here'
+               col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 5])
+               row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 4])
+               })
 
         test.done()
 
@@ -623,12 +647,19 @@ exports.OtTest =
                 "cell-0-0-contents": "",
                 "cell-0-0-number": 1,
                 "cell-0-0-open": true,
+                "cell-0-0-rightbar": false,
+                "cell-0-0-bottombar": false,
                 "cell-1-0-contents": "",
                 "cell-1-0-number": 4,
                 "cell-1-0-open": true,
+                "cell-1-0-rightbar": false,
+                "cell-1-0-bottombar": false,
                 "cell-2-0-contents": "",
                 "cell-2-0-number": 5,
                 "cell-2-0-open": true,
+                "cell-2-0-rightbar": false,
+                "cell-2-0-bottombar": false,
+                "colprop-0-topbar": false,
              }
 
         doit PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
@@ -640,12 +671,19 @@ exports.OtTest =
                 "cell-0-0-contents": "",
                 "cell-0-0-number": 1,
                 "cell-0-0-open": true,
+                "cell-0-0-rightbar": false,
+                "cell-0-0-bottombar": false,
                 "cell-0-1-contents": "",
                 "cell-0-1-number": 2,
                 "cell-0-1-open": true,
+                "cell-0-1-rightbar": false,
+                "cell-0-1-bottombar": false,
                 "cell-0-2-contents": "",
                 "cell-0-2-number": 3,
                 "cell-0-2-open": true,
+                "cell-0-2-rightbar": false,
+                "cell-0-2-bottombar": false,
+                "rowprop-0-leftbar": false,
              }
 
         doit PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),

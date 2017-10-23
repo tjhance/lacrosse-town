@@ -364,20 +364,21 @@ opSetBar = (row, col, dir, value) ->
     res = {}
     if dir == 'left' || dir == 'right'
         if dir == 'left'
-            row -= 1
-        if row == -1
+            col -= 1
+        if col == -1
             res["rowprop-#{row}-leftbar"] = value
         else
             res["cell-#{row}-#{col}-rightbar"] = value
-    else if dir == 'up' || dir == 'down'
-        if dir == 'up'
-            col -= 1
-        if col == -1
+    else if dir == 'top' || dir == 'bottom'
+        if dir == 'top'
+            row -= 1
+        if row == -1
             res["colprop-#{col}-topbar"] = value
         else
             res["cell-#{row}-#{col}-bottombar"] = value
     else
         throw new Error "invalid direction"
+    return res
 
 # Return an operation that inserts or deletes rows or columns at the specified index
 opInsertRows = (puzzle, index, numToInsert) -> opSpliceRowsOrCols puzzle.height, true, index, numToInsert, 0

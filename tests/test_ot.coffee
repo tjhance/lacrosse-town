@@ -31,6 +31,7 @@ opInsertRows = wrapImmutabilityTest Ot.opInsertRows
 opInsertCols = wrapImmutabilityTest Ot.opInsertCols
 opDeleteRows = wrapImmutabilityTest Ot.opDeleteRows
 opDeleteCols = wrapImmutabilityTest Ot.opDeleteCols
+opSetBar = wrapImmutabilityTest Ot.opSetBar
 inverseText = wrapImmutabilityTest OtText.inverseText
 inverse = wrapImmutabilityTest Ot.inverse
 isIdentity = wrapImmutabilityTest Ot.isIdentity
@@ -173,6 +174,45 @@ exports.OtTest =
                 ]
              ]
           })
+
+        for dir in ['top', 'bottom', 'left', 'right']
+            colprops = (PuzzleUtils.getEmptyColProps() for i in [0 ... 3])
+            rowprops = (PuzzleUtils.getEmptyRowProps() for i in [0 ... 4])
+            colprops[0].topbar = (dir == 'top')
+            rowprops[0].leftbar = (dir == 'left')
+
+            test.deepEqual(apply(test, puzz, opSetBar(test, 0, 0, dir, true)), {
+                title: "test title",
+                width: 3,
+                height: 4,
+                across_clues: "1. Clue here",
+                down_clues: "1. Clue here",
+                col_props: colprops
+                row_props: rowprops
+                grid: [
+                    [
+                        { open: true, number: 1, contents: "", rightbar: dir == 'right', bottombar: dir == 'bottom'},
+                        { open: true, number: 2, contents: "", rightbar: false, bottombar: false },
+                        { open: true, number: 3, contents: "", rightbar: false, bottombar: false },
+                    ],
+                    [
+                        { open: true, number: 4, contents: "", rightbar: false, bottombar: false },
+                        { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                        { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    ],
+                    [
+                        { open: true, number: 5, contents: "", rightbar: false, bottombar: false },
+                        { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                        { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    ],
+                    [
+                        { open: true, number: 6, contents: "", rightbar: false, bottombar: false },
+                        { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                        { open: true, number: null, contents: "", rightbar: false, bottombar: false },
+                    ]
+                 ]
+              })
+
 
         test.deepEqual(apply(test, puzz, opDeleteRows(test, puzz, 1, 1)), {
             title: "test title",
@@ -317,7 +357,11 @@ exports.OtTest =
             opInsertRows(test, {height: 3}, 2, 3),
             opInsertCols(test, {width: 2}, 1, 3),
             opEditCellValue(test, 0, 0, "number", 1),
-            opEditCellValue(test, 5, 4, "number", 2)
+            opEditCellValue(test, 5, 4, "number", 2),
+            opSetBar(test, 0, 1, 'top', true),
+            opSetBar(test, 2, 0, 'left', true),
+            opSetBar(test, 1, 1, 'right', true),
+            opSetBar(test, 1, 2, 'bottom', true),
          ]
 
         versions = [puzz]
@@ -335,8 +379,8 @@ exports.OtTest =
                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
                    { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
                  [ { open: true, number: null, contents: '', rightbar: false, bottombar: false },
-                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
-                   { open: true, number: null, contents: '', rightbar: false, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: true, bottombar: false },
+                   { open: true, number: null, contents: '', rightbar: false, bottombar: true },
                    { open: true, number: null, contents: '', rightbar: false, bottombar: false },
                    { open: true, number: null, contents: '', rightbar: false, bottombar: false } ],
                  [ { open: true, number: null, contents: '', rightbar: false, bottombar: false },
@@ -363,8 +407,21 @@ exports.OtTest =
               height: 6,
               across_clues: '1. Clue here',
               down_clues: '1. Clue here'
-              col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 5])
-              row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 6])
+              col_props: [
+                { topbar: false },
+                { topbar: true },
+                { topbar: false },
+                { topbar: false },
+                { topbar: false },
+              ]
+              row_props: [
+                { leftbar: false },
+                { leftbar: false },
+                { leftbar: true },
+                { leftbar: false },
+                { leftbar: false },
+                { leftbar: false },
+              ]
               })
 
         composedOps = \
@@ -406,24 +463,34 @@ exports.OtTest =
              {
                 "cell-0-0-contents": "A",
                 "cell-0-1-contents": "B",
+                "cell-0-0-bottombar": false,
+                "cell-0-1-rightbar": true,
+                "rowprop-0-leftbar": false,
+                "colprop-0-topbar": false,
              },
              {
                 "cell-0-0-contents": "C",
                 "cell-1-1-contents": "D",
+                "cell-0-0-bottombar": true,
+                "cell-0-0-rightbar": true,
+                "rowprop-0-leftbar": true,
+                "rowprop-1-leftbar": true,
+                "colprop-0-topbar": true,
+                "colprop-1-topbar": true,
              },
              {
                title: 'test title',
                grid: [
-                  [ { open: true, number: 1, contents: 'A', rightbar: false, bottombar: false },
-                    { open: true, number: 2, contents: 'B', rightbar: false, bottombar: false } ],
+                  [ { open: true, number: 1, contents: 'A', rightbar: true, bottombar: false },
+                    { open: true, number: 2, contents: 'B', rightbar: true, bottombar: false } ],
                   [ { open: true, number: 3, contents: '', rightbar: false, bottombar: false },
                     { open: true, number: null, contents: 'D', rightbar: false, bottombar: false } ] ],
                width: 2,
                height: 2,
                across_clues: '1. Clue here'
                down_clues: '1. Clue here'
-               col_props: (PuzzleUtils.getEmptyColProps() for i in [0 ... 2])
-               row_props: (PuzzleUtils.getEmptyRowProps() for i in [0 ... 2])
+               row_props: [ { leftbar: false }, {leftbar: true} ]
+               col_props: [ { topbar: false }, {topbar: true} ]
              })
 
         # test inserting/deleting rows
@@ -709,5 +776,21 @@ exports.OtTest =
                 "across_clues": [skip(1), take(12)]
                 "down_clues": [insert("1. "), take(11)]
              }
+
+        doit PuzzleUtils.getEmptyPuzzle(3, 3, "test title"),
+             {
+                "cell-0-0-rightbar": true,
+                "cell-0-0-bottombar": true,
+                "rowprop-1-leftbar": true,
+                "colprop-1-topbar": true,
+             },
+             {
+                "cell-0-0-rightbar": false,
+                "cell-0-0-bottombar": false,
+                "rowprop-1-leftbar": false,
+                "colprop-1-topbar": false,
+             }
+
+
 
         test.done()

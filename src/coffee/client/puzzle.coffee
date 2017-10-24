@@ -114,6 +114,23 @@ PuzzlePage = React.createClass
             for j in [0 ... @width()]
                 getCellClass(i, j)
 
+    getBars: () ->
+        grid = @state.puzzle.grid
+        row_props = @state.puzzle.row_props
+        col_props = @state.puzzle.col_props
+
+        getCellBars = (row, col) =>
+            return {
+                top: (row == 0 && col_props[col].topbar) || (row > 0 && grid[row-1][col].bottombar)
+                bottom: grid[row][col].bottombar
+                left: (col == 0 && row_props[row].leftbar) || (col > 0 && grid[row][col-1].rightbar)
+                right: grid[row][col].rightbar
+            }
+
+        for i in [0 ... @height()]
+            for j in [0 ... @width()]
+                getCellBars(i, j)
+
     # Ensures that the grid_focus is in a valid state even after the puzzle
     # state was modified.
     fixFocus: (puzzle, grid_focus) ->
@@ -324,6 +341,49 @@ PuzzlePage = React.createClass
 
             @props.requestOp op
 
+    toggleBars: (keyCode) ->
+        if @state.grid_focus != null
+            dir = {37: 'left', 38: 'top', 39: 'right', 40: 'bottom'}[keyCode]
+            grid_focus = Utils.clone @state.grid_focus
+            row1 = Math.min(grid_focus.focus.row, grid_focus.anchor.row)
+            row2 = Math.max(grid_focus.focus.row, grid_focus.anchor.row)
+            col1 = Math.min(grid_focus.focus.col, grid_focus.anchor.col)
+            col2 = Math.max(grid_focus.focus.col, grid_focus.anchor.col)
+            if dir == 'left'
+                cells = ([r, col1] for r in [row1 .. row2])
+            else if dir == 'right'
+                cells = ([r, col2] for r in [row1 .. row2])
+            else if dir == 'top'
+                cells = ([row1, c] for c in [col1 .. col2])
+            else if dir == 'bottom'
+                cells = ([row2, c] for c in [col1 .. col2])
+            allOn = true
+            for cell in cells
+                if not @getBar(cell[0], cell[1], dir)
+                    allOn = false
+            op = Ot.identity(@state.puzzle)
+            for cell in cells
+                op = Ot.compose(@state.puzzle, op, Ot.opSetBar(cell[0], cell[1], dir, (not allOn)))
+            @props.requestOp op
+
+    getBar: (row, col, dir) ->
+        if dir == 'top' || dir == 'bottom'
+            if dir == 'top'
+                row -= 1
+            if row == -1
+                return @state.puzzle.col_props[col].topbar
+            else
+                return @state.puzzle.grid[row][col].bottombar
+        else if dir == 'left' || dir == 'right'
+            if dir == 'left'
+                col -= 1
+            if col == -1
+                return @state.puzzle.row_props[row].leftbar
+            else
+                return @state.puzzle.grid[row][col].rightbar
+        else
+            throw new Error("invalid dir " + dir)
+
     # Stuff relating to the input fields.
     openCellField: (type) ->
         grid_focus = @collapseGridFocus @state.grid_focus
@@ -394,6 +454,9 @@ PuzzlePage = React.createClass
             else if event.keyCode == 71 # G
                 @openMatchFinder()
                 event.preventDefault()
+            else if event.keyCode >= 37 && event.keyCode <= 40
+                event.preventDefault()
+                @toggleBars(event.keyCode)
         else
             shiftHeld = event.shiftKey
             if event.keyCode == 37 # LEFT
@@ -805,6 +868,7 @@ PuzzlePage = React.createClass
               grid={@state.puzzle.grid}
               grid_focus={@state.grid_focus}
               cell_classes={@getCellClasses()}
+              bars={@getBars()}
               onCellClick={@onCellClick}
               onCellFieldKeyPress={@onCellFieldKeyPress}
             />
@@ -992,6 +1056,7 @@ PuzzleGrid = React.createClass
                     row={row}
                     grid_row={@props.grid[row]}
                     cell_classes={@props.cell_classes[row]}
+                    bars={@props.bars[row]}
                     grid_focus={
                         if @props.grid_focus? and @props.grid_focus.focus.row == row then @props.grid_focus else null
                     }
@@ -1014,6 +1079,7 @@ PuzzleGridRow = React.createClass
                     col={col}
                     grid_cell={@props.grid_row[col]}
                     cell_class={@props.cell_classes[col]}
+                    bars={@props.bars[col]}
                     grid_focus={
                         if @props.grid_focus? and @props.grid_focus.focus.col == col then @props.grid_focus else null
                     }
@@ -1032,8 +1098,13 @@ PuzzleGridCell = React.createClass
         <td onClick={@props.onCellClick}
             className={"puzzle_grid_cell " + @props.cell_class}>
         {
+
             if cell.open
                 <div>
+                  {if @props.bars.left then <div className="left-bar">{'\xA0'}</div>}
+                  {if @props.bars.right then <div className="right-bar">{'\xA0'}</div>}
+                  {if @props.bars.top then <div className="top-bar">{'\xA0'}</div>}
+                  {if @props.bars.bottom then <div className="bottom-bar">{'\xA0'}</div>}
                   <div style={{position: 'relative', height: '100%', width: '100%'}}>
                     <div className="cell_number">
                         {if cell.number != null then cell.number else ""}
@@ -1066,7 +1137,6 @@ PuzzleGridCell = React.createClass
             node.focus()
             if node.setSelectionRange
               node.setSelectionRange(0, $(node).val().length * 2)
-
 
     getCellFieldInitialValue: () ->
         if @props.grid_focus != null

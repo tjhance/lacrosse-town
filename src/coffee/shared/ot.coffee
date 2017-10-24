@@ -414,8 +414,8 @@ assertValidOp = (base, op) ->
             OtText.assertValidTextOp(base.down_clues, op[key])
         else
             spl = key.split('-')
-            Utils.assert spl.length == 4
             if spl[0] == "cell"
+                Utils.assert spl.length == 4
                 Utils.assert Utils.isValidInteger spl[1]
                 y = parseInt(spl[1], 10)
                 Utils.assert Utils.isValidInteger spl[2]
@@ -433,6 +433,7 @@ assertValidOp = (base, op) ->
                 else
                     Utils.assert false, "unknown cell property"
             else
+                Utils.assert spl.length == 3
                 Utils.assert(spl[0] == "rowprop" || spl[0] == "colprop")
                 isRow = (spl[0] == "rowprop")
                 Utils.assert Utils.isValidInteger spl[1]

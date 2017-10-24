@@ -159,12 +159,45 @@ td.puzzle_grid_cell {
     vertical-align: middle;
     text-align: center;
     cursor: pointer;
+    position: relative;
+}
+div.left-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 1px;
+    background-color: black;
+}
+div.right-bar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 1px;
+    background-color: black;
+}
+div.top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    background-color: black;
+}
+div.bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    background-color: black;
 }
 
 div.cell_number {
     position: absolute;
     top: -5px;
-    left: 0px;
+    left: 1px;
 
     font-size: 9px;
 }

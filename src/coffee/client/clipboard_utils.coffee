@@ -43,10 +43,13 @@ getGridFromClipboard = (event) ->
                         open = node.getAttribute('data-crossword-cell-open') == "true"
                         number = node.getAttribute('data-crossword-cell-number')
                         number = parseInt(number, 10)
+                        rightbar = node.getAttribute('data-right-bar') == "true"
+                        bottombar = node.getAttribute('data-bottom-bar') == "true"
                         if (not number) and number != 0
                             number = null
                         contents = node.getAttribute('data-crossword-cell-contents') or ""
-                        cells.push({ x: x, y: y, open: open, number: number, contents: contents })
+                        cells.push({ x: x, y: y, open: open, number: number, contents: contents, \
+                                rightbar: rightbar, bottombar: bottombar })
 
             if width and height
                 grid = for i in [0 ... height]
@@ -56,7 +59,8 @@ getGridFromClipboard = (event) ->
                     x = cell.x
                     y = cell.y
                     if 0 <= x and x < width and 0 <= y and y < height
-                        grid[y][x] = { open: cell.open, number: cell.number, contents: cell.contents }
+                        grid[y][x] = { open: cell.open, number: cell.number, contents: cell.contents, \
+                                rightbar: cell.rightbar, bottombar: cell.bottombar }
 
                 return { width: width, height: height, grid: grid }
 

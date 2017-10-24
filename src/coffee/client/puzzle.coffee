@@ -308,6 +308,10 @@ PuzzlePage = React.createClass
                 op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "contents", "")
                 op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "number", null)
                 op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "open", true)
+                if row < row2
+                    op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "bottombar", false)
+                if col < col2
+                    op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "rightbar", false)
         @props.requestOp op
 
     # Perform an automatic renumbering.
@@ -793,7 +797,7 @@ PuzzlePage = React.createClass
         col1 = Math.min(@state.grid_focus.focus.col, @state.grid_focus.anchor.col)
         col2 = Math.max(@state.grid_focus.focus.col, @state.grid_focus.anchor.col)
         submatr = Utils.submatrix(@state.puzzle.grid, row1, row2 + 1, col1, col2 + 1)
-        
+ 
         # Copy it to clipboard
         ClipboardUtils.copyGridToClipboard(event, col2 - col1 + 1, row2 - row1 + 1, submatr)
 
@@ -835,7 +839,10 @@ PuzzlePage = React.createClass
                         Ot.opEditCellValue(row + i, col + j, "number", grid.grid[i][j].number))
                 op = Ot.compose(base, op,
                         Ot.opEditCellValue(row + i, col + j, "open", grid.grid[i][j].open))
-
+                op = Ot.compose(base, op,
+                        Ot.opSetBar(row + i, col + j, 'right', grid.grid[i][j].rightbar))
+                op = Ot.compose(base, op,
+                        Ot.opSetBar(row + i, col + j, 'bottom', grid.grid[i][j].bottombar))
         @props.requestOp op
 
         # select the region that was just pasted in

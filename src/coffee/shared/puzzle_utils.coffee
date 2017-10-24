@@ -77,21 +77,29 @@ staticHtmlForGrid = (width, height, grid) ->
             '<tr>' + (
                 for j in [0 ... width]
                     cell = grid[i][j]
+                    rightBar = false
+                    bottomBar = false
                     if cell.open
                         open = true
                         number = cell.number
                         contents = cell.contents
+                        rightBar = j < width-1 and cell.rightbar
+                        bottomBar = i < height-1 and  cell.bottombar
                     else
                         open = false
                         number = null
                         contents = null
+                        rightBar = false
+                        bottomBar = false
                     '<td data-crossword-cell-open="' + open + '"' + \
                         " data-crossword-cell-y=\"#{i}\" data-crossword-cell-x=\"#{j}\"" + \
                         (if number? then ' data-crossword-cell-number="' + \
                                 Utils.htmlEscape(number) + '"' else '') + \
                         (if contents? then ' data-crossword-cell-contents="' + \
                                 Utils.htmlEscape(contents) + '"' else '') + \
-                        " style=\"margin: 0; border-width: 1px 1px 0 0; border-style: solid; border-color: black; padding: 0px; width: 30px; height: 30px; background-clip: padding-box; vertical-align: middle; text-align: center; background-color: #{if open then 'white' else 'black'}\"" + \
+                        (if rightBar then ' data-right-bar="true"' else '') + \
+                        (if bottomBar then ' data-bottom-bar="true"' else '') + \
+                        " style=\"margin: 0; border-width: 1px #{if rightBar then '3px' else '1px'} #{if bottomBar then '3px' else '1px'} 1px; border-style: solid; border-color: black; padding: 0px; width: 30px; height: 30px; background-clip: padding-box; vertical-align: middle; text-align: center; background-color: #{if open then 'white' else 'black'}\"" + \
                         '><div style="display: block; border: 0px;">' + \
                         (if number? then '<div style="position: relative; width: 100%; height: 100%;"><div style="position: absolute; top: -5px; left: 0px; font-size: 9px;">' + Utils.htmlEscape(number) + '</div></div>' else '') + \
                         '<div style="font-weight: bold">' + Utils.htmlEscape(Utils.useHardSpaces(contents or " ")) + '</div>' + \

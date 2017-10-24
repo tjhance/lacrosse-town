@@ -609,24 +609,22 @@ PuzzlePage = React.createClass
             return
 
         # get the contiguous run of open cells containing the selection
-        # (we can assume for this that it's an 'across' word, since we did
-        # the transpose, above)
         cells = []
         if @state.grid_focus.is_across
             c1 = col
             c2 = col
-            while c1 > 0 and g[row][c1 - 1].open
+            while c1 > 0 and g[row][c1 - 1].open and not g[row][c1 - 1].rightbar
                 c1--
-            while c2 < @width() - 1 and g[row][c2 + 1].open
+            while c2 < @width() - 1 and g[row][c2 + 1].open and not g[row][c2].rightbar
                 c2++
             for i in [c1 .. c2]
                 cells.push([row, i])
         else
             r1 = row
             r2 = row
-            while r1 > 0 and g[r1 - 1][col].open
+            while r1 > 0 and g[r1 - 1][col].open and not g[r1 - 1][col].bottombar
                 r1--
-            while r2 < @height() - 1 and g[r2 + 1][col].open
+            while r2 < @height() - 1 and g[r2 + 1][col].open and not g[r2][col].bottombar
                 r2++
             for i in [r1 .. r2]
                 cells.push([i, col])
@@ -688,14 +686,19 @@ PuzzlePage = React.createClass
             return
 
         fail = () ->
+            console.trace()
             alert('Unable to enter "' + word + '" into the grid; maybe the grid has been modified?')
 
         info = @state.findMatchesInfo
         g = @state.puzzle.grid
 
         # Check that all the cells are still open
-        for [r, c] in info.cells
+        for i in [0 .. info.cells.length - 1]
+            [r, c] = info.cells[i]
             if not (0 <= r and r < @height() and 0 <= c and c < @width() and g[r][c].open)
+                fail()
+                return
+            if i < info.cells.length - 1 and g[r][c][if info.is_across then 'rightbar' else 'bottombar']
                 fail()
                 return
 
@@ -710,8 +713,8 @@ PuzzlePage = React.createClass
         else
             prevR--
             nextR++
-        if (prevR >= 0 and prevR < @height() and prevC >= 0 and prevC < @width() and g[prevR][prevC].open) or \
-           (nextR >= 0 and nextR < @height() and nextC >= 0 and nextC < @width() and g[nextR][nextC].open)
+        if (prevR >= 0 and prevR < @height() and prevC >= 0 and prevC < @width() and g[prevR][prevC].open and not g[prevR][prevC][if info.is_across then 'rightbar' else 'bottombar']) or \
+           (nextR >= 0 and nextR < @height() and nextC >= 0 and nextC < @width() and g[nextR][nextC].open and not g[info.cells[info.cells.length - 1][0]][info.cells[info.cells.length - 1][1]][if info.is_across then 'rightbar' else 'bottombar'])
             fail()
             return
         

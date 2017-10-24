@@ -73,6 +73,20 @@ PuzzlePage = React.createClass
     getCellClasses: () ->
         grid = @state.puzzle.grid
         grid_focus = @state.grid_focus
+
+        isLineFree = (r1, c1, r2, c2) ->
+            if r1 == r2
+                if c1 == c2
+                    return true
+                if c2 < c1 then [c1, c2] = [c2, c1]
+                return [c1 .. c2].every((col) -> grid[r1][col].open) && \
+                    [c1 .. c2-1].every((col) -> not grid[r1][col].rightbar)
+            else
+                if r2 < r1 then [r1, r2] = [r2, r1]
+                return [r1 .. r2].every((row) -> grid[row][c1].open) && \
+                    [r1 .. r2-1].every((row) -> not grid[row][c1].bottombar)
+                
+
         getCellClass = (row, col) =>
             if grid_focus == null
                 # no selection, just return the default selection based on whether
@@ -87,10 +101,10 @@ PuzzlePage = React.createClass
                     if focus.focus.row == row and focus.focus.col == col
                         return "open_cell_highlighted"
                     else if (\
-                        (focus.is_across and focus.focus.row == row and \
-                            ([col..focus.focus.col].every (col1) -> grid[row][col1].open)) or \
+                        (focus.is_across and focus.focus.row == row and
+                            isLineFree(row, col, row, focus.focus.col)) or \
                         ((not focus.is_across) and focus.focus.col == col and \
-                            ([row..focus.focus.row].every (row1) -> grid[row1][col].open)))
+                            isLineFree(row, col, focus.focus.row, col)))
                         return "open_cell_highlighted_intermediate"
                     else
                         return "open_cell"
@@ -535,6 +549,11 @@ PuzzlePage = React.createClass
                     else
                         if number != null
                             count++
+
+                    if (if is_across then cell.rightbar else cell.bottombar)
+                         if number != null
+                             answerLengths[number] = count
+                             number = null
                 else
                     if number != null
                         answerLengths[number] = count
@@ -558,7 +577,8 @@ PuzzlePage = React.createClass
         while true
             row1 = if is_across then row else row - 1
             col1 = if is_across then col - 1 else col
-            if row1 >= 0 and col1 >= 0 and @state.puzzle.grid[row1][col1].open
+            if row1 >= 0 and col1 >= 0 and @state.puzzle.grid[row1][col1].open and \
+                    not @state.puzzle.grid[row1][col1][if is_across then 'rightbar' else 'bottombar']
                 row = row1
                 col = col1
             else
@@ -959,6 +979,7 @@ PuzzlePanel = React.createClass
                             associate lines that start with a number (e.g., "1.") with the corresponding
                             cells on the grid.
                             </li>
+                        <li>Hold <span className="keyboard-shortcut">{meta}</span>{" "}and use the arrow keys to add walls between cells.</li>
                         <li>Hold{" "}<span className="keyboard-shortcut">SHIFT</span>{" "}and use the arrow keys to select a rectangular region.</li>
                         <li><span className="keyboard-shortcut">{meta}+X</span>{" "}to cut.</li>
                         <li><span className="keyboard-shortcut">{meta}+C</span>{" "}to copy.</li>

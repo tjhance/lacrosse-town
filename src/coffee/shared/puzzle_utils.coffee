@@ -45,11 +45,15 @@ getNumberedGrid = (grid) ->
     width = grid[0].length
     isOpen = (i, j) ->
         i >= 0 and i < height and j >= 0 and j < width and grid[i][j].open
+    blockedLeft = (i, j) ->
+        not (i >= 0 && i < height && j >= 1 && j < width && grid[i][j].open && grid[i][j-1].open && not grid[i][j-1].rightbar)
+    blockedTop = (i, j) ->
+        not (i >= 1 && i < height && j >= 0 && j < width && grid[i][j].open && grid[i-1][j].open && not grid[i-1][j].bottombar)
     current_number = 0
     getNumber = (i, j) ->
         if (isOpen i, j) and (
-                ((isOpen i+1, j) and not (isOpen i-1, j)) or
-                ((isOpen i, j+1) and not (isOpen i, j-1)))
+                (blockedLeft(i, j) and not blockedLeft(i, j + 1)) or
+                (blockedTop(i, j) and not blockedTop(i + 1, j)))
                current_number += 1
                current_number
         else

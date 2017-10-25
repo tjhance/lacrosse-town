@@ -511,7 +511,9 @@ PuzzlePage = React.createClass
         else
             grid_focus.focus.row = row
             grid_focus.focus.col = col
-            grid_focus.is_across = true
+
+            grid = @state.puzzle.grid
+            grid_focus.is_across = (not grid[row][col].open) or (col > 0 and grid[row][col-1].open and not grid[row][col-1].rightbar) or (col < @state.puzzle.width - 1 and grid[row][col+1].open and not grid[row][col].rightbar)
         this.setState { grid_focus: @collapseGridFocus grid_focus }
 
     blur: () ->

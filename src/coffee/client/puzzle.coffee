@@ -862,6 +862,9 @@ PuzzlePage = React.createClass
             </div>
         else
             <div className="puzzle_container">
+                <div className="puzzle_title">
+                    <h1 className="puzzle_title_header">{@state.puzzle.title}</h1>
+                </div>
                 <div className="puzzle_container_column">
                     <div className="puzzle_container_box">
                         {@renderPuzzleGrid()}

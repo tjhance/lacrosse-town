@@ -22,16 +22,18 @@ initApp = () ->
     else if parts[1] == 'puzzle'
         initPuzzleSyncer(parts[2], window.PAGE_DATA)
 
-
 #TODO This should get its own file
 initPuzzleSyncer = (puzzleID, initialData) ->
     syncer = new ClientSyncer(puzzleID, initialData)
-    syncer.addWatcher (newState, op) ->
-        p.applyOpToPuzzleState op
+    syncer.addWatcher (newState, op, cursors) ->
+        if op
+            p.applyOpToPuzzleState op
+        if cursors
+            p.setCursors cursors
     syncer.loadInitialData(initialData)
 
-    requestOp = (op) ->
-        syncer.localOp op
+    requestOp = (op, cursor) ->
+        syncer.localOp op, cursor
 
     onToggleOffline = (val) ->
         syncer.setOffline val

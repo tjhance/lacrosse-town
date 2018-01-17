@@ -162,6 +162,16 @@ PuzzlePage = React.createClass
         else
             grid_focus
 
+    requestOpAndFocus: (op, focus) ->
+        if op or focus
+            @props.requestOp op, focus
+        if focus
+            @setState { grid_focus: focus }
+    requestFocus: (focus) ->
+        @requestOpAndFocus null, focus
+    requestOp: (op) ->
+        @requestOpAndFocus op, null
+
     setPuzzleState: (puzzle_state) ->
         this.puzzle_state = puzzle_state
         this.setState
@@ -179,6 +189,9 @@ PuzzlePage = React.createClass
         if op.down_clues?
             this.refs.downClues.takeOp op.down_clues
 
+    setCursors: (cursors) ->
+        this.setState({ cursors: cursors })
+
     # Actions corresponding to keypresses
 
     moveGridCursor: (shiftHeld, drow, dcol) ->
@@ -191,43 +204,41 @@ PuzzlePage = React.createClass
 
             if shiftHeld
                 # move the focus but leave the anchor where it is
-                @setState
-                    grid_focus:
-                        focus:
-                            row: row1
-                            col: col1
-                        anchor:
-                            row: @state.grid_focus.anchor.row
-                            col: @state.grid_focus.anchor.col
-                        is_across: drow == 0
-                        field_open: "none"
+                @requestFocus
+                    focus:
+                        row: row1
+                        col: col1
+                    anchor:
+                        row: @state.grid_focus.anchor.row
+                        col: @state.grid_focus.anchor.col
+                    is_across: drow == 0
+                    field_open: "none"
             else
                 # normal arrow key press, just move the focus by 1
                 # in the resulting grid_focus, we should have focus=anchor
-                @setState
-                    grid_focus:
-                        focus:
-                            row: row1
-                            col: col1
-                        anchor:
-                            row: row1
-                            col: col1
-                        is_across: drow == 0
-                        field_open: "none"
+                @requestFocus
+                    focus:
+                        row: row1
+                        col: col1
+                    anchor:
+                        row: row1
+                        col: col1
+                    is_across: drow == 0
+                    field_open: "none"
             return true
         return false
 
     typeLetter: (keyCode) ->
         grid_focus = Utils.clone @state.grid_focus
+        op = null
         if grid_focus != null
             c = String.fromCharCode keyCode
-            @props.requestOp Ot.opEditCellValue \
-                grid_focus.focus.row, grid_focus.focus.col, "contents", c
+            op = Ot.opEditCellValue grid_focus.focus.row, grid_focus.focus.col, "contents", c
             if grid_focus.is_across and grid_focus.focus.col < @width() - 1
                 grid_focus.focus.col += 1
             else if (not grid_focus.is_across) and grid_focus.focus.row < @height() - 1
                 grid_focus.focus.row += 1
-        @setState { grid_focus: @collapseGridFocus grid_focus }
+        @requestOpAndFocus(op, @collapseGridFocus(grid_focus))
 
     doSpace: () ->
         if @state.grid_focus
@@ -240,6 +251,7 @@ PuzzlePage = React.createClass
         grid_focus = Utils.clone @state.grid_focus
         if grid_focus != null
             grid_focus.cell_field = "none"
+            op = null
             g = @state.puzzle.grid
             if (grid_focus.focus.row == grid_focus.anchor.row and \
                   grid_focus.focus.col == grid_focus.anchor.col)
@@ -256,7 +268,7 @@ PuzzlePage = React.createClass
                 row = grid_focus.focus.row
                 col = grid_focus.focus.col
                 if g[row][col].open and g[row][col].contents != ""
-                    @props.requestOp Ot.opEditCellValue \
+                    op = Ot.opEditCellValue \
                         grid_focus.focus.row, grid_focus.focus.col, "contents", ""
                     if grid_focus.is_across and grid_focus.focus.col > 0
                         grid_focus.focus.col -= 1
@@ -271,7 +283,7 @@ PuzzlePage = React.createClass
                         col1 = col
                     if row1 >= 0 and col1 >= 0
                         if g[row1][col1].open and g[row1][col1].contents != ""
-                            @props.requestOp Ot.opEditCellValue \
+                            op = Ot.opEditCellValue \
                                 row1, col1, "contents", ""
                         grid_focus.focus.col = col1
                         grid_focus.focus.row = row1
@@ -288,9 +300,8 @@ PuzzlePage = React.createClass
                     for col in [col1..col2]
                         if g[row][col].open and g[row][col].contents != ""
                             op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "contents", "")
-                @props.requestOp op
 
-            @setState { grid_focus: grid_focus }
+            @requestOpAndFocus op, grid_focus
 
     doDeleteAll: () ->
         grid_focus = @state.grid_focus
@@ -312,12 +323,13 @@ PuzzlePage = React.createClass
                     op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "bottombar", false)
                 if col < col2
                     op = Ot.compose(@state.puzzle, op, Ot.opEditCellValue row, col, "rightbar", false)
-        @props.requestOp op
+        @requestOp op
 
     # Perform an automatic renumbering.
     renumber: () ->
-        @setState { grid_focus: @removeCellField(@state.grid_focus) }
-        @props.requestOp Ot.opGridDiff @state.puzzle, PuzzleUtils.getNumberedGrid @state.puzzle.grid
+        focus = @removeCellField(@state.grid_focus)
+        op = Ot.opGridDiff @state.puzzle, PuzzleUtils.getNumberedGrid @state.puzzle.grid
+        requestOpAndFocus op, focus
 
     # Returns true if renumbering the grid would be a non-trivial operation,
     # that is, if there are any cells which would be re-numbered
@@ -341,7 +353,6 @@ PuzzlePage = React.createClass
                         isEveryCellClosed = false
 
             grid_focus.field_open = "none"
-            @setState { grid_focus: grid_focus }
 
             oldValue = not isEveryCellClosed
             newValue = isEveryCellClosed
@@ -357,7 +368,7 @@ PuzzlePage = React.createClass
                             op = Ot.compose @state.puzzle, op, \
                                 (Ot.opEditCellValue (@height() - 1 - row), (@width() - 1 - col), "open", newValue)
 
-            @props.requestOp op
+            @requestOpAndFocus op, grid_focus
 
     toggleBars: (keyCode) ->
         if @state.grid_focus != null
@@ -382,7 +393,7 @@ PuzzlePage = React.createClass
             op = Ot.identity(@state.puzzle)
             for cell in cells
                 op = Ot.compose(@state.puzzle, op, Ot.opSetBar(cell[0], cell[1], dir, (not allOn)))
-            @props.requestOp op
+            @requestOp op
 
     getBar: (row, col, dir) ->
         if dir == 'top' || dir == 'bottom'
@@ -408,7 +419,7 @@ PuzzlePage = React.createClass
         if grid_focus != null and \
                 @state.puzzle.grid[grid_focus.focus.row][grid_focus.focus.col].open
             grid_focus.field_open = type
-            @setState { grid_focus: grid_focus }
+            @requestFocus grid_focus
     removeCellField: (grid_focus) ->
         if grid_focus != null
             grid_focus = @collapseGridFocus grid_focus
@@ -433,6 +444,8 @@ PuzzlePage = React.createClass
         if grid_focus == null
             return
 
+        op = null
+
         if keyCode == 27 # Escape
             grid_focus = @removeCellField(grid_focus)
         else if keyCode == 13 # Enter
@@ -451,11 +464,10 @@ PuzzlePage = React.createClass
             else
                 return
 
-            @props.requestOp Ot.opEditCellValue row, col, name, value
-
+            op = Ot.opEditCellValue row, col, name, value
             grid_focus = @removeCellField(grid_focus)
 
-        @setState { grid_focus: grid_focus }
+        @requestOpAndFocus op, grid_focus
 
     # Handle a keypress by dispatching to the correct method (above).
     handleKeyPress: (event) ->
@@ -514,7 +526,7 @@ PuzzlePage = React.createClass
 
             grid = @state.puzzle.grid
             grid_focus.is_across = (not grid[row][col].open) or (col > 0 and grid[row][col-1].open and not grid[row][col-1].rightbar) or (col < @state.puzzle.width - 1 and grid[row][col+1].open and not grid[row][col].rightbar)
-        this.setState { grid_focus: @collapseGridFocus grid_focus }
+        @requestFocus(@collapseGridFocus grid_focus)
 
     blur: () ->
         @setState { grid_focus: null }
@@ -532,7 +544,7 @@ PuzzlePage = React.createClass
         @setState { maintainRotationalSymmetry: checked }
 
     clueEdited: (name, local_text_op) ->
-        @props.requestOp(Ot.getClueOp(name, local_text_op))
+        @requestOp(Ot.getClueOp(name, local_text_op))
 
     clueStylingData: (is_across) ->
         # compute the answer length, in cells, of each clue number
@@ -681,7 +693,7 @@ PuzzlePage = React.createClass
         grid_focus = if @state.findMatchesInfo.savedGridFocus? then @state.findMatchesInfo.savedGridFocus else null
         @setState
             findMatchesInfo: null
-            grid_focus: grid_focus
+        @requestFocus grid_focus
 
     # If the user selects a word in the match-finder dialog, we enter that word
     # into the grid here.
@@ -757,7 +769,7 @@ PuzzlePage = React.createClass
             op = Ot.compose(@state.puzzle, op, \
                     Ot.opEditCellValue(update.row, update.col, "contents", update.contents))
 
-        @props.requestOp op
+        @requestOp op
 
         @closeMatchFinder()
 
@@ -785,7 +797,7 @@ PuzzlePage = React.createClass
             op = Ot.compose(@state.puzzle, op,
                     Ot.opInsertRows(@state.puzzle, @height(), height - @height()))
 
-        @props.requestOp op
+        @requestOp op
 
     # Copy/cut/paste stuff
 
@@ -845,15 +857,16 @@ PuzzlePage = React.createClass
                         Ot.opSetBar(row + i, col + j, 'right', grid.grid[i][j].rightbar))
                 op = Ot.compose(base, op,
                         Ot.opSetBar(row + i, col + j, 'bottom', grid.grid[i][j].bottombar))
-        @props.requestOp op
 
         # select the region that was just pasted in
-        @setState
-            grid_focus:
-                focus: { row: row + grid.height - 1, col: col + grid.width - 1 }
-                anchor: { row: row, col: col }
-                is_across: @state.grid_focus.is_across
-                field_open: "none"
+        focus = {
+            focus: { row: row + grid.height - 1, col: col + grid.width - 1 }
+            anchor: { row: row, col: col }
+            is_across: @state.grid_focus.is_across
+            field_open: "none"
+        }
+
+        @requestOpAndFocus op, focus
 
     render: ->
         if @state.puzzle == null

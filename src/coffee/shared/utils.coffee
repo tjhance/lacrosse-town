@@ -113,6 +113,26 @@ htmlEscape = (s) ->
     s = "" + s
     return s.replace('/&/g', '&amp;').replace(/</g, '&lt;').replace('/>/g', '&gt;')
 
+isValidCursor = (state, cursor) ->
+    for key of cursor
+        if key != 'anchor' and key != 'focus' and key != 'field_open' and key != 'is_across' and key != 'cell_field'
+            return false
+    isProperPoint = (point) ->
+        for key of point
+            if key != 'row' and key != 'col'
+                return false
+        return isInteger(point.row) \
+            and isInteger(point.col) \
+            and point.row >= 0 \
+            and point.row < state.height \
+            and point.col >= 0 \
+            and point.col < state.width
+    return isProperPoint(cursor.anchor) and \
+        isProperPoint(cursor.focus) and \
+        typeof(cursor.field_open) == 'string' and \
+        typeof(cursor.is_across) == 'boolean' and \
+        (typeof(cursor.cell_field) == 'string' or cursor.cell_field == undefined)
+
 # Export stuff
 
 module.exports.assert = assert
@@ -127,3 +147,4 @@ module.exports.transpose = transpose
 module.exports.useHardSpaces = useHardSpaces
 module.exports.htmlEscape = htmlEscape
 module.exports.isInteger = isInteger
+module.exports.isValidCursor = isValidCursor

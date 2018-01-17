@@ -99,6 +99,8 @@ module.exports.ClientSyncer = (puzzleID) ->
     tip = null
     op_a = null
     op_b = null
+    cursor_a = null
+    cursor_b = null
 
     # The ID of the update that we sent and are waiting on, or null if
     # we are not currently waiting on any update.
@@ -107,12 +109,14 @@ module.exports.ClientSyncer = (puzzleID) ->
     # Object to track state for undo/redo operations.
     undoRedo = null
 
+    cursors = {}
+
     @addWatcher = (watcher) ->
         watchers.push watcher
     notifyWatchers = (newState, op) ->
         for watcher in watchers
             do (watcher) ->
-                watcher newState, op
+                watcher newState, op, cursors
 
     socket = io.connect()
     connected = false
@@ -170,6 +174,15 @@ module.exports.ClientSyncer = (puzzleID) ->
         console.debug "received update"
         rootID = data.stateID
 
+        update = false
+
+        if data.cursor_updates
+            _process_cursor_updates(data.cursor_updates)
+            nofity = true
+
+        # TODO technically, we should xform the cursor here, but it should
+        # hardly matter since the grid is pretty static.
+
         # Check if the received update corresponds to the update that *we*
         # sent, or if it corresponds to an update from another client.
         if outstandingID != null and outstandingID == data.opID
@@ -191,18 +204,35 @@ module.exports.ClientSyncer = (puzzleID) ->
 
             undoRedo.applyOp(op_c2, false) # false -> non-undoable operation
 
+            notify = true
+
+        if notify
             notifyWatchers tip, op_c2
 
+    socket.on "update_cursor", (data) ->
+        _process_cursor_updates(data.cursor_updates)
+        notifyWatchers tip, null
+
     # Receive a local operation
-    @localOp = (op) ->
-        undoRedo.applyOp(op, true) # true -> undoable operation
-        _localOp(op)
+    @localOp = (op, cursor) ->
+        if op
+            undoRedo.applyOp(op, true) # true -> undoable operation
+            _localOp(op, cursor)
+        else if cursor
+            # cursor update only
+            if cursor and not Utils.isValidCursor tip, cursor
+                console.log 'warning, bad cursor', tip, cursor
+                return
+            if outstandingID != null
+                cursor_b = cursor
+            else
+                sendLoneCursor cursor
 
     # Try to do an 'undo' operation. Return true if successful.
     @undo = () ->
         op = undoRedo.undo()
         if op?
-            _localOp(op)
+            _localOp(op, null)
             return true
         else
             return false
@@ -211,21 +241,35 @@ module.exports.ClientSyncer = (puzzleID) ->
     @redo = () ->
         op = undoRedo.redo()
         if op?
-            _localOp(op)
+            _localOp(op, null)
             return true
         else
             return false
 
-    _localOp = (op) ->
+    _localOp = (op, cursor) ->
         Ot.assertValidOp tip, op
 
         tip = Ot.apply tip, op
         op_b = Ot.compose buffer, op_b, op
 
+        if cursor
+            cursor_b = cursor
+        if cursor_b and not Utils.isValidCursor tip, cursor_b
+            console.log 'warning, bad cursor', tip, cursor_b
+            cursor_b = null
+
         if outstandingID == null
             sendUpdate()
 
         notifyWatchers tip, op
+
+    _process_cursor_updates = (updates) ->
+        for update in updates
+            if update.cursor == null
+                delete cursors[update.user_id]
+            else
+                cursors[update.user_id] = update.cursor
+        return
 
     getID = () ->
         return ("0123456789abcdef"[Math.floor Math.random() * 16] for i in [1..48]).join ""
@@ -238,18 +282,26 @@ module.exports.ClientSyncer = (puzzleID) ->
         Utils.assert outstandingID == null
         Utils.assert Ot.isIdentity op_a
         op_a = op_b
+        cursor_a = cursor_b
         buffer = tip
         op_b = Ot.identity buffer
+        cursor_b = op_b
         
         id = getID()
         outstandingID = id
         updateMessage = {
             op : op_a
+            cursor: cursor_a
             opID : id
             rootID : rootID
         }
         if connected
             socket.emit "update", updateMessage
+
+    sendLoneCursor = (cursor) ->
+        socket.emit "cursor_update", {
+            cursor: cursor
+        }
 
     resendLastUpdate = () ->
         socket.emit "update", updateMessage

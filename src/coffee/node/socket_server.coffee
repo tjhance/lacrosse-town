@@ -82,11 +82,15 @@ ServerSyncer = (puzzleID, callbackOnClose) ->
 
     # list of objects:
     #   socket: socket.io object
-    #   maybe other fields later?
+    #   id: unique id, shared with the clients
+    #   cursor: current cursor
     connections = []
     
     # All important tasks are done through the queue.
     queue = new AsyncQueue()
+
+    # Used to assign ids to the connected clients 
+    idCounter = 1
 
     # Start by loading in the latest puzzle state from memory.
     queue.push (callback) ->
@@ -104,7 +108,10 @@ ServerSyncer = (puzzleID, callbackOnClose) ->
     @addConnection = (socket, data) ->
         conn = {
             socket : socket
+            id: idCounter
+            cursor: null
         }
+        idCounter += 1
 
         # For the new connection, you need to
         #   - Add it to the connections list.
@@ -119,6 +126,8 @@ ServerSyncer = (puzzleID, callbackOnClose) ->
             connections.push conn
 
             if data.latest == "yes"
+                # NOTE: unused currently; clients always start with
+                # a state.
                 socket.emit "state", {
                     stateID : latestStateID
                     puzzle : latestState
@@ -134,6 +143,10 @@ ServerSyncer = (puzzleID, callbackOnClose) ->
                             op : op.op
                         }
                         i++
+                    socket.emit "update_cursor", {
+                        cursor_updates: ({id: conn.id, cursor: conn.cursor} \
+                                for conn in connections)
+                    }
                     callback()
 
         # What to do when you receive an "update" packet from the client.
@@ -164,23 +177,46 @@ ServerSyncer = (puzzleID, callbackOnClose) ->
                                 newState = Ot.apply latestState, newOp
                                 # Save the new (transformed) op and the new state.
                                 db.saveOp puzzleID, update_data.opID, newOp, newState, () ->
+                                    conn.cursor = update_data.cursor
+
                                     # Tell all the connections about the new update.
                                     broadcast "update", {
                                         stateID : latestStateID + 1
                                         opID : update_data.opID
                                         op: newOp
+                                        cursor_updates: [
+                                            {
+                                                user_id: conn.id
+                                                cursor: conn.cursor
+                                            }
+                                        ]
                                     }
                                     latestState = newState
                                     latestStateID++
                                     callback()
+
+        socket.on "cursor_update", (update_data) ->
+            conn.cursor = update_data.cursor
+            broadcast_except conn, "update_cursor", {
+                cursor_updates: [
+                    {
+                        user_id: conn.id
+                        cursor: conn.cursor
+                    }
+                ]
+            }
 
     doesOpExist = (opID, callback) ->
         db.getOpSeq puzzleID, opID, (op) ->
             callback op != null
 
     broadcast = (msg, data) ->
+        broadcast_except(null, msg, data)
+
+    broadcast_except = (connExc, msg, data) ->
         for conn in connections
-            do (conn) ->
-                conn.socket.emit msg, data
+            if conn != connExc
+                do (conn) ->
+                    conn.socket.emit msg, data
 
     return this

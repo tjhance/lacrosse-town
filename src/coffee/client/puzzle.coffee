@@ -58,6 +58,9 @@ PuzzlePage = React.createClass
         # grid_focus can also be null if the user isn't focused on the grid.
         grid_focus: @defaultGridFocus()
 
+        # Map of the other users' cursors.
+        cursors: {}
+
     defaultGridFocus: () ->
         focus: {row: 0, col: 0}
         anchor: {row: 0, col: 0}
@@ -945,6 +948,7 @@ PuzzlePage = React.createClass
               grid={@state.puzzle.grid}
               grid_focus={@state.grid_focus}
               cell_classes={@getCellClasses()}
+              cursorInfos={@getCursorInfos()}
               bars={@getBars()}
               onCellClick={@onCellClick}
               onCellFieldKeyPress={@onCellFieldKeyPress}
@@ -962,6 +966,15 @@ PuzzlePage = React.createClass
                   stylingData={stylingData}
                   ref={if type == "across" then "acrossClues" else "downClues"} />
         </div>
+
+    getCursorInfos: () ->
+        res = (([] for c in [0 ... @width()]) for r in [0 ... @height()])
+        for id of @state.cursors
+            cursor = @state.cursors[id]
+            if cursor.focus
+                res[cursor.focus.row][cursor.focus.col].push({id: id, across: cursor.is_across})
+        return res
+            
 
     renderToggleOffline: ->
         return null
@@ -1136,6 +1149,7 @@ PuzzleGrid = React.createClass
                     row={row}
                     grid_row={@props.grid[row]}
                     cell_classes={@props.cell_classes[row]}
+                    cursorInfos={@props.cursorInfos[row]}
                     bars={@props.bars[row]}
                     grid_focus={
                         if @props.grid_focus? and @props.grid_focus.focus.row == row then @props.grid_focus else null
@@ -1159,6 +1173,7 @@ PuzzleGridRow = React.createClass
                     col={col}
                     grid_cell={@props.grid_row[col]}
                     cell_class={@props.cell_classes[col]}
+                    cursorInfo={@props.cursorInfos[col]}
                     bars={@props.bars[col]}
                     grid_focus={
                         if @props.grid_focus? and @props.grid_focus.focus.col == col then @props.grid_focus else null
@@ -1185,6 +1200,7 @@ PuzzleGridCell = React.createClass
                   {if @props.bars.right then <div className="right-bar">{'\xA0'}</div>}
                   {if @props.bars.top then <div className="top-bar">{'\xA0'}</div>}
                   {if @props.bars.bottom then <div className="bottom-bar">{'\xA0'}</div>}
+                  {if @props.cursorInfo.length > 0 then <CursorInfos info={@props.cursorInfo} />}
                   <div style={{position: 'relative', height: '100%', width: '100%'}}>
                     <div className="cell_number">
                         {if cell.number != null then cell.number else ""}
@@ -1227,6 +1243,13 @@ PuzzleGridCell = React.createClass
                 return cell.contents
         else
             return null
+
+CursorInfos = React.createClass
+    # todo awesomeness here
+    render: ->
+        <div className="cursor-marker">
+            {'\xA0'}
+        </div>
 
 SelectedClueTextWidget = React.createClass
     render: ->

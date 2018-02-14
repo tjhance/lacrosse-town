@@ -222,6 +222,15 @@ div.bottom-bar {
     background-color: black;
 }
 
+div.cursor-marker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 4px;
+    width: 4px;
+    background-color: red;
+}
+
 div.cell_number {
     position: absolute;
     top: -5px;

@@ -330,7 +330,6 @@ EditableTextField = (buildContent) -> React.createClass
                 # now if it's too high, settle on 0
                 if desired_y < 0
                     desired_y = 0
-                console.log 'desired y', desired_y
 
                 $(container).scrollTop(nodeTop - desired_y)
 

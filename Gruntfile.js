@@ -29,7 +29,6 @@ module.exports = function(grunt) {
 
     browserify: {
       client: {
-        //files:
         src: ["src/coffee/{client,shared}/**/*.coffee"],
         dest: "src/static/bundle.js",
         options: {
@@ -46,6 +45,7 @@ module.exports = function(grunt) {
         options: {
           sourceMap: true,
           presets: ['flow', 'env'],
+          plugins: ["transform-class-properties"],
         },
 				files: [{
 					expand: true,

@@ -47,22 +47,14 @@ module.exports = function(grunt) {
           sourceMap: true,
           presets: ['flow', 'env'],
         },
-        all: {
-					files: [{
-						expand: true,
-						cwd: 'src/coffee',
-						src: ['**/*.js'],
-						dest: 'src/compiled',
-						ext: '.js',
-					}],
-        },
+				files: [{
+					expand: true,
+					cwd: 'src/coffee',
+					src: ['**/*.js'],
+					dest: 'src/compiled',
+					ext: '.js',
+				}],
       },
-//      dist: {
- //       files: {
-  //        files: ["src/coffee/{client,shared}/**/*.coffee"],
-   //       tasks: ["newer:browserify:client"],
-    //    },
-     // },
     },
 
     watch: {

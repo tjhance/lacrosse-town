@@ -9,7 +9,7 @@ export function assert(condition: boolean, message: ?string): void {
   }
 }
 
-export function isValidInteger(s): boolean {
+export function isValidInteger(s: any): boolean {
   const isDigit = (c) => c.charCodeAt(0) >= "0".charCodeAt(0) && c.charCodeAt(0) <= "9".charCodeAt(0);
   for (let i = 0; i < s.length; i++) {
     if (!(isDigit(s[i]) || (i == 0 && s[i] == '-'))) {
@@ -20,7 +20,7 @@ export function isValidInteger(s): boolean {
 }
 
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
-export function isInteger(value): boolean {
+export function isInteger(value: any): boolean {
   return (typeof value == "number" && isFinite(value) && Math.floor(value) == value);
 }
 
@@ -51,9 +51,9 @@ export function transpose<T>(matr: Array<Array<T>>, width: number, height: numbe
 // returns the submatrix [r1, r2) x [c1, c2)
 export function submatrix<T>(matr: Array<Array<T>>, r1: number, r2: number, c1: number, c2: number) {
   const res = [];
-  for (let i = r1; i <= r2; i++) {
+  for (let i = r1; i < r2; i++) {
     const row = [];
-    for (let j = c1; j <= c2; j++) {
+    for (let j = c1; j < c2; j++) {
       row.push(matr[i][j]);
     }
     res.push(row);
@@ -69,7 +69,7 @@ export function clone<T>(obj: T): T {
 
 // Deep equals
 // From http://stackoverflow.com/questions/201183/how-to-determine-equality-for-two-javascript-objects/16788517#16788517
-export function deepEquals(x, y): boolean {
+export function deepEquals(x: any, y: any): boolean {
   // remember that NaN === NaN returns false
   // and isNaN(undefined) returns true
   if (isNaN(x) && isNaN(y) && typeof x === 'number' && typeof y === 'number') {
@@ -145,7 +145,7 @@ export function useHardSpaces(s: string): string {
   return t.join("");
 }
 
-export function htmlEscape(s: string): string {
+export function htmlEscape(s: string | number): string {
   s = "" + s; // make sure it's a string
   return s.replace('/&/g', '&amp;').replace(/</g, '&lt;').replace('/>/g', '&gt;');
 }

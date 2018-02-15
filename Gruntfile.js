@@ -44,7 +44,7 @@ module.exports = function(grunt) {
       client: {
         options: {
           sourceMap: true,
-          presets: ['flow', 'env'],
+          presets: ['flow', 'react', 'env'],
           plugins: ["transform-class-properties"],
         },
 				files: [{

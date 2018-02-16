@@ -3,7 +3,7 @@
 import * as Utils from './utils';
 
 export opaque type OpUnit = [0, number] | [1, number] | [2, string];
-export opaque type TextOperation = Array<OpUnit>
+export type TextOperation = Array<OpUnit>
 
 // An operation on a string is a list of instructions.
 // Take i: take the next i characters (i.e., leave them unchanged)

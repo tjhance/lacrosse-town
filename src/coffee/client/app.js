@@ -10,8 +10,8 @@
 // TODO could use some lightweight routing framework?
 
 import {NewPage} from './new';
-import ClientSyncer from './state';
-import PuzzlePage from './puzzle';
+import {ClientSyncer} from './state';
+import {PuzzlePage} from './puzzle';
 import * as KeyboardUtils from './keyboard_utils';
 
 import React from 'react';
@@ -42,7 +42,6 @@ function initPuzzleSyncer(puzzleID, initialData) {
       p.setCursors(cursors);
     }
   });
-  syncer.loadInitialData(initialData);
 
   const requestOp = (op, cursor) => {
     syncer.localOp(op, cursor);

@@ -183,7 +183,7 @@ export function inverse(base: PuzzleState, op: Operation): Operation {
 // should be a "new" update. For example, a is a new update from a client,
 // and b is an update saved on the server that was applied before a.
 // Right now, a overrides b when they conflict.
-export function xform(base: PuzzleState, a: Operation, b: Operation): Operation {
+export function xform(base: PuzzleState, a: Operation, b: Operation): [Operation, Operation] {
   // The implementation has to deal with the interplay between inserting
   // and deleting rows and cols.
   // Best to think of this graph:

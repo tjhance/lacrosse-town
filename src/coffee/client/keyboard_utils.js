@@ -1,4 +1,8 @@
+/* @flow */
+
 // on macs, we use Cmd, for everything else, we use Ctrl
+
+declare var UAParser;
 
 let parser = null;
 

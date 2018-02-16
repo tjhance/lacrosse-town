@@ -43,7 +43,7 @@ export function createPuzzle(puzzle: PuzzleState, callback: (string) => void): v
   });
 }
 
-export function loadPuzzleLatestState(puzzleID: string, callback: (null | {state: PuzzleState, stateID: string}) => void): void {
+export function loadPuzzleLatestState(puzzleID: string, callback: (null | {state: PuzzleState, stateID: number}) => void): void {
   client.query("SELECT state, seq FROM states WHERE puzzleID=$1 AND seq=(SELECT latest FROM puzzles WHERE puzzleID=$1)", [puzzleID], function(err, result) {
     if (err) {
       console.error(err);
@@ -67,7 +67,7 @@ export function loadPuzzleState(puzzleID: string, seq: number, callback: (Puzzle
 };
 
 export function getOpsToLatest(puzzleID: string, baseStateID: string,
-        callback: ({op: Operation, opID: string}) => void): void {
+        callback: ({op: Operation, opID: string}[]) => void): void {
   client.query("SELECT op, opID FROM states WHERE puzzleID=$1 AND seq > $2 AND seq <= (SELECT latest FROM puzzles WHERE puzzleID=$1) ORDER BY seq", [puzzleID, baseStateID], function(err, result) {
     if (err) {
       console.error(err);

@@ -1,5 +1,7 @@
 import * as Utils from './utils';
 
+export opaque type TextOperation = Array<[number, number | string]>;
+
 // An operation on a string is a list of instructions.
 // Take i: take the next i characters (i.e., leave them unchanged)
 // Skip i: skip the next i characters (i.e., delete them)

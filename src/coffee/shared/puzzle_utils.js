@@ -3,44 +3,25 @@
 // Some puzzle utilities
 
 import * as Utils from "./utils";
+import type {PuzzleState, PuzzleGrid, PuzzleCell, ColProps, RowProps} from './types';
 
 // Returns an empty puzzle object.
-export function getEmptyPuzzle(height: number, width: number, title: string) {
+export function getEmptyPuzzle(height: number, width: number, title: string): PuzzleState {
   Utils.assert(width > 0, "width is not positive");
   Utils.assert(height > 0, "height is not positive");
   return {
     title: title ? title : "",
-    grid: getNumberedGrid(makeMatrix(height, width, (i, j) => getEmptyCell())),
+    grid: getNumberedGrid(Utils.makeMatrix(height, width, (i, j) => getEmptyCell())),
     width: width,
     height: height,
     across_clues: "1. Clue here",
     down_clues: "1. Clue here",
-    col_props: makeArray(width, () => getEmptyColProps()),
-    row_props: makeArray(height, () => getEmptyRowProps()),
+    col_props: Utils.makeArray(width, () => getEmptyColProps()),
+    row_props: Utils.makeArray(height, () => getEmptyRowProps()),
   }
 }
 
-function makeArray<T>(width: number, f: (number) => T): Array<T> {
-  const res = [];
-  for (let i = 0; i < width; i++) {
-    res.push(f(i));
-  }
-  return res;
-}
-
-function makeMatrix<T>(height: number, width: number, f: (number, number) => T): Array<Array<T>> {
-  const res = [];
-  for (let i = 0; i < height; i++) {
-    const row = [];
-    for (let j = 0; j < width; j++) {
-      row.push(f(i, j));
-    }
-    res.push(row);
-  }
-  return res;
-}
-
-export function getEmptyCell() {
+export function getEmptyCell(): PuzzleCell {
   return {
     open: true,
     number: null,
@@ -50,13 +31,13 @@ export function getEmptyCell() {
   };
 }
 
-export function getEmptyRowProps() {
+export function getEmptyRowProps(): RowProps {
   return {
     leftbar: false,
   };
 }
 
-export function getEmptyColProps() {
+export function getEmptyColProps(): ColProps {
   return {
     topbar: false,
   };
@@ -66,7 +47,7 @@ export function getEmptyColProps() {
 // open (i.e., white).
 // Operates only on a grid (what's in the 'grid' field of a puzzle object) not
 // the whole puzzle object.
-export function getNumberedGrid(grid) {
+export function getNumberedGrid(grid: PuzzleGrid): PuzzleGrid {
   const height = grid.length;
   const width = grid[0].length;
   const isOpen = (i, j) =>
@@ -86,7 +67,7 @@ export function getNumberedGrid(grid) {
       return null;
     }
   };
-  return makeMatrix(height, width, (i, j) => {
+  return Utils.makeMatrix(height, width, (i, j) => {
     return {
       open: grid[i][j].open,
       number: getNumber(i, j),
@@ -98,16 +79,16 @@ export function getNumberedGrid(grid) {
 }
 
 // Clone objects
-export function clonePuzzle(puzzle) {
+export function clonePuzzle(puzzle: PuzzleState): PuzzleState {
   return Utils.clone(puzzle);
 }
 
 // Returns html for a grid.
-export function staticHtmlForGrid(width: number, height: number, grid): string {
+export function staticHtmlForGrid(width: number, height: number, grid: PuzzleGrid): string {
   return '<table data-crossword-width="' + Utils.htmlEscape(width) + '" data-crossword-height="' + Utils.htmlEscape(height) + '" style="border-width: 0 0 1px 1px; border-spacing: 0; border-collapse: collapse; border-style: solid; font-family: sans-serif;">' +
-        makeArray(height, (i) => {
+        Utils.makeArray(height, (i) => {
             return '<tr>' +
-                makeArray(width, (j) => {
+                Utils.makeArray(width, (j) => {
                     const cell = grid[i][j];
                     let open, number, contents, rightBar, bottomBar;
                     if (cell.open) {

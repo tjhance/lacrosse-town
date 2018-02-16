@@ -41,7 +41,9 @@
     "lacrosse-town": "./js/node/server.js"
   },
   "private": true,
-  "devDependencies": {},
+  "devDependencies": {
+    "flow-bin": "^0.65.0"
+  },
   "engines": {
     "node": "~0.10.24",
     "npm": "~1.3.21"

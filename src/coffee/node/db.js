@@ -1,10 +1,13 @@
 /* @flow */
 
 import * as Crypto from "crypto";
+import type {Config} from './types';
+import type {PuzzleState} from '../shared/types';
+import type {Operation} from '../shared/ot';
 
-let client = null;
+let client: any = null;
 
-export function init(config, callback) {
+export function init(config: Config, callback: () => void) {
   var conString, pg;
   pg = require("pg");
   conString = config.db;
@@ -23,7 +26,7 @@ export function getRandomID() {
   return (Crypto.randomBytes(48)).toString("hex");
 }
 
-export function createPuzzle(puzzle, callback) {
+export function createPuzzle(puzzle: PuzzleState, callback: (string) => void): void {
   const puzzleID = getRandomID();
   client.query("INSERT INTO states (puzzleID, seq, state) VALUES ($1, 0, $2)", [puzzleID, JSON.stringify(puzzle)], function(err) {
     if (err) {
@@ -40,7 +43,7 @@ export function createPuzzle(puzzle, callback) {
   });
 }
 
-export function loadPuzzleLatestState(puzzleID, callback) {
+export function loadPuzzleLatestState(puzzleID: string, callback: (null | {state: PuzzleState, stateID: string}) => void): void {
   client.query("SELECT state, seq FROM states WHERE puzzleID=$1 AND seq=(SELECT latest FROM puzzles WHERE puzzleID=$1)", [puzzleID], function(err, result) {
     if (err) {
       console.error(err);
@@ -53,7 +56,7 @@ export function loadPuzzleLatestState(puzzleID, callback) {
   });
 }
 
-export function loadPuzzleState(puzzleID, seq, callback) {
+export function loadPuzzleState(puzzleID: string, seq: number, callback: (PuzzleState | null) => void): void {
   client.query("SELECT state, seq FROM states WHERE puzzleID=$1 AND seq=$2", [puzzleID, seq], function(err, result) {
     if (err) {
       console.error(err);
@@ -63,7 +66,8 @@ export function loadPuzzleState(puzzleID, seq, callback) {
   });
 };
 
-export function getOpsToLatest(puzzleID, baseStateID, callback) {
+export function getOpsToLatest(puzzleID: string, baseStateID: string,
+        callback: ({op: Operation, opID: string}) => void): void {
   client.query("SELECT op, opID FROM states WHERE puzzleID=$1 AND seq > $2 AND seq <= (SELECT latest FROM puzzles WHERE puzzleID=$1) ORDER BY seq", [puzzleID, baseStateID], function(err, result) {
     if (err) {
       console.error(err);
@@ -78,7 +82,7 @@ export function getOpsToLatest(puzzleID, baseStateID, callback) {
   });
 }
 
-export function getOpSeq(puzzleID, opID, callback) {
+export function getOpSeq(puzzleID: string, opID: string, callback: (number | null) => void): void {
   client.query("SELECT seq FROM states WHERE puzzleID=$1 AND opID=$2", [puzzleID, opID], function(err, result) {
     if (err) {
       console.error(err);
@@ -88,7 +92,7 @@ export function getOpSeq(puzzleID, opID, callback) {
   });
 }
 
-export function saveOp(puzzleID, opID, op, state, callback) {
+export function saveOp(puzzleID: string, opID: string, op: Operation, state: PuzzleState, callback:() => void): void {
   client.query("WITH puzz AS ( SELECT latest FROM puzzles WHERE puzzleID=$1 ), insert1 AS ( INSERT INTO states (puzzleID, seq, state, opID, op) VALUES ($1, (SELECT latest+1 FROM puzz), $2, $3, $4) ) UPDATE puzzles SET latest=(SELECT latest+1 FROM puzz) WHERE puzzleID=$1", [puzzleID, state, opID, op], function(err) {
     if (err) {
       console.error(err);

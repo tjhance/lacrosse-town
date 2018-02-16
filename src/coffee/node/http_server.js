@@ -2,14 +2,21 @@
 
 // The HTTP server.
 
+import * as express from "express";
+import * as http from "http";
+import * as socket_io from "socket.io";
+
 import * as Api from "./api";
 import * as Db from "./db";
 import * as FindMatches from "./find_matches";
 import * as Utils from "../shared/utils";
 import * as PuzzleUtils from "../shared/puzzle_utils";
+import * as SocketServer from "./socket_server";
 
-export function init(config, callback) {
-  const express = require("express");
+import type {Config} from './types';
+
+export function init(config: Config, callback: () => void) {
+  // $FlowFixMe
   const app = express();
 
   // compression
@@ -72,13 +79,14 @@ export function init(config, callback) {
 
   // Set up the socket.io server, which the puzzle view talks to in order to
   // sync the puzzles.
-  server = (require("http")).Server(app);
-  socket_listener = (require("socket.io")).listen(server);
-  socket_server = require("./socket_server");
-  socket_server.init(socket_listener);
+
+  // $FlowFixMe
+  const server = http.Server(app);
+  const socket_listener = socket_io.listen(server);
+  SocketServer.init(socket_listener);
 
   // Start listening.
-  port = config.port;
+  const port = config.port;
   server.listen(port);
   console.info(`Initialized webserver on port ${port}`);
 

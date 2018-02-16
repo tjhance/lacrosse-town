@@ -18,8 +18,8 @@ if (process.argv.length !== 3) {
   console.log("Expected: one argument, config filename (e.g. 'config/development.json')");
   process.exit(1);
 }
-configFilename = process.argv[2];
-config = JSON.parse(fs.readFileSync(configFilename));
+const configFilename = process.argv[2];
+const config = JSON.parse(fs.readFileSync(configFilename).toString('utf8'));
 
 async.waterfall([
   (callback) => {

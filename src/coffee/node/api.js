@@ -3,7 +3,7 @@
 import * as PuzzleUtils from "../shared/puzzle_utils";
 import * as Db from "./db";
 
-export function handle(req, res) {
+export function handle(req: any, res: any) {
   const params = JSON.parse(req.body['params']);
   if (params.type === "new") {
     return handleNew(req, function(responseData) {

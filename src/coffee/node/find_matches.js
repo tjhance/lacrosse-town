@@ -6,7 +6,7 @@ import * as fs from 'fs';
 
 let words = null;
 
-export function init(callback) {
+export function init(callback: () => void) {
   const simplify = function(word) {
     // TODO should strip other characters like spaces
     return word.toLowerCase();
@@ -35,6 +35,9 @@ export function init(callback) {
 
 // pattern should be a mix of lower-case letters and periods
 function findMatches(pattern: string) {
+  if (!words) {
+    throw new Error("words is not initialized");
+  }
   const regex = new RegExp('^' + pattern + '$');
   const result = [];
   for (let j = 0; j < words.length; j++) {
@@ -68,7 +71,7 @@ function validatePattern(pattern: string): boolean {
 // {
 //    matches: [ ... all matches ... ]
 // }
-export function handle(req, res) {
+export function handle(req: any, res: any) {
   const pattern = req.body['pattern'];
   if (!validatePattern(pattern)) {
     res.statusCode = 400;

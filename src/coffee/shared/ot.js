@@ -4,16 +4,21 @@ import * as PuzzleUtils from "./puzzle_utils"
 import * as Utils from "./utils"
 import * as OtText from "./ottext"
 
+import type {PuzzleState, PuzzleGrid} from './types';
+import type {TextOperation} from './ottext';
+
+export opaque type Operation = any;
+
 // Abstract operational transformation functions
 // Many of these functions (may) need to know the grid that the operation
 // is based on. For those, the base state is passed in as the argument 'base'.
 // No arguments are ever mutated.
 
-export function identity(base) {
+export function identity(base: PuzzleState): Operation {
   return {};
 }
 
-export function isIdentity(a) {
+export function isIdentity(a: Operation): boolean {
   return Object.keys(a).length == 0;
 }
 
@@ -23,20 +28,20 @@ export function isIdentity(a) {
 //      ---------------->
 //             c
 // Takes a and b, and returns the composition c
-export function compose(base, a, b) {
+export function compose(base: PuzzleState, a: Operation, b: Operation): Operation {
   // compose the grid ops
-  [aRowsOp, aColsOp] = getRowsOpAndColsOp(base, a);
+  const [aRowsOp, aColsOp] = getRowsOpAndColsOp(base, a);
   const width1 = OtText.applyTextOp(Utils.repeatString(".", base.width), aColsOp).length;
   const height1 = OtText.applyTextOp(Utils.repeatString(".", base.height), aRowsOp).length;
-  [bRowsOp, bColsOp] = getRowsOpAndColsOp({width: width1, height: height1}, b);
+  const [bRowsOp, bColsOp] = getRowsOpAndColsOp({width: width1, height: height1}, b);
 
   const aNew = moveKeyUpdatesOverRowsAndColsOp([bRowsOp, bColsOp], a);
 
   const c = {}
-  for (key in aNew) {
+  for (const key in aNew) {
     c[key] = aNew[key];
   }
-  for (key in b) {
+  for (const key in b) {
     c[key] = b[key];
   }
 
@@ -73,7 +78,7 @@ export function compose(base, a, b) {
   return c;
 }
 
-export function inverse(base, op) {
+export function inverse(base: PuzzleState, op: Operation): Operation {
   const [rowsOp, colsOp] = getRowsOpAndColsOp(base, op);
   const rowsOpInv = OtText.inverseText(Utils.repeatString(".", base.height), rowsOp);
   const colsOpInv = OtText.inverseText(Utils.repeatString(".", base.width), colsOp);
@@ -89,7 +94,7 @@ export function inverse(base, op) {
   for (let i = 0; i < base.height; i++) {
     for (let j = 0; j < base.width; j++) {
       if ((!(i in rowIndexMap)) || (!(j in colIndexMap))) {
-        for (type of ["open", "contents", "number", "rightbar", "bottombar"]) {
+        for (const type of ["open", "contents", "number", "rightbar", "bottombar"]) {
           res["cell-#{i}-#{j}-#{type}"] = base.grid[i][j][type];
         }
       }
@@ -98,7 +103,7 @@ export function inverse(base, op) {
 
   for (let i = 0; i < base.height; i++) {
     if (!(i in rowIndexMap)) {
-      for (type of ["leftbar"]) {
+      for (const type of ["leftbar"]) {
         res["rowprop-#{i}-#{type}"] = base.row_props[i][type];
       }
     }
@@ -106,7 +111,7 @@ export function inverse(base, op) {
 
   for (let j = 0; j < base.width; j++) {
     if (!(j in colIndexMap)) {
-      for (type of ["topbar"]) {
+      for (const type of ["topbar"]) {
         res["colprop-#{j}-#{type}"] = base.col_props[j][type];
       }
     }
@@ -114,7 +119,7 @@ export function inverse(base, op) {
 
   // any key modified explicitly by the op must be set back to the
   // original in the inverse op
-  for (key in op) {
+  for (const key in op) {
     const spl = key.split("-");
     if (spl[0] === "cell") {
       const i = parseInt(spl[1], 10);
@@ -149,7 +154,7 @@ export function inverse(base, op) {
     res.cols = colsOpInv;
   }
 
-  for (t of ['across_clues', 'down_clues']) {
+  for (const t of ['across_clues', 'down_clues']) {
     if (t in op) {
       res[t] = OtText.inverseText(base[t], op[t]);
     }
@@ -178,7 +183,7 @@ export function inverse(base, op) {
 // should be a "new" update. For example, a is a new update from a client,
 // and b is an update saved on the server that was applied before a.
 // Right now, a overrides b when they conflict.
-export function xform(base, a, b) {
+export function xform(base: PuzzleState, a: Operation, b: Operation): Operation {
   // The implementation has to deal with the interplay between inserting
   // and deleting rows and cols.
   // Best to think of this graph:
@@ -216,16 +221,18 @@ export function xform(base, a, b) {
   const kb1 = moveKeyUpdatesOverRowsAndColsOp(ga1, b);
   const ka2 = ka1;
   const kb2 = {};
-  for (key in kb1) {
+  for (const key in kb1) {
     if (!(key in ka1)) {
       kb2[key] = kb1[key];
     }
   }
   const ref = ["across_clues", "down_clues"];
   for (let k = 0, len = ref.length; k < len; k++) {
-    strname = ref[k];
+    const strname = ref[k];
     if (strname in a && strname in b) {
-      [ka2[strname], kb2[strname]] = OtText.xformText(base[strname], a[strname], b[strname]);
+      const xformRes = OtText.xformText(base[strname], a[strname], b[strname]);
+      ka2[strname] = xformRes[0];
+      kb2[strname] = xformRes[1];
     } else if (strname in a) {
       ka2[strname] = a[strname];
     } else if (strname in b) {
@@ -233,10 +240,12 @@ export function xform(base, a, b) {
     }
   }
   if ((a.rows != null) || (b.rows != null)) {
-    [ka2.rows, kb2.rows] = [gaRows1, gbRows1];
+    ka2.rows = gaRows1;
+    kb2.rows = gbRows1;
   }
   if ((a.cols != null) || (b.cols != null)) {
-    [ka2.cols, kb2.cols] = [gaCols1, gbCols1];
+    ka2.cols = gaCols1;
+    kb2.cols = gbCols1;
   }
   const removeIfIdentity = function(c, name) {
     if (c[name] && OtText.isIdentity(c[name])) {
@@ -255,7 +264,7 @@ export function xform(base, a, b) {
 }
 
 // Returns the state obtained by applying operation a to base.
-export function apply(base, a) {
+export function apply(base: PuzzleState, a: Operation): PuzzleState {
   const res = PuzzleUtils.clonePuzzle(base);
   if ((a.rows != null) || (a.cols != null)) {
     const newGridInfo = applyRowAndColOpsToGrid(res, getRowsOpAndColsOp(res, a));
@@ -265,26 +274,29 @@ export function apply(base, a) {
     res.row_props = newGridInfo.row_props;
     res.col_props = newGridInfo.col_props;
   }
-  for (key in a) {
-    value = a[key];
-    components = key.split("-");
+  for (const key in a) {
+    const value = a[key];
+    const components = key.split("-");
     switch (components[0]) {
-      case "cell":
-        row = parseInt(components[1]);
-        col = parseInt(components[2]);
-        name = components[3];
+      case "cell": {
+        const row = parseInt(components[1]);
+        const col = parseInt(components[2]);
+        const name = components[3];
         res.grid[row][col][name] = value;
         break;
-      case "rowprop":
-        row = parseInt(components[1]);
-        name = components[2];
+      }
+      case "rowprop": {
+        const row = parseInt(components[1]);
+        const name = components[2];
         res.row_props[row][name] = value;
         break;
-      case "colprop":
-        col = parseInt(components[1]);
-        name = components[2];
+      }
+      case "colprop": {
+        const col = parseInt(components[1]);
+        const name = components[2];
         res.col_props[col][name] = value;
         break;
+      }
       case "across_clues":
         res.across_clues = OtText.applyTextOp(res.across_clues, value);
         break;
@@ -296,15 +308,15 @@ export function apply(base, a) {
 }
 
 // utilities for grid ot
-export function getRowsOpAndColsOp(puzzle, a) {
+function getRowsOpAndColsOp(puzzle: {width: number, height: number}, a) {
   return [a.rows || OtText.identity(Utils.repeatString(".", puzzle.height)), a.cols || OtText.identity(Utils.repeatString(".", puzzle.width))];
 }
 
-export function moveKeyUpdatesOverRowsAndColsOp([rowsOp, colsOp], changes) {
+function moveKeyUpdatesOverRowsAndColsOp([rowsOp, colsOp], changes) {
   const rowIndexMap = OtText.getIndexMapForTextOp(rowsOp);
   const colIndexMap = OtText.getIndexMapForTextOp(colsOp);
   const result = {};
-  for (key in changes) {
+  for (const key in changes) {
     if (key.indexOf("cell-") === 0) {
       const spl = key.split("-");
       const rowIndex = parseInt(spl[1], 10);
@@ -337,7 +349,7 @@ export function moveKeyUpdatesOverRowsAndColsOp([rowsOp, colsOp], changes) {
   return result;
 }
 
-export function applyRowAndColOpsToGrid(puzzle, [rowsOp, colsOp]) {
+function applyRowAndColOpsToGrid(puzzle: PuzzleState, [rowsOp, colsOp]) {
   const rowIndexMap = OtText.getIndexMapForTextOp(rowsOp);
   const colIndexMap = OtText.getIndexMapForTextOp(colsOp);
   
@@ -346,9 +358,12 @@ export function applyRowAndColOpsToGrid(puzzle, [rowsOp, colsOp]) {
   const newWidth = OtText.applyTextOp(Utils.repeatString(".", width), colsOp).length;
   const newHeight = OtText.applyTextOp(Utils.repeatString(".", height), rowsOp).length;
 
-  const newGrid = Utils.makeMatrix(newHeight, newWidth, () => null);
-  const newRowProps = Utils.makeArray(newHeight, () => null);
-  const newColProps = Utils.makeArray(newWidth, () => null);
+  // $FlowFixMe
+  const newGrid: Array<Array<PuzzleCell>> = Utils.makeMatrix(newHeight, newWidth, () => null);
+  // $FlowFixMe
+  const newRowProps: Array<RowProps> = Utils.makeArray(newHeight, () => null);
+  // $FlowFixMe
+  const newColProps: Array<ColProps> = Utils.makeArray(newWidth, () => null);
 
   for (let i = 0; i < height; i++) {
     if (i in rowIndexMap) {
@@ -397,7 +412,8 @@ export function applyRowAndColOpsToGrid(puzzle, [rowsOp, colsOp]) {
 
 // Operation edits "contents", "number", or "open" value for a particular
 // cell at (row, col).
-export function opEditCellValue(row: number, col: number, name, value) {
+export function opEditCellValue(row: number, col: number, name: string,
+    value: string|number|boolean) {
   const res = {};
   res[`cell-${row}-${col}-${name}`] = value;
   return res;
@@ -405,12 +421,12 @@ export function opEditCellValue(row: number, col: number, name, value) {
 
 // Returns an operation op such that (apply puzzle, op) has grid of grid2.
 // TODO support grids that are not the same size if needed?
-export function opGridDiff(puzzle, grid2) {
+export function opGridDiff(puzzle: PuzzleState, grid2: PuzzleGrid) {
   const grid1 = puzzle.grid;
   const res = {};
   for (let i = 0; i < grid1.length; i++) {
     for (let j = 0; j < grid1[0].length; j++) {
-      for (v of ["contents", "number", "open", "rightbar", "bottombar"]) {
+      for (const v of ["contents", "number", "open", "rightbar", "bottombar"]) {
         if (grid1[i][j][v] !== grid2[i][j][v]) {
           res["cell-#{i}-#{j}-#{v}"] = grid2[i][j][v];
         }
@@ -432,7 +448,7 @@ export function opSpliceRowsOrCols(
 }
 
 export function opSetBar(row: number, col: number,
-    dir: 'left' | 'right' | 'top' | 'bottom', value: boolean) {
+    dir: 'left' | 'right' | 'top' | 'bottom', value: boolean): Operation {
   const res = {};
   if (dir === 'left' || dir === 'right') {
     if (dir === 'left') {
@@ -459,32 +475,32 @@ export function opSetBar(row: number, col: number,
 }
 
 // Return an operation that inserts or deletes rows or columns at the specified index
-export function opInsertRows(puzzle, index: number, numToInsert: number) {
+export function opInsertRows(puzzle: PuzzleState, index: number, numToInsert: number): Operation {
   return opSpliceRowsOrCols(puzzle.height, true, index, numToInsert, 0);
 }
 
-export function opInsertCols(puzzle, index: number, numToInsert: number) {
+export function opInsertCols(puzzle: PuzzleState, index: number, numToInsert: number): Operation {
   return opSpliceRowsOrCols(puzzle.width, false, index, numToInsert, 0);
 }
 
-export function opDeleteRows(puzzle, index: number, numToDelete: number) {
+export function opDeleteRows(puzzle: PuzzleState, index: number, numToDelete: number): Operation {
   return opSpliceRowsOrCols(puzzle.height, true, index, 0, numToDelete);
 };
 
-export function opDeleteCols(puzzle, index: number, numToDelete: number) {
+export function opDeleteCols(puzzle: PuzzleState, index: number, numToDelete: number): Operation {
   return opSpliceRowsOrCols(puzzle.width, false, index, 0, numToDelete);
 }
 
 // Returns an operation that applies the text_op to one of the clue fields.
 // The parameter 'which' is either 'across' or 'down'.
 // The parameter 'text_op' is a text operation as described in ottext.coffee
-export function getClueOp(which: 'across' | 'down', text_op) {
+export function getClueOp(which: 'across' | 'down', text_op: TextOperation): Operation {
   const res = {};
   res[`${which}_clues`] = text_op;
   return res;
 };
 
-export function assertValidOp(base, op) {
+export function assertValidOp(base: PuzzleState, op: Operation): void {
   let newWidth, newHeight;
   if (op.cols != null) {
     newWidth = OtText.assertValidTextOp(Utils.repeatString(".", base.width), op.cols);
@@ -496,14 +512,13 @@ export function assertValidOp(base, op) {
   } else {
     newHeight = base.height;
   }
-  const results = [];
   for (const key in op) {
     if (key === "rows" || key === "cols") {
       // already handled this case
     } else if (key === "across_clues") {
-      results.push(OtText.assertValidTextOp(base.across_clues, op[key]));
+      OtText.assertValidTextOp(base.across_clues, op[key]);
     } else if (key === "down_clues") {
-      results.push(OtText.assertValidTextOp(base.down_clues, op[key]));
+      OtText.assertValidTextOp(base.down_clues, op[key]);
     } else {
       const spl = key.split('-');
       if (spl[0] === "cell") {
@@ -517,13 +532,13 @@ export function assertValidOp(base, op) {
         Utils.assert(0 <= x);
         Utils.assert(x < newWidth);
         if (spl[3] === "number") {
-          results.push(Utils.assert(op[key] === null || typeof op[key] === 'number'));
+          Utils.assert(op[key] === null || typeof op[key] === 'number');
         } else if (spl[3] === "contents") {
-          results.push(Utils.assert(typeof op[key] === 'string'));
+          Utils.assert(typeof op[key] === 'string');
         } else if (spl[3] === "open" || spl[3] === "rightbar" || spl[3] === "bottombar") {
-          results.push(Utils.assert(typeof op[key] === 'boolean'));
+          Utils.assert(typeof op[key] === 'boolean');
         } else {
-          results.push(Utils.assert(false, "unknown cell property"));
+          Utils.assert(false, "unknown cell property");
         }
       } else {
         Utils.assert(spl.length === 3);
@@ -538,9 +553,8 @@ export function assertValidOp(base, op) {
         } else {
           Utils.assert(spl[2] === "topbar");
         }
-        results.push(Utils.assert(typeof op[key] === 'boolean'));
+        Utils.assert(typeof op[key] === 'boolean');
       }
     }
   }
-  return results;
 }

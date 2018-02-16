@@ -1,5 +1,7 @@
 /* @flow */
 
+import type {PuzzleState, Cursor} from './types';
+
 // Generic utilities.
 
 export function assert(condition: boolean, message: ?string): void {
@@ -150,7 +152,7 @@ export function htmlEscape(s: string | number): string {
   return s.replace('/&/g', '&amp;').replace(/</g, '&lt;').replace('/>/g', '&gt;');
 }
 
-export function isValidCursor(state, cursor) {
+export function isValidCursor(state: PuzzleState, cursor: Cursor): boolean {
   for (const key in cursor) {
     if (key !== 'anchor' && key !== 'focus' && key !== 'field_open' && key !== 'is_across' && key !== 'cell_field') {
       return false
@@ -175,3 +177,24 @@ export function isValidCursor(state, cursor) {
     typeof(cursor.is_across) === 'boolean' &&
     (typeof(cursor.cell_field) === 'string' || cursor.cell_field === undefined));
 }
+
+export function makeArray<T>(width: number, f: (number) => T): Array<T> {
+  const res = [];
+  for (let i = 0; i < width; i++) {
+    res.push(f(i));
+  }
+  return res;
+}
+
+export function makeMatrix<T>(height: number, width: number, f: (number, number) => T): Array<Array<T>> {
+  const res = [];
+  for (let i = 0; i < height; i++) {
+    const row = [];
+    for (let j = 0; j < width; j++) {
+      row.push(f(i, j));
+    }
+    res.push(row);
+  }
+  return res;
+}
+

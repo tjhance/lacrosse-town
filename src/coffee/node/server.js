@@ -4,7 +4,6 @@
 
 import * as log4js from 'log4js';
 import * as async from 'async';
-import * as npm from 'npm';
 import * as fs from 'fs';
 
 import * as find_matches from './find_matches';
@@ -22,10 +21,6 @@ const configFilename = process.argv[2];
 const config = JSON.parse(fs.readFileSync(configFilename).toString('utf8'));
 
 async.waterfall([
-  (callback) => {
-    npm.load({}, (err) => callback(err));
-  },
-
   (callback) => {
     find_matches.init(() => {
       console.info('Loaded dictionaries');

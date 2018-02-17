@@ -2,7 +2,8 @@
 
 // The HTTP server.
 
-import * as express from "express";
+const express = require("express");
+
 import * as http from "http";
 import * as socket_io from "socket.io";
 
@@ -16,7 +17,6 @@ import * as SocketServer from "./socket_server";
 import type {Config} from './types';
 
 export function init(config: Config, callback: () => void) {
-  // $FlowFixMe
   const app = express();
 
   // compression

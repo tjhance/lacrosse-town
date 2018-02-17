@@ -7,26 +7,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-babel');
 
   grunt.initConfig({
-    cjsx: {
-      client: {
-        expand: true,
-        cwd: "src/coffee/client/",
-        src: ["**/*.coffee"],
-        dest: "src/static/js/",
-        ext: ".js",
-      },
-    },
-
-    coffee: {
-      shared: {
-        expand: true,
-        cwd: "src/coffee/shared/",
-        src: ["**/*.coffee"],
-        dest: "src/static/js-shared/",
-        ext: ".js",
-      },
-    },
-
     browserify: {
       client: {
         src: ["src/coffee/{client,shared}/**/*.coffee"],
@@ -41,7 +21,7 @@ module.exports = function(grunt) {
     },
 
     babel: {
-      client: {
+      all: {
         options: {
           sourceMap: true,
           presets: ['flow', 'react', 'env'],
@@ -61,13 +41,9 @@ module.exports = function(grunt) {
       options: {
         atBegin: true,
       },
-      coffeescript_bundle: {
-        files: ["src/coffee/{client,shared}/**/*.coffee"],
-        tasks: ["newer:browserify:client"],
-      },
       babel: {
-        files: ["src/coffee/{client,shared}/**/*.js"],
-        tasks: ["newer:babel:client"],
+        files: ["src/coffee/{client,shared,node}/**/*.js"],
+        tasks: ["newer:babel:all"],
       },
     },
   });

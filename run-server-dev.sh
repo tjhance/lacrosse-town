@@ -2,6 +2,7 @@
 
 npm install
 
-grunt browserify
+grunt babel
+#grunt browserify
 
-nodemon --ignore node_modules -V src/coffee/node/server.coffee config/development.json
+nodemon --ignore node_modules -V src/compiled/node/server.js config/development.json

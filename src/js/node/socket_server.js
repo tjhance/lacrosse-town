@@ -219,17 +219,20 @@ class ServerSyncer {
                   conn.cursor = update_data.cursor;
 
                   // Tell all the connections about the new update.
-                  this.broadcast("update", {
-                    stateID: this.latestStateID + 1,
-                    opID: update_data.opID,
-                    op: newOp,
-                    cursor_updates: [
-                      {
-                        user_id: conn.id,
-                        cursor: conn.cursor,
-                      }
-                    ],
-                  });
+                  for (const connToSendTo of this.connections) {
+                    connToSendTo.socket.emit("update", {
+                      stateID: this.latestStateID + 1,
+                      opID: update_data.opID,
+                      op: newOp,
+                      cursor_updates: [
+                        {
+                          user_id: conn.id,
+                          // Don't send one's cursor to oneself.
+                          cursor: connToSendTo === conn ? null : conn.cursor,
+                        }
+                      ],
+                    });
+                  }
                   this.latestState = newState;
                   this.latestStateID++;
                   callback();

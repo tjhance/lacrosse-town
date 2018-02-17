@@ -1242,7 +1242,7 @@ export class PuzzlePage extends React.Component<Props, State> {
                       onMatchFinderChoose={this.onMatchFinderChoose.bind(this)}
                       onMatchFinderChoose={this.onMatchFinderChoose.bind(this)}
                       onMatchFinderClose={this.closeMatchFinder.bind(this)}
-                      renumber={this.renumber}
+                      renumber={this.renumber.bind(this)}
                       width={this.state.puzzle.width}
                       height={this.state.puzzle.height}
                       onSetDimensions={this.onSetDimensions.bind(this)}
@@ -1299,7 +1299,7 @@ export class PuzzlePage extends React.Component<Props, State> {
   }
 
   getCursorInfos() {
-    const res = Utils.makeMatrix(this.width(), this.height(), () => []);
+    const res = Utils.makeMatrix(this.height(), this.width(), () => []);
     for (const id in this.state.cursors) {
       const cursor = this.state.cursors[id];
       if (cursor.focus) {
@@ -1421,7 +1421,8 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return !Utils.deepEquals(this.props, nextProps);
+    return !Utils.deepEquals(this.props, nextProps) ||
+           !Utils.deepEquals(this.state, nextState);
   }
 
   render() {
@@ -1434,7 +1435,7 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
                 type="text"
                 defaultValue={this.props.width}
                 onKeyDown={this.onKeyDown.bind(this)}
-                ref={this.widthInputFun}
+                ref={this.widthInputFun.bind(this)}
                 className="dont-bubble-keydown"
                 size="4" />
           </span>
@@ -1444,7 +1445,7 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
                 type="text"
                 defaultValue={this.props.height}
                 onKeyDown={this.onKeyDown.bind(this)}
-                ref={this.heightInputFun}
+                ref={this.heightInputFun.bind(this)}
                 className="dont-bubble-keydown"
                 size="4" />
           </span>

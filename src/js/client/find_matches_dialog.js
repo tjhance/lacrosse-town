@@ -34,7 +34,12 @@ type State = {
 };
 
 export class FindMatchesDialog extends React.Component<Props, State> {
-  getInitialState() {
+  constructor(props: Props) {
+    super(props);
+    this.state = this.defaultState();
+  }
+
+  defaultState() {
     return {
       matchList: null,
       error: null,
@@ -43,7 +48,7 @@ export class FindMatchesDialog extends React.Component<Props, State> {
 
   componentWillReceiveProps(newProps: Props) {
     if (newProps.pattern !== this.props.pattern) {
-      this.setState(this.getInitialState());
+      this.setState(this.defaultState());
     }
   }
 
@@ -102,9 +107,9 @@ export class FindMatchesDialog extends React.Component<Props, State> {
     for (let i = 0; i < pattern.length; i++) {
       const c = pattern.charAt(i);
       if (c === ".") {
-        res.push(<span className="find-matches-pattern-blank">{"\xA0"}</span>);
+        res.push(<span key={"pattern-blank-" + i} className="find-matches-pattern-blank">{"\xA0"}</span>);
       } else {
-        res.push(<span className="find-matches-pattern-blank">{c}</span>);
+        res.push(<span key={"pattern-blank-" + i} className="find-matches-pattern-blank">{c}</span>);
       }
     }
     return res;

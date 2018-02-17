@@ -1302,7 +1302,8 @@ export class PuzzlePage extends React.Component<Props, State> {
     const res = Utils.makeMatrix(this.height(), this.width(), () => []);
     for (const id in this.state.cursors) {
       const cursor = this.state.cursors[id];
-      if (cursor.focus) {
+      if (cursor.focus && 0 <= cursor.focus.row && cursor.focus.row < this.height() &&
+          0 <= cursor.focus.col && cursor.focus.col < this.width()) {
         res[cursor.focus.row][cursor.focus.col].push({
           id: id,
           across: cursor.is_across
@@ -1762,17 +1763,17 @@ const CluesEditableTextField = EditableTextField(function(lines, stylingData) {
       $(childElem).addClass('clue-line');
       // clues-highlight-{primary,secondary} classes are for visual styling
       // node-in-view signals to EditableTextField that the node should be scrolled into view.
-      if (parsed.number && parsed.number === stylingData.primaryNumber) {
+      if (typeof(parsed.number) === 'number' && parsed.number === stylingData.primaryNumber) {
         $(childElem).addClass('clues-highlight-primary');
         $(childElem).addClass('node-in-view');
       }
-      if (parsed.number && parsed.number === stylingData.secondaryNumber) {
+      if (typeof(parsed.number) === 'number' && parsed.number === stylingData.secondaryNumber) {
         $(childElem).addClass('clues-highlight-secondary');
         $(childElem).addClass('node-in-view');
       }
       // display the length of the answer next to the clue, (where the length is
       // calculated based on the cells)
-      if (parsed.number && parsed.number in stylingData.answerLengths) {
+      if (typeof(parsed.number) === 'number' && parsed.number in stylingData.answerLengths) {
         $(childElem).addClass('display-answer-length-next-to-line');
         $(childElem).attr('data-answer-length', '(' + stylingData.answerLengths[parsed.number] + ')');
       }

@@ -105,14 +105,14 @@ export function staticHtmlForGrid(width: number, height: number, grid: PuzzleGri
                       bottomBar = false;
                     }
                     return '<td data-crossword-cell-open="' + String(open) + '"' +
-                        " data-crossword-cell-y=\"#{i}\" data-crossword-cell-x=\"#{j}\"" +
+                        ` data-crossword-cell-y="${i}" data-crossword-cell-x="${j}"` +
                         (typeof(number) === 'number' ? ' data-crossword-cell-number="' +
                                 Utils.htmlEscape(number) + '"' : '') +
                         (typeof(contents) === 'string' ? ' data-crossword-cell-contents="' +
                                 Utils.htmlEscape(contents) + '"' : '') +
                         (rightBar ? ' data-right-bar="true"' : '') +
                         (bottomBar ? ' data-bottom-bar="true"' : '') +
-                        " style=\"margin: 0; border-width: 1px #{if rightBar then '3px' else '1px'} #{if bottomBar then '3px' else '1px'} 1px; border-style: solid; border-color: black; padding: 0px; width: 30px; height: 30px; background-clip: padding-box; vertical-align: middle; text-align: center; background-color: #{if open then 'white' else 'black'}\"" +
+                        ` style="margin: 0; border-width: 1px ${rightBar ? '3px' : '1px'} ${bottomBar ? '3px' : '1px'} 1px; border-style: solid; border-color: black; padding: 0px; width: 30px; height: 30px; background-clip: padding-box; vertical-align: middle; text-align: center; : background-color: ${open ? 'white' : 'black'}"` +
                         '><div style="display: block; border: 0px;">' +
                         (typeof(number) === 'number' ? '<div style="position: relative; width: 100%; height: 100%;"><div style="position: absolute; top: -5px; left: 0px; font-size: 9px;">' + Utils.htmlEscape(number) + '</div></div>' : '') +
                         '<div style="font-weight: bold">' + Utils.htmlEscape(Utils.useHardSpaces(contents || " ")) + '</div>' +

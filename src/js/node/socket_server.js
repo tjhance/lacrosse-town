@@ -42,11 +42,11 @@ export function init(socket_listener: any) {
         connection_buckets[data.puzzleID] = new ServerSyncer(data.puzzleID, () => {
           // This callback is called when the bucket is ready to delete itself.
           delete connection_buckets[data.puzzleID];
-          console.debug("Deleted bucket #{data.puzzleID}");
+          console.debug(`Deleted bucket ${data.puzzleID}`);
         });
-        console.debug("Created bucket #{data.puzzleID}");
+        console.debug(`Created bucket ${data.puzzleID}`);
       }
-      console.debug("Adding connection to bucket #{data.puzzleID}");
+      console.debug(`Adding connection to bucket ${data.puzzleID}`);
       connection_buckets[data.puzzleID].addConnection(socket, data);
     });
   });

@@ -91,7 +91,7 @@ export class PuzzlePage extends React.Component<Props, State> {
       puzzle: null,
       // $FlowFixMe
       initial_puzzle: null,
-      
+
       // If this is true, then maintain rotational symmetry of white/blackness
       // when the user toggles a single square.
       maintainRotationalSymmetry: true,
@@ -1038,14 +1038,14 @@ export class PuzzlePage extends React.Component<Props, State> {
       nextR++;
     }
     if ((prevR >= 0 && prevR < this.height() && prevC >= 0 && prevC < this.width() &&
-         g[prevR][prevC].open && !g[prevR][prevC][info.is_across ? 'rightbar' : 'bottombar']) || 
-        (nextR >= 0 && nextR < this.height() && nextC >= 0 && nextC < this.width() && 
+         g[prevR][prevC].open && !g[prevR][prevC][info.is_across ? 'rightbar' : 'bottombar']) ||
+        (nextR >= 0 && nextR < this.height() && nextC >= 0 && nextC < this.width() &&
         g[nextR][nextC].open &&
         !g[info.cells[info.cells.length - 1][0]][info.cells[info.cells.length - 1][1]][info.is_across ? 'rightbar' : 'bottombar'])) {
       fail();
       return;
     }
-    
+
     // Make the list of updates to make
     const updates = [];
     let wordPos = 0;
@@ -1127,7 +1127,7 @@ export class PuzzlePage extends React.Component<Props, State> {
     const col1 = Math.min(grid_focus.focus.col, grid_focus.anchor.col);
     const col2 = Math.max(grid_focus.focus.col, grid_focus.anchor.col);
     const submatr = Utils.submatrix(this.state.puzzle.grid, row1, row2 + 1, col1, col2 + 1);
-    
+
     // Copy it to clipboard
     ClipboardUtils.copyGridToClipboard(event, col2 - col1 + 1, row2 - row1 + 1, submatr);
   }
@@ -1239,15 +1239,15 @@ export class PuzzlePage extends React.Component<Props, State> {
                   <PuzzlePanel
                       selectedClueTextData={selectedClueTextData}
                       findMatchesInfo={this.state.findMatchesInfo}
-                      onMatchFinderChoose={this.onMatchFinderChoose} 
-                      onMatchFinderChoose={this.onMatchFinderChoose} 
-                      onMatchFinderClose={this.closeMatchFinder}
+                      onMatchFinderChoose={this.onMatchFinderChoose.bind(this)}
+                      onMatchFinderChoose={this.onMatchFinderChoose.bind(this)}
+                      onMatchFinderClose={this.closeMatchFinder.bind(this)}
                       renumber={this.renumber}
                       width={this.state.puzzle.width}
                       height={this.state.puzzle.height}
-                      onSetDimensions={this.onSetDimensions}
-                      needToRenumber={this.needToRenumber()} 
-                      toggleMaintainRotationalSymmetry={this.toggleMaintainRotationalSymmetry}
+                      onSetDimensions={this.onSetDimensions.bind(this)}
+                      needToRenumber={this.needToRenumber()}
+                      toggleMaintainRotationalSymmetry={this.toggleMaintainRotationalSymmetry.bind(this)}
                       maintainRotationalSymmetry={this.state.maintainRotationalSymmetry} />
                   {this.renderToggleOffline()}
               </div>
@@ -1275,8 +1275,8 @@ export class PuzzlePage extends React.Component<Props, State> {
             cell_classes={this.getCellClasses()}
             cursorInfos={this.getCursorInfos()}
             bars={this.getBars()}
-            onCellClick={this.onCellClick}
-            onCellFieldKeyPress={this.onCellFieldKeyPress} />
+            onCellClick={this.onCellClick.bind(this)}
+            onCellFieldKeyPress={this.onCellFieldKeyPress.bind(this)} />
       </div>
     );
   }
@@ -1433,7 +1433,7 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
             <input
                 type="text"
                 defaultValue={this.props.width}
-                onKeyDown={this.onKeyDown}
+                onKeyDown={this.onKeyDown.bind(this)}
                 ref={this.widthInputFun}
                 className="dont-bubble-keydown"
                 size="4" />
@@ -1443,7 +1443,7 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
             <input
                 type="text"
                 defaultValue={this.props.height}
-                onKeyDown={this.onKeyDown}
+                onKeyDown={this.onKeyDown.bind(this)}
                 ref={this.heightInputFun}
                 className="dont-bubble-keydown"
                 size="4" />
@@ -1453,7 +1453,7 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
               type="button"
               className="lt-button"
               value="Submit"
-              onClick={this.onSubmit} />
+              onClick={this.onSubmit.bind(this)} />
           </span>
         </div>
       );
@@ -1464,7 +1464,13 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
           <span className="dimension-panel-static-2">{this.props.width}</span>
           <span className="dimension-panel-static-3">Height:</span>
           <span className="dimension-panel-static-4">{this.props.height}</span>
-          <span className="dimension-panel-static-5"><input type="button" className="lt-button" value="Edit" onClick={this.onClickEdit} /></span>
+          <span className="dimension-panel-static-5">
+            <input
+                type="button"
+                className="lt-button"
+                value="Edit"
+                onClick={this.onClickEdit.bind(this)} />
+          </span>
         </div>
       );
     }
@@ -1647,7 +1653,7 @@ class PuzzleGridCell extends React.Component<PuzzleGridCellProps, PuzzleGridCell
                   type="text"
                   id="cellFieldInput"
                   defaultValue={this.getCellFieldInitialValue()}
-                  ref={this.onCellFieldCreate}
+                  ref={this.onCellFieldCreate.bind(this)}
                   className="dont-bubble-keydown"
                   onKeyDown={this.props.onCellFieldKeyPress} />
             </div>
@@ -1721,7 +1727,9 @@ class SelectedClueTextWidget extends
           {Utils.makeArray(this.props.data.length, (i) => {
             const datum = this.props.data[i];
             return (
-              <div className={"selected-clue-text-display-item selected-clue-text-display-item-" + datum[2] + (this.props.data.length === 2 ? " selected-clue-text-display-item-" + i : "")}>
+              <div
+                  key={"sctd-" + i}
+                  className={"selected-clue-text-display-item selected-clue-text-display-item-" + datum[2] + (this.props.data.length === 2 ? " selected-clue-text-display-item-" + i : "")}>
                 <strong>{datum[0]}</strong>{" " + datum[1]}
               </div>
             );

@@ -45,12 +45,12 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
         <div className="clue-container" ref="editableDivContainer">
           <div className="clue-container-full-height">
             <div contentEditable={true}
-                 onKeyDown={this.updateSelection}
-                 onKeyUp={this.updateSelection}
-                 onKeyPress={this.updateSelection}
-                 onMouseUp={this.updateSelection}
-                 onFocus={this.updateSelection}
-                 onInput={this.onTextChange}
+                 onKeyDown={this.updateSelection.bind(this)}
+                 onKeyUp={this.updateSelection.bind(this)}
+                 onKeyPress={this.updateSelection.bind(this)}
+                 onMouseUp={this.updateSelection.bind(this)}
+                 onFocus={this.updateSelection.bind(this)}
+                 onInput={this.onTextChange.bind(this)}
 
                  className="clue-contenteditable dont-bubble-keydown"
 
@@ -314,8 +314,9 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
               elem.lt_start_newline = true;
             }
 
-            for (const childElem of $(elem).contents()) {
-              recurse(childElem);
+            const contents = $(elem).contents();
+            for (let i = 0; i < contents.length; i++) {
+              recurse(contents[i]);
             }
 
             if (!is_inline && needs_newline()) {
@@ -346,8 +347,9 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
             totalOffset += piece.text.length;
           }
         } else if (elem.nodeType == 1) { // ordinary node
-          for (const childElem of $(elem).contents()) {
-            recurse2(childElem);
+          const contents = $(elem).contents();
+          for (let i = 0; i < contents.length; i++) {
+            recurse2(contents[i]);
           }
         }
         elem.lt_end = totalOffset;

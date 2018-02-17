@@ -13,6 +13,7 @@ module.exports = function(grunt) {
           browserifyOptions: {
             extensions: ['.js'],
           },
+          external: [ 'react', 'react-dom' ],
         },
       },
     },

@@ -15,17 +15,17 @@
   ],
   "dependencies": {
     "async": "~0.1.15",
-    "babel-cli": "^6.26.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-flow": "^6.23.0",
-    "babel-preset-react": "^6.24.1",
+    "babel-cli": "~6.26.0",
+    "babel-plugin-transform-class-properties": "~6.24.1",
+    "babel-preset-env": "~1.6.1",
+    "babel-preset-flow": "~6.23.0",
+    "babel-preset-react": "~6.24.1",
     "cjsxify": "~0.3.0",
     "coffee-script": "~1.6.3",
     "crypto": "0.0.3",
     "express": "3.x",
     "grunt": "~0.4.2",
-    "grunt-babel": "^7.0.0",
+    "grunt-babel": "~7.0.0",
     "grunt-browserify": "~4.0.1",
     "grunt-cli": "~0.1.13",
     "grunt-coffee-react": "~2.4.1",
@@ -42,7 +42,7 @@
   },
   "private": true,
   "devDependencies": {
-    "flow-bin": "^0.65.0"
+    "flow-bin": "~0.65.0"
   },
   "engines": {
     "node": "~0.10.24",

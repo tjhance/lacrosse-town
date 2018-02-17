@@ -40,10 +40,10 @@ export function init(config: Config, callback: () => void) {
 
   // /new/
   app.get(/\/new/, function(req, res) {
-    return sendAppWithData(res, null);
+    return sendAppWithData(res, null, config);
   });
   app.get('/', function(req, res) {
-    return sendAppWithData(res, null);
+    return sendAppWithData(res, null, config);
   });
 
   // /puzzle/${puzzle id}
@@ -57,7 +57,7 @@ export function init(config: Config, callback: () => void) {
           puzzle: puzzle.state,
           stateID: puzzle.stateID,
         };
-        return sendAppWithData(res, data);
+        return sendAppWithData(res, data, config);
       }
     });
   });
@@ -94,7 +94,10 @@ export function init(config: Config, callback: () => void) {
 }
 
 // TODO need a template system...
-const APP_TEMPLATE = `<!doctype html>
+function getHtml(encodedData: string, config: Config) {
+  const reactType = config.production ? 'production.min' : 'development';
+
+  return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -109,16 +112,16 @@ const APP_TEMPLATE = `<!doctype html>
     <!-- javascript libraries -->
     <script type="text/javascript" src="/static/lib/js/jquery/jquery.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="/static/lib/js/react/react.development.js"></script>
-    <script type="text/javascript" src="/static/lib/js/react/react-dom.development.js"></script>
+    <script type="text/javascript" src="/static/lib/js/react/react.` + reactType + `.js"></script>
+    <script type="text/javascript" src="/static/lib/js/react/react-dom.` + reactType + `.js"></script>
     <script type="text/javascript" src="/static/lib/js/ua-parser.js"></script>
     <script type="text/javascript">
-      require = function(name) { return {'react': React, 'react-dom': ReactDOM }[name]; }
+      var require = function(name) { return {'react': React, 'react-dom': ReactDOM }[name]; };
     </script>
 
     <!-- non-static data for the page -->
     <script type="text/javascript">
-        var PAGE_DATA = JSON.parse(decodeURIComponent("REPLACE_ME"));
+        var PAGE_DATA = JSON.parse(decodeURIComponent("` + encodedData + `"));
     </script>
 
     <!-- javascript app code -->
@@ -131,11 +134,12 @@ const APP_TEMPLATE = `<!doctype html>
     </script>
   </body>
 </html>`;
+}
 
-function sendAppWithData(res, data) {
+function sendAppWithData(res, data, config) {
   const jsonData = JSON.stringify(data);
   const encodedData = encodeURIComponent(jsonData);
-  const html = APP_TEMPLATE.replace('REPLACE_ME', encodedData);
+  const html = getHtml(encodedData, config);
   res.header("Content-Type", "text/html");
   return res.send(html);
 }

@@ -1,4 +1,5 @@
 {
+    "production": false,
     "db": "postgres://tjhance:blah@localhost/lacrosse_town",
     "port": 3000
 }

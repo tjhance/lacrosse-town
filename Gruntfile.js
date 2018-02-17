@@ -42,7 +42,7 @@ module.exports = function(grunt) {
         atBegin: true,
       },
       babel: {
-        files: ["src/coffee/{client,shared,node}/**/*.js"],
+        files: ["src/coffee/{client,shared,node,tests}/**/*.js"],
         tasks: ["newer:babel:all"],
       },
     },

@@ -1,6 +1,7 @@
 /* @flow */
 
 import * as Crypto from "crypto";
+import { Client } from "pg";
 import type {Config} from './types';
 import type {PuzzleState} from '../shared/types';
 import type {Operation} from '../shared/ot';
@@ -8,10 +9,9 @@ import type {Operation} from '../shared/ot';
 let client: any = null;
 
 export function init(config: Config, callback: () => void) {
-  var conString, pg;
-  pg = require("pg");
-  conString = config.db;
-  pg.connect(conString, function(err, cl, done) {
+  const conString = config.db;
+  const pg = new Client({ connectionString: conString });
+  pg.connect(function(err, cl, done) {
     if (err) {
       console.error("Error initializing database:");
       console.error(err);

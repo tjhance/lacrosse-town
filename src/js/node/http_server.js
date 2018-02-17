@@ -109,8 +109,12 @@ const APP_TEMPLATE = `<!doctype html>
     <!-- javascript libraries -->
     <script type="text/javascript" src="/static/lib/js/jquery/jquery.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="/static/lib/js/react/react.js"></script>
+    <script type="text/javascript" src="/static/lib/js/react/react.development.js"></script>
+    <script type="text/javascript" src="/static/lib/js/react/react-dom.development.js"></script>
     <script type="text/javascript" src="/static/lib/js/ua-parser.js"></script>
+    <script type="text/javascript">
+      require = function(name) { return {'react': React, 'react-dom': ReactDOM }[name]; }
+    </script>
 
     <!-- non-static data for the page -->
     <script type="text/javascript">

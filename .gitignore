@@ -36,8 +36,10 @@ nosetests.xml
 .pydevproject
 
 # Compiled js
+src/compiled/
 src/static/js
 src/static/js-shared
+src/static/bundle.js
 
 # local config file
 config/development.json

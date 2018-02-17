@@ -3,6 +3,7 @@
 set -e
 
 npm install
+nvm use 6.10.0
 
 grunt babel
 grunt browserify

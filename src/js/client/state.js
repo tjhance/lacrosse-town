@@ -22,7 +22,7 @@
 // Communication with the server and conflict resolution is all internal to
 // this object. It uses socket.io to connect to the server. It deals with
 // abstract "states" and "operations" and uses the functions defined in
-// shared/ot.coffee (e.g., operational transformation functions).
+// shared/ot.js (e.g., operational transformation functions).
 
 // It maintains three states along with two operations between them
 
@@ -62,7 +62,7 @@
 //                                    \/
 //                                   root
 
-// Communication with the server (node/socket_server.coffee) is as follows.
+// Communication with the server (node/socket_server.js) is as follows.
 // On the initial socket.io connection, ask for the latest puzzle state
 // (using a "hello" packet). The server will respond with all updates from
 // the client's version to the latest version. It will keep sending updates

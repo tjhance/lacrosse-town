@@ -493,7 +493,7 @@ export function opDeleteCols(puzzle: PuzzleState, index: number, numToDelete: nu
 
 // Returns an operation that applies the text_op to one of the clue fields.
 // The parameter 'which' is either 'across' or 'down'.
-// The parameter 'text_op' is a text operation as described in ottext.coffee
+// The parameter 'text_op' is a text operation as described in ottext.js
 export function getClueOp(which: 'across' | 'down', text_op: TextOperation): Operation {
   const res = {};
   res[`${which}_clues`] = text_op;

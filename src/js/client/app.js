@@ -5,7 +5,7 @@
 // Routes are
 //   /new - Static page
 //   /puzzle - Page where you view and edit a puzzle.
-//             Controller is in puzzle.coffee
+//             Controller is in puzzle.js
 
 // TODO could use some lightweight routing framework?
 

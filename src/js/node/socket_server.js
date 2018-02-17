@@ -1,7 +1,7 @@
 /* @flow */
 
 // This is the server side of the puzzle syncing process. (The client side is in
-// client/state.coffee.)
+// client/state.js.)
 //
 // We maintain a bucket (a ServerSyncer object) of socket connections for each
 // puzzle. For each new connection, we wait for the "hello" packet. This packet

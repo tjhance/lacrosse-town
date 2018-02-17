@@ -1,8 +1,6 @@
 module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-newer');
-  grunt.loadNpmTasks('grunt-coffee-react');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-babel');
 
@@ -29,7 +27,7 @@ module.exports = function(grunt) {
         },
 				files: [{
 					expand: true,
-					cwd: 'src/coffee',
+					cwd: 'src/js',
 					src: ['**/*.js'],
 					dest: 'src/compiled',
 					ext: '.js',
@@ -42,7 +40,7 @@ module.exports = function(grunt) {
         atBegin: true,
       },
       babel: {
-        files: ["src/coffee/{client,shared,node,tests}/**/*.js"],
+        files: ["src/js/{client,shared,node,tests}/**/*.js"],
         tasks: ["newer:babel:all"],
       },
     },

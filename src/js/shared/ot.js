@@ -95,7 +95,7 @@ export function inverse(base: PuzzleState, op: Operation): Operation {
     for (let j = 0; j < base.width; j++) {
       if ((!(i in rowIndexMap)) || (!(j in colIndexMap))) {
         for (const type of ["open", "contents", "number", "rightbar", "bottombar"]) {
-          res["cell-#{i}-#{j}-#{type}"] = base.grid[i][j][type];
+          res[`cell-${i}-${j}-${type}`] = base.grid[i][j][type];
         }
       }
     }
@@ -104,7 +104,7 @@ export function inverse(base: PuzzleState, op: Operation): Operation {
   for (let i = 0; i < base.height; i++) {
     if (!(i in rowIndexMap)) {
       for (const type of ["leftbar"]) {
-        res["rowprop-#{i}-#{type}"] = base.row_props[i][type];
+        res[`rowprop-${i}-${type}`] = base.row_props[i][type];
       }
     }
   }
@@ -112,7 +112,7 @@ export function inverse(base: PuzzleState, op: Operation): Operation {
   for (let j = 0; j < base.width; j++) {
     if (!(j in colIndexMap)) {
       for (const type of ["topbar"]) {
-        res["colprop-#{j}-#{type}"] = base.col_props[j][type];
+        res[`colprop-${j}-${type}`] = base.col_props[j][type];
       }
     }
   }
@@ -128,21 +128,21 @@ export function inverse(base: PuzzleState, op: Operation): Operation {
       if ((i in rowIndexMapInv) && (j in colIndexMapInv)) {
         const i1 = rowIndexMapInv[i];
         const j1 = colIndexMapInv[j];
-        res["cell-#{i1}-#{j1}-#{type}"] = base.grid[i1][j1][type];
+        res[`cell-${i1}-${j1}-${type}`] = base.grid[i1][j1][type];
       }
     } else if (spl[0] === "rowprop") {
       const i = parseInt(spl[1], 10);
       const type = spl[2];
       if (i in rowIndexMapInv) {
         const i1 = rowIndexMapInv[i];
-        res["rowprop-#{i1}-#{type}"] = base.row_props[i1][type];
+        res[`rowprop-${i1}-${type}`] = base.row_props[i1][type];
       }
     } else if (spl[0] === "colprop") {
       const j = parseInt(spl[1], 10);
       const type = spl[2];
       if (j in colIndexMapInv) {
         const j1 = colIndexMapInv[j];
-        res["colprop-#{j1}-#{type}"] = base.col_props[j1][type];
+        res[`colprop-${j1}-${type}`] = base.col_props[j1][type];
       }
     }
   }
@@ -428,7 +428,7 @@ export function opGridDiff(puzzle: PuzzleState, grid2: PuzzleGrid): Operation {
     for (let j = 0; j < grid1[0].length; j++) {
       for (const v of ["contents", "number", "open", "rightbar", "bottombar"]) {
         if (grid1[i][j][v] !== grid2[i][j][v]) {
-          res["cell-#{i}-#{j}-#{v}"] = grid2[i][j][v];
+          res[`cell-${i}-${j}-${v}`] = grid2[i][j][v];
         }
       }
     }

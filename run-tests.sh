@@ -1,3 +1,4 @@
 #!/bin/bash
 
-nodeunit tests/*
+grunt babel 
+nodeunit src/compiled/tests/*.js

@@ -149,8 +149,8 @@ function appendInst(l: TextOperation, i: OpUnit) {
 // baseState is an argument but currently ignored.
 export function xformText(baseString: string, l1: TextOperation, l2: TextOperation): [TextOperation, TextOperation] {
   // Copy the lists, because we are going to mutate them.
-  l1 = l1.slice();
-  l2 = l2.slice();
+  l1 = l1.map(([a,b]) => [a,b]);
+  l2 = l2.map(([a,b]) => [a,b]);
   // Indices which track our current position in the list:
   let i1 = 0;
   let i2 = 0;
@@ -251,8 +251,8 @@ export function xformRange(s: string, op: TextOperation, range: [number, number]
 // Compose the two operations, returning l1 o l2
 export function composeText(s: string, l1: TextOperation, l2: TextOperation): TextOperation {
   // Copy the lists, because we are going to mutate them.
-  l1 = l1.slice();
-  l2 = l2.slice();
+  l1 = l1.map(([a,b]) => [a,b]);
+  l2 = l2.map(([a,b]) => [a,b]);
   // Indices which track our current position in the list:
   let i1 = 0;
   let i2 = 0;
@@ -325,7 +325,7 @@ export function composeText(s: string, l1: TextOperation, l2: TextOperation): Te
           }
         } else {
           // $FlowFixMe
-          amt = Math.min(l1[i1][1].length, l2[i2][1]);
+          const amt = Math.min(l1[i1][1].length, l2[i2][1]);
           // Don't add an op, gets cancelled out
           if (l1[i1][1].length === amt) {
             i1++;
@@ -385,7 +385,7 @@ export function canonicalized(op: TextOperation): TextOperation {
   for (let k = 0, len = op.length; k < len; k++) {
     let [type, val] = op[k];
     if (val) { // positive integer or non-empty string
-      appendInst(ans, op[k]);
+      appendInst(ans, [type, val]);
     }
   }
   return ans;

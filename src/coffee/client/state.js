@@ -100,7 +100,7 @@ type InitialData = {
   puzzle: PuzzleState;
 };
 
-type Watcher = (PuzzleState, Operation | null, {[number]: Cursor}) => void;
+type Watcher = (PuzzleState, Operation | null, {[string]: Cursor}) => void;
 
 export class ClientSyncer {
   watchers: Watcher[] = [];
@@ -266,7 +266,7 @@ export class ClientSyncer {
   }
 
   // Receive a local operation
-  localOp(op: Operation, cursor: Cursor): void {
+  localOp(op: Operation | null, cursor: Cursor | null): void {
     if (op) {
       this.undoRedo.applyOp(op, true); // true -> undoable operation
       this._localOp(op, cursor);

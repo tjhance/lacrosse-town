@@ -4,7 +4,7 @@
 
 import * as PuzzleUtils from "../shared/puzzle_utils";
 import * as Utils from "../shared/utils";
-import type {PuzzleGrid} from "../shared/types";
+import type {PuzzleGrid, PuzzleCell} from "../shared/types";
 
 declare class ClipboardEvent extends Event {
   clipboardData: DataTransfer,
@@ -31,7 +31,13 @@ export function copyGridToClipboard(event: ClipboardEvent,
   }
 }
 
-export function getGridFromClipboard(event: ClipboardEvent) {
+export type PastedGrid = {
+  width: number,
+  height: number,
+  grid: PuzzleCell[][],
+};
+
+export function getGridFromClipboard(event: ClipboardEvent): PastedGrid | null {
   if (event.clipboardData) {
     const html = event.clipboardData.getData("text/html");
     if (html != null) {

@@ -32,7 +32,6 @@ export type RowProps = {
 export type Cursor = {
   anchor: {row: number, col: number},
   focus: {row: number, col: number},
-  field_open: string,
+  field_open: 'none' | 'number' | 'contents',
   is_across: boolean,
-  cell_field?: 'string',
 };

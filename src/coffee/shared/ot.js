@@ -413,7 +413,7 @@ function applyRowAndColOpsToGrid(puzzle: PuzzleState, [rowsOp, colsOp]) {
 // Operation edits "contents", "number", or "open" value for a particular
 // cell at (row, col).
 export function opEditCellValue(row: number, col: number, name: string,
-    value: string|number|boolean) {
+    value: string|number|boolean|null): Operation {
   const res = {};
   res[`cell-${row}-${col}-${name}`] = value;
   return res;
@@ -421,7 +421,7 @@ export function opEditCellValue(row: number, col: number, name: string,
 
 // Returns an operation op such that (apply puzzle, op) has grid of grid2.
 // TODO support grids that are not the same size if needed?
-export function opGridDiff(puzzle: PuzzleState, grid2: PuzzleGrid) {
+export function opGridDiff(puzzle: PuzzleState, grid2: PuzzleGrid): Operation {
   const grid1 = puzzle.grid;
   const res = {};
   for (let i = 0; i < grid1.length; i++) {
@@ -441,7 +441,7 @@ export function opSpliceRowsOrCols(
     forRow: boolean,
     index: number,
     numToInsert: number,
-    numToDelete: number) {
+    numToDelete: number): Operation {
   const res = {};
   res[forRow ? 'rows' : 'cols'] = OtText.opTextSplice(originalLen, index, Utils.repeatString(".", numToInsert), numToDelete);
   return res;

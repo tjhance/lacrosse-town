@@ -51,7 +51,7 @@ export function transpose<T>(matr: Array<Array<T>>, width: number, height: numbe
 }
 
 // returns the submatrix [r1, r2) x [c1, c2)
-export function submatrix<T>(matr: Array<Array<T>>, r1: number, r2: number, c1: number, c2: number) {
+export function submatrix<T>(matr: T[][], r1: number, r2: number, c1: number, c2: number): T[][] {
   const res = [];
   for (let i = r1; i < r2; i++) {
     const row = [];

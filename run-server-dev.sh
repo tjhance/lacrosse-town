@@ -1,8 +1,10 @@
 #!/bin/bash
 
+set -e
+
 npm install
 
 grunt babel
-#grunt browserify
+grunt browserify
 
 nodemon --ignore node_modules -V src/compiled/node/server.js config/development.json

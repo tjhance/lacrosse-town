@@ -7,12 +7,11 @@ module.exports = function(grunt) {
   grunt.initConfig({
     browserify: {
       client: {
-        src: ["src/coffee/{client,shared}/**/*.coffee"],
+        src: ["src/compiled/{client,shared}/**/*.js"],
         dest: "src/static/bundle.js",
         options: {
-          transform: ["cjsxify"],
           browserifyOptions: {
-            extensions: ['.coffee'],
+            extensions: ['.js'],
           },
         },
       },
@@ -41,7 +40,7 @@ module.exports = function(grunt) {
       },
       babel: {
         files: ["src/js/{client,shared,node,tests}/**/*.js"],
-        tasks: ["newer:babel:all"],
+        tasks: ["newer:babel:all", "newer:browserify:client"],
       },
     },
   });

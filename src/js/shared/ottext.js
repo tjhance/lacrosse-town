@@ -149,7 +149,9 @@ function appendInst(l: TextOperation, i: OpUnit) {
 // baseState is an argument but currently ignored.
 export function xformText(baseString: string, l1: TextOperation, l2: TextOperation): [TextOperation, TextOperation] {
   // Copy the lists, because we are going to mutate them.
+  // $FlowFixMe
   l1 = l1.map(([a,b]) => [a,b]);
+  // $FlowFixMe
   l2 = l2.map(([a,b]) => [a,b]);
   // Indices which track our current position in the list:
   let i1 = 0;
@@ -251,7 +253,9 @@ export function xformRange(s: string, op: TextOperation, range: [number, number]
 // Compose the two operations, returning l1 o l2
 export function composeText(s: string, l1: TextOperation, l2: TextOperation): TextOperation {
   // Copy the lists, because we are going to mutate them.
+  // $FlowFixMe
   l1 = l1.map(([a,b]) => [a,b]);
+  // $FlowFixMe
   l2 = l2.map(([a,b]) => [a,b]);
   // Indices which track our current position in the list:
   let i1 = 0;
@@ -385,6 +389,7 @@ export function canonicalized(op: TextOperation): TextOperation {
   for (let k = 0, len = op.length; k < len; k++) {
     let [type, val] = op[k];
     if (val) { // positive integer or non-empty string
+      // $FlowFixMe
       appendInst(ans, [type, val]);
     }
   }

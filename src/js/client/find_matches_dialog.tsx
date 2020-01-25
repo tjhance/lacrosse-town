@@ -1,5 +1,3 @@
-/* @flow */
-
 /*
 React component representing the dialog to find matching words.
 
@@ -16,16 +14,16 @@ props:
 
 import * as Utils from '../shared/utils';
 
-import React from 'react';
-import ReactDom from 'react-dom';
-declare var $;
+import * as React from 'react';
+import * as ReactDom from 'react-dom';
+declare var $: any;
 
 type Props = {
   pattern: string,
   clueTitle: string,
   clueText: string,
   onClose: () => void,
-  onSelect: (string) => void,
+  onSelect: (s:string) => void,
 };
 
 type State = {
@@ -71,10 +69,10 @@ export class FindMatchesDialog extends React.Component<Props, State> {
           pattern: this.props.pattern,
       },
       dataType: 'json',
-      success: (data) => {
-        this.setState({ matchList: data.matches.map((m) => m.toUpperCase()) });
+      success: (data:any) => {
+        this.setState({ matchList: data.matches.map((m:string) => m.toUpperCase()) });
       },
-      error: (jqXHR, textStatus, errorThrown) => {
+      error: (jqXHR:any, textStatus:any, errorThrown:any) => {
         this.setState({ error: "error: " + textStatus });
       },
     });
@@ -142,7 +140,7 @@ export class FindMatchesDialog extends React.Component<Props, State> {
 
 type SelectListProps = {
   matches: string[],
-  onSelect: (number, string) => void,
+  onSelect: (n:number, s:string) => void,
   onClose: () => void,
 };
 
@@ -159,7 +157,7 @@ class SelectList extends React.Component<SelectListProps, SelectListState> {
     this.focusIndex(0);
   }
 
-  coerceIndex(index) {
+  coerceIndex(index: number) {
     if (index < 0) {
       return 0;
     } else if (index >= this.props.matches.length) {
@@ -169,30 +167,29 @@ class SelectList extends React.Component<SelectListProps, SelectListState> {
     }
   }
 
-  focusIndex(index) {
+  focusIndex(index: number) {
     const ref = this.refs['option-' + index];
     if (ref) {
-      const anode = ReactDom.findDOMNode(ref); // the 'a' node
-      // $FlowFixMe
+      const anode = ReactDom.findDOMNode(ref) as HTMLAnchorElement; // the 'a' node
       anode.focus();
     }
   }
 
-  goUp(index) {
+  goUp(index: number) {
     this.focusIndex(this.coerceIndex(index - 1));
   }
 
-  goDown(index) {
+  goDown(index: number) {
     this.focusIndex(this.coerceIndex(index + 1));
   }
 
-  enter(index) {
+  enter(index: number) {
     if (0 <= index && index < this.props.matches.length) {
       this.props.onSelect(index, this.props.matches[index]);
     }
   }
 
-  onKeyDown(event, i) {
+  onKeyDown(event: any, i: number) {
     if (event.which === 38) {
       this.goUp(i);
       event.preventDefault();
@@ -210,7 +207,7 @@ class SelectList extends React.Component<SelectListProps, SelectListState> {
     }
   }
 
-  onClick(event, i) {
+  onClick(event: any, i: number) {
     this.enter(i);
     // even with this, we still fail to restore focus to the grid when closing
     // ... why?
@@ -220,13 +217,16 @@ class SelectList extends React.Component<SelectListProps, SelectListState> {
 
   render() {
     return (
-      <div className="dont-bubble-keydown" className="lt-select-list"
+      <div 
+        //TODO was this supposed to be enabled?
+        //className="dont-bubble-keydown"
+        className="lt-select-list"
               onMouseEnter={() => this.setState({mousedOver: true})}
               onMouseLeave={() => this.setState({mousedOver: false})} >
           { Utils.makeArray(this.props.matches.length, (i) => {
               return (
                 <a href="#" style={{'display': 'block'}}
-                        onKeyDown={(event) => this.onKeyDown(event, i)}
+                        onKeyDown={(event: any) => this.onKeyDown(event, i)}
                         className={"lt-select-list-option"}
                         onClick={(event) => this.onClick(event, i)}
                         ref={"option-"+i}

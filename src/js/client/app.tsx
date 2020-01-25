@@ -1,5 +1,3 @@
-/* @flow */
-
 // This file has routing and some basic high-level setup and a few
 // event handlers with no better home.
 // Routes are
@@ -14,10 +12,10 @@ import {ClientSyncer} from './state';
 import {PuzzlePage} from './puzzle';
 import * as KeyboardUtils from './keyboard_utils';
 
-import React from 'react';
-import ReactDom from 'react-dom';
+import * as React from 'react';
+import * as ReactDom from 'react-dom';
 
-declare var $;
+declare var $: any;
 
 function initApp() {
   const pathname = window.location.pathname;
@@ -27,12 +25,12 @@ function initApp() {
     const container = $('.view-container').get(0);
     ReactDom.render(el, container);
   } else if (parts[1] === 'puzzle') {
-    initPuzzleSyncer(parts[2], window.PAGE_DATA);
+    initPuzzleSyncer(parts[2], (window as any).PAGE_DATA);
   }
 }
 
 // TODO This should get its own file
-function initPuzzleSyncer(puzzleID, initialData) {
+function initPuzzleSyncer(puzzleID: string, initialData: any) {
   const syncer = new ClientSyncer(puzzleID, initialData);
   syncer.addWatcher((newState, op, cursors) => {
     if (op) {
@@ -43,15 +41,14 @@ function initPuzzleSyncer(puzzleID, initialData) {
     }
   });
 
-  const requestOp = (op, cursor) => {
+  const requestOp = (op: any, cursor: any) => {
     syncer.localOp(op, cursor);
   };
 
-  const onToggleOffline = (val) => {
+  const onToggleOffline = (val: boolean) => {
     syncer.setOffline(val)
   };
 
-  // $FlowFixMe
   document.body.addEventListener('keydown', ((event) => {
     if ((! $(event.target).hasClass('dont-bubble-keydown')) &&
            $(event.target).closest('.dont-bubble-keydown').length == 0) {
@@ -59,7 +56,6 @@ function initPuzzleSyncer(puzzleID, initialData) {
     }
    }), false)
 
-  // $FlowFixMe
 	document.body.addEventListener('keydown', (function(event) {
 		var meta;
 		meta = (KeyboardUtils.usesCmd() ? event.metaKey : event.ctrlKey);
@@ -74,7 +70,6 @@ function initPuzzleSyncer(puzzleID, initialData) {
 		}
 	}), true);
 
-  // $FlowFixMe
 	document.body.addEventListener('click', (function(event) {
 		var node;
 		node = p.gridNode();
@@ -88,7 +83,6 @@ function initPuzzleSyncer(puzzleID, initialData) {
 		}
 	}), true);
 
-  // $FlowFixMe
 	document.body.addEventListener('focus', (function(event) {
 		var node;
 		node = p.gridNode();
@@ -99,21 +93,18 @@ function initPuzzleSyncer(puzzleID, initialData) {
 		}
 	}), true);
 
-  // $FlowFixMe
 	document.body.addEventListener('copy', (function(event) {
 		if ((!$(event.target).hasClass('dont-bubble-keydown')) && $(event.target).closest('.dont-bubble-keydown').length === 0) {
 			return p.doCopy(event);
 		}
 	}), true);
 
-  // $FlowFixMe
 	document.body.addEventListener('cut', (function(event) {
 		if ((!$(event.target).hasClass('dont-bubble-keydown')) && $(event.target).closest('.dont-bubble-keydown').length === 0) {
 			return p.doCut(event);
 		}
 	}), true);
 
-  // $FlowFixMe
 	document.body.addEventListener('paste', (function(event) {
 		if ((!$(event.target).hasClass('dont-bubble-keydown')) && $(event.target).closest('.dont-bubble-keydown').length === 0) {
 			return p.doPaste(event);
@@ -125,9 +116,9 @@ function initPuzzleSyncer(puzzleID, initialData) {
       onToggleOffline={onToggleOffline}
    />;
   const container = $('.view-container').get(0);
-  const p = ReactDom.render(el, container);
+  const p: any = ReactDom.render(el, container);
 
   p.setPuzzleState(initialData.puzzle);
 }
 
-window.initApp = initApp;
+(window as any).initApp = initApp;

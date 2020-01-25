@@ -1,5 +1,3 @@
-/* @flow */
-
 // This file defines the ClientSyncer object, which talks to the server
 // and deals with syncing the puzzle state between the client's display
 // and the server's copy.
@@ -90,17 +88,24 @@ import * as Ot from '../shared/ot';
 import * as Utils from '../shared/utils';
 import {UndoRedo} from './undo_redo';
 
-import type {PuzzleState, Cursor} from '../shared/types';
-import type {Operation} from '../shared/ot';
+import {PuzzleState, Cursor} from '../shared/types';
+import {Operation} from '../shared/ot';
 
-declare var io;
+declare var io: any;
 
 type InitialData = {
   stateID: string;
   puzzle: PuzzleState;
 };
 
-type Watcher = (PuzzleState, Operation | null, {[string]: Cursor}) => void;
+type UpdateMessage = {
+  op: Operation;
+  cursor: Cursor | null;
+  opID: string;
+  rootID: string;
+};
+
+type Watcher = (ps: PuzzleState, op: Operation | null, cursors: {[n:number]: Cursor}) => void;
 
 export class ClientSyncer {
   watchers: Watcher[] = [];
@@ -121,12 +126,12 @@ export class ClientSyncer {
 
   // The ID of the update that we sent and are waiting on, or null if
   // we are not currently waiting on any update.
-  outstandingID = null;
+  outstandingID: string | null = null;
 
   // Object to track state for undo/redo operations.
   undoRedo: UndoRedo;
 
-  cursors = {};
+  cursors: {[n:number]: Cursor} = {};
 
   connected: boolean = false;
 
@@ -195,11 +200,10 @@ export class ClientSyncer {
    
     // The server continuously sends us "update" packets with updates to be
     // be applied to the root.
-    this.socket.on("update", (data) => {
+    this.socket.on("update", (data:any) => {
       console.debug("received update");
       this.rootID = data.stateID;
 
-      let update = false;
       let notify = false;
       if (data.cursor_updates) {
         this._process_cursor_updates(data.cursor_updates);
@@ -238,7 +242,7 @@ export class ClientSyncer {
       }
     });
 
-    this.socket.on("update_cursor", (data) => {
+    this.socket.on("update_cursor", (data:any) => {
       this._process_cursor_updates(data.cursor_updates);
       this.notifyWatchers(this.tip, null);
     });
@@ -346,7 +350,7 @@ export class ClientSyncer {
   // (helper method called by a few methods above).
   // Store the message in updateMessage, in case we need to re-send it.
 
-  updateMessage = null;
+  updateMessage: UpdateMessage|null = null;
 
   sendUpdate(): void {
     Utils.assert(this.outstandingID === null);

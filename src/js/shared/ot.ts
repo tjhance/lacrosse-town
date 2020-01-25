@@ -1,13 +1,11 @@
-/* @flow */
-
 import * as PuzzleUtils from "./puzzle_utils"
 import * as Utils from "./utils"
 import * as OtText from "./ottext"
 
-import type {PuzzleState, PuzzleGrid} from './types';
-import type {TextOperation} from './ottext';
+import {PuzzleState, PuzzleGrid, PuzzleCell, RowProps, ColProps} from './types';
+import {TextOperation} from './ottext';
 
-export opaque type Operation = any;
+export type Operation = {[name: string] : any};
 
 // Abstract operational transformation functions
 // Many of these functions (may) need to know the grid that the operation
@@ -37,7 +35,7 @@ export function compose(base: PuzzleState, a: Operation, b: Operation): Operatio
 
   const aNew = moveKeyUpdatesOverRowsAndColsOp([bRowsOp, bColsOp], a);
 
-  const c = {}
+  const c: Operation = {}
   for (const key in aNew) {
     c[key] = aNew[key];
   }
@@ -53,7 +51,7 @@ export function compose(base: PuzzleState, a: Operation, b: Operation): Operatio
   }
 
   // compose the 'clues' text fields
-  const merge_clue = (name, t) => {
+  const merge_clue = (name: string, t: any) => {
     if (name in a && name in b) {
       c[name] = OtText.composeText(t, a[name], b[name]);
     } else if (name in a) {
@@ -65,7 +63,7 @@ export function compose(base: PuzzleState, a: Operation, b: Operation): Operatio
   merge_clue("across_clues", base["across_clues"]);
   merge_clue("down_clues", base["down_clues"]);
 
-  const removeIfIdentity = (name) => {
+  const removeIfIdentity = (name: string) => {
     if (c[name] && OtText.isIdentity(c[name])) {
       delete c[name];
     }
@@ -88,14 +86,14 @@ export function inverse(base: PuzzleState, op: Operation): Operation {
   const rowIndexMapInv = OtText.getIndexMapForTextOp(rowsOpInv);
   const colIndexMapInv = OtText.getIndexMapForTextOp(colsOpInv);
 
-  const res = {}
+  const res: Operation = {}
 
   // any cell deleted in the op must be restored in the inverse op
   for (let i = 0; i < base.height; i++) {
     for (let j = 0; j < base.width; j++) {
       if ((!(i in rowIndexMap)) || (!(j in colIndexMap))) {
         for (const type of ["open", "contents", "number", "rightbar", "bottombar"]) {
-          res[`cell-${i}-${j}-${type}`] = base.grid[i][j][type];
+          res[`cell-${i}-${j}-${type}`] = (base.grid[i][j] as any)[type];
         }
       }
     }
@@ -104,7 +102,7 @@ export function inverse(base: PuzzleState, op: Operation): Operation {
   for (let i = 0; i < base.height; i++) {
     if (!(i in rowIndexMap)) {
       for (const type of ["leftbar"]) {
-        res[`rowprop-${i}-${type}`] = base.row_props[i][type];
+        res[`rowprop-${i}-${type}`] = (base.row_props[i] as any)[type];
       }
     }
   }
@@ -112,7 +110,7 @@ export function inverse(base: PuzzleState, op: Operation): Operation {
   for (let j = 0; j < base.width; j++) {
     if (!(j in colIndexMap)) {
       for (const type of ["topbar"]) {
-        res[`colprop-${j}-${type}`] = base.col_props[j][type];
+        res[`colprop-${j}-${type}`] = (base.col_props[j] as any)[type];
       }
     }
   }
@@ -128,21 +126,21 @@ export function inverse(base: PuzzleState, op: Operation): Operation {
       if ((i in rowIndexMapInv) && (j in colIndexMapInv)) {
         const i1 = rowIndexMapInv[i];
         const j1 = colIndexMapInv[j];
-        res[`cell-${i1}-${j1}-${type}`] = base.grid[i1][j1][type];
+        res[`cell-${i1}-${j1}-${type}`] = (base.grid[i1][j1] as any)[type];
       }
     } else if (spl[0] === "rowprop") {
       const i = parseInt(spl[1], 10);
       const type = spl[2];
       if (i in rowIndexMapInv) {
         const i1 = rowIndexMapInv[i];
-        res[`rowprop-${i1}-${type}`] = base.row_props[i1][type];
+        res[`rowprop-${i1}-${type}`] = (base.row_props[i1] as any)[type];
       }
     } else if (spl[0] === "colprop") {
       const j = parseInt(spl[1], 10);
       const type = spl[2];
       if (j in colIndexMapInv) {
         const j1 = colIndexMapInv[j];
-        res[`colprop-${j1}-${type}`] = base.col_props[j1][type];
+        res[`colprop-${j1}-${type}`] = (base.col_props[j1] as any)[type];
       }
     }
   }
@@ -156,7 +154,7 @@ export function inverse(base: PuzzleState, op: Operation): Operation {
 
   for (const t of ['across_clues', 'down_clues']) {
     if (t in op) {
-      res[t] = OtText.inverseText(base[t], op[t]);
+      (res as any)[t] = OtText.inverseText((base as any)[t], (op as any)[t]);
     }
   }
 
@@ -215,12 +213,12 @@ export function xform(base: PuzzleState, a: Operation, b: Operation): [Operation
   const [gbRows, gbCols] = getRowsOpAndColsOp(base, b);
   const [gaRows1, gbRows1] = OtText.xformText(Utils.repeatString(".", base.height), gaRows, gbRows);
   const [gaCols1, gbCols1] = OtText.xformText(Utils.repeatString(".", base.height), gaCols, gbCols);
-  const ga1 = [gaRows1, gaCols1];
-  const gb1 = [gbRows1, gbCols1];
+  const ga1: [TextOperation, TextOperation] = [gaRows1, gaCols1];
+  const gb1: [TextOperation, TextOperation] = [gbRows1, gbCols1];
   const ka1 = moveKeyUpdatesOverRowsAndColsOp(gb1, a);
   const kb1 = moveKeyUpdatesOverRowsAndColsOp(ga1, b);
   const ka2 = ka1;
-  const kb2 = {};
+  const kb2: Operation = {};
   for (const key in kb1) {
     if (!(key in ka1)) {
       kb2[key] = kb1[key];
@@ -230,7 +228,7 @@ export function xform(base: PuzzleState, a: Operation, b: Operation): [Operation
   for (let k = 0, len = ref.length; k < len; k++) {
     const strname = ref[k];
     if (strname in a && strname in b) {
-      const xformRes = OtText.xformText(base[strname], a[strname], b[strname]);
+      const xformRes = OtText.xformText((base as any)[strname], a[strname], b[strname]);
       ka2[strname] = xformRes[0];
       kb2[strname] = xformRes[1];
     } else if (strname in a) {
@@ -247,7 +245,7 @@ export function xform(base: PuzzleState, a: Operation, b: Operation): [Operation
     ka2.cols = gaCols1;
     kb2.cols = gbCols1;
   }
-  const removeIfIdentity = function(c, name) {
+  const removeIfIdentity = function(c : any, name: string) {
     if (c[name] && OtText.isIdentity(c[name])) {
       return delete c[name];
     }
@@ -268,11 +266,11 @@ export function apply(base: PuzzleState, a: Operation): PuzzleState {
   const res = PuzzleUtils.clonePuzzle(base);
   if ((a.rows != null) || (a.cols != null)) {
     const newGridInfo = applyRowAndColOpsToGrid(res, getRowsOpAndColsOp(res, a));
-    res.grid = newGridInfo.grid;
+    res.grid = newGridInfo.grid as PuzzleCell[][];
     res.width = newGridInfo.width;
     res.height = newGridInfo.height;
-    res.row_props = newGridInfo.row_props;
-    res.col_props = newGridInfo.col_props;
+    res.row_props = newGridInfo.row_props as RowProps[];
+    res.col_props = newGridInfo.col_props as ColProps[];
   }
   for (const key in a) {
     const value = a[key];
@@ -282,19 +280,19 @@ export function apply(base: PuzzleState, a: Operation): PuzzleState {
         const row = parseInt(components[1]);
         const col = parseInt(components[2]);
         const name = components[3];
-        res.grid[row][col][name] = value;
+        (res.grid[row][col] as any)[name] = value;
         break;
       }
       case "rowprop": {
         const row = parseInt(components[1]);
         const name = components[2];
-        res.row_props[row][name] = value;
+        (res.row_props[row] as any)[name] = value;
         break;
       }
       case "colprop": {
         const col = parseInt(components[1]);
         const name = components[2];
-        res.col_props[col][name] = value;
+        (res.col_props[col] as any)[name] = value;
         break;
       }
       case "across_clues":
@@ -308,14 +306,16 @@ export function apply(base: PuzzleState, a: Operation): PuzzleState {
 }
 
 // utilities for grid ot
-function getRowsOpAndColsOp(puzzle: {width: number, height: number}, a) {
+function getRowsOpAndColsOp(puzzle: {width: number, height: number}, a: Operation) : [TextOperation, TextOperation] {
   return [a.rows || OtText.identity(Utils.repeatString(".", puzzle.height)), a.cols || OtText.identity(Utils.repeatString(".", puzzle.width))];
 }
 
-function moveKeyUpdatesOverRowsAndColsOp([rowsOp, colsOp], changes) {
+function moveKeyUpdatesOverRowsAndColsOp(ops: [TextOperation, TextOperation], changes: any): Operation {
+  const rowsOp = ops[0];
+  const colsOp = ops[1];
   const rowIndexMap = OtText.getIndexMapForTextOp(rowsOp);
   const colIndexMap = OtText.getIndexMapForTextOp(colsOp);
-  const result = {};
+  const result: Operation = {};
   for (const key in changes) {
     if (key.indexOf("cell-") === 0) {
       const spl = key.split("-");
@@ -349,7 +349,9 @@ function moveKeyUpdatesOverRowsAndColsOp([rowsOp, colsOp], changes) {
   return result;
 }
 
-function applyRowAndColOpsToGrid(puzzle: PuzzleState, [rowsOp, colsOp]) {
+function applyRowAndColOpsToGrid(puzzle: PuzzleState, ops: [TextOperation, TextOperation]) {
+  const rowsOp = ops[0];
+  const colsOp = ops[1];
   const rowIndexMap = OtText.getIndexMapForTextOp(rowsOp);
   const colIndexMap = OtText.getIndexMapForTextOp(colsOp);
   
@@ -358,12 +360,9 @@ function applyRowAndColOpsToGrid(puzzle: PuzzleState, [rowsOp, colsOp]) {
   const newWidth = OtText.applyTextOp(Utils.repeatString(".", width), colsOp).length;
   const newHeight = OtText.applyTextOp(Utils.repeatString(".", height), rowsOp).length;
 
-  // $FlowFixMe
-  const newGrid: Array<Array<PuzzleCell>> = Utils.makeMatrix(newHeight, newWidth, () => null);
-  // $FlowFixMe
-  const newRowProps: Array<RowProps> = Utils.makeArray(newHeight, () => null);
-  // $FlowFixMe
-  const newColProps: Array<ColProps> = Utils.makeArray(newWidth, () => null);
+  const newGrid: Array<Array<PuzzleCell|null>> = Utils.makeMatrix(newHeight, newWidth, () => null);
+  const newRowProps: Array<RowProps|null> = Utils.makeArray(newHeight, () => null);
+  const newColProps: Array<ColProps|null> = Utils.makeArray(newWidth, () => null);
 
   for (let i = 0; i < height; i++) {
     if (i in rowIndexMap) {
@@ -414,7 +413,7 @@ function applyRowAndColOpsToGrid(puzzle: PuzzleState, [rowsOp, colsOp]) {
 // cell at (row, col).
 export function opEditCellValue(row: number, col: number, name: string,
     value: string|number|boolean|null): Operation {
-  const res = {};
+  const res: Operation = {};
   res[`cell-${row}-${col}-${name}`] = value;
   return res;
 }
@@ -423,12 +422,12 @@ export function opEditCellValue(row: number, col: number, name: string,
 // TODO support grids that are not the same size if needed?
 export function opGridDiff(puzzle: PuzzleState, grid2: PuzzleGrid): Operation {
   const grid1 = puzzle.grid;
-  const res = {};
+  const res: Operation = {};
   for (let i = 0; i < grid1.length; i++) {
     for (let j = 0; j < grid1[0].length; j++) {
       for (const v of ["contents", "number", "open", "rightbar", "bottombar"]) {
-        if (grid1[i][j][v] !== grid2[i][j][v]) {
-          res[`cell-${i}-${j}-${v}`] = grid2[i][j][v];
+        if ((grid1[i][j] as any)[v] !== (grid2[i][j] as any)[v]) {
+          res[`cell-${i}-${j}-${v}`] = (grid2[i][j] as any)[v];
         }
       }
     }
@@ -442,14 +441,14 @@ export function opSpliceRowsOrCols(
     index: number,
     numToInsert: number,
     numToDelete: number): Operation {
-  const res = {};
+  const res: Operation = {};
   res[forRow ? 'rows' : 'cols'] = OtText.opTextSplice(originalLen, index, Utils.repeatString(".", numToInsert), numToDelete);
   return res;
 }
 
 export function opSetBar(row: number, col: number,
     dir: 'left' | 'right' | 'top' | 'bottom', value: boolean): Operation {
-  const res = {};
+  const res: Operation = {};
   if (dir === 'left' || dir === 'right') {
     if (dir === 'left') {
       col -= 1;
@@ -495,7 +494,7 @@ export function opDeleteCols(puzzle: PuzzleState, index: number, numToDelete: nu
 // The parameter 'which' is either 'across' or 'down'.
 // The parameter 'text_op' is a text operation as described in ottext.js
 export function getClueOp(which: 'across' | 'down', text_op: TextOperation): Operation {
-  const res = {};
+  const res : {[name:string] : any} = {};
   res[`${which}_clues`] = text_op;
   return res;
 };

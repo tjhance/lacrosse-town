@@ -1,10 +1,8 @@
-/* @flow */
-
 import * as Ot from "../shared/ot";
 import * as Utils from "../shared/utils";
 
-import type {PuzzleState} from "../shared/types";
-import type {Operation} from "../shared/ot";
+import {PuzzleState} from "../shared/types";
+import {Operation} from "../shared/ot";
 
 type Entry = {
   undoable: boolean,
@@ -172,13 +170,11 @@ export class UndoRedo {
     // The point is that the left argument "wins" in a conflict.
     const new_op0: Entry = {
       undoable: true,
-      // $FlowFixMe
-      backward_op: null, forward_op: null
+      backward_op: null as any, forward_op: null as any
     };
     const new_op1: Entry = {
       undoable: false,
-      // $FlowFixMe
-      backward_op: null, forward_op: null
+      backward_op: null as any, forward_op: null as any
     };
 
     const xform_result = Ot.xform(state1, op1.backward_op, op0.forward_op);

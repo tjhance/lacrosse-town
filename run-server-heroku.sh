@@ -1,4 +1,4 @@
-./node_modules/grunt-cli/bin/grunt -v babel
+./node_modules/grunt-cli/bin/grunt -v ts
 ./node_modules/grunt-cli/bin/grunt -v browserify
 
 # generate a config file using the info passed in through environment variables

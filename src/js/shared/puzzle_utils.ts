@@ -1,9 +1,7 @@
-/* @flow */
-
 // Some puzzle utilities
 
 import * as Utils from "./utils";
-import type {PuzzleState, PuzzleGrid, PuzzleCell, ColProps, RowProps} from './types';
+import {PuzzleState, PuzzleGrid, PuzzleCell, ColProps, RowProps} from './types';
 
 // Returns an empty puzzle object.
 export function getEmptyPuzzle(height: number, width: number, title: string): PuzzleState {
@@ -50,14 +48,14 @@ export function getEmptyColProps(): ColProps {
 export function getNumberedGrid(grid: PuzzleGrid): PuzzleGrid {
   const height = grid.length;
   const width = grid[0].length;
-  const isOpen = (i, j) =>
+  const isOpen = (i: number, j: number) =>
         i >= 0 && i < height && j >= 0 && j < width && grid[i][j].open;
-  const blockedLeft = (i, j) =>
+  const blockedLeft = (i: number, j: number) =>
         !(i >= 0 && i < height && j >= 1 && j < width && grid[i][j].open && grid[i][j-1].open && !grid[i][j-1].rightbar);
-  const blockedTop = (i, j) =>
+  const blockedTop = (i: number, j: number) =>
         !(i >= 1 && i < height && j >= 0 && j < width && grid[i][j].open && grid[i-1][j].open && !grid[i-1][j].bottombar);
   let current_number = 0;
-  const getNumber = (i, j) => {
+  const getNumber = (i: number, j: number) => {
     if (isOpen(i, j) && (
             (blockedLeft(i, j) && !blockedLeft(i, j + 1)) ||
             (blockedTop(i, j) && !blockedTop(i + 1, j)))) {

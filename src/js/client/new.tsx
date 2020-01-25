@@ -1,6 +1,4 @@
-/* @flow */
-
-import React from 'react';
+import * as React from 'react';
 
 export class NewPage extends React.Component<{}> {
   render() {

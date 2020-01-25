@@ -1,5 +1,3 @@
-/* @flow */
-
 export type PuzzleState = {
   title: string,
   grid: PuzzleGrid,
@@ -34,4 +32,5 @@ export type Cursor = {
   focus: {row: number, col: number},
   field_open: 'none' | 'number' | 'contents',
   is_across: boolean,
+  cell_field?: string,
 };

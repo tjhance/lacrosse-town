@@ -1,13 +1,11 @@
-/* @flow */
-
 // Utilities for copying and pasting grids.
 
 import * as PuzzleUtils from "../shared/puzzle_utils";
 import * as Utils from "../shared/utils";
-import type {PuzzleGrid, PuzzleCell} from "../shared/types";
+import {PuzzleGrid, PuzzleCell} from "../shared/types";
 
 declare class ClipboardEvent extends Event {
-  clipboardData: DataTransfer,
+  clipboardData: DataTransfer;
 }
 
 // Copies the given puzzle grid to the clipboard
@@ -57,28 +55,28 @@ export function getGridFromClipboard(event: ClipboardEvent): PastedGrid | null {
           // When copying a grid, we add all of these custom data-crossword- attributes
           // to the HTML. We can just parse them out here.
           if (node.getAttribute('data-crossword-width') != null) {
-            width = parseInt(node.getAttribute('data-crossword-width'), 10);
+            width = parseInt(node.getAttribute('data-crossword-width') as string, 10);
           }
           if (node.getAttribute('data-crossword-height') != null) {
-            height = parseInt(node.getAttribute('data-crossword-height'), 10);
+            height = parseInt(node.getAttribute('data-crossword-height') as string, 10);
           }
           const x = node.getAttribute('data-crossword-cell-x');
           const y = node.getAttribute('data-crossword-cell-y');
           if ((x != null) && (y != null)) {
             const open = node.getAttribute('data-crossword-cell-open') === "true";
-            let number = node.getAttribute('data-crossword-cell-number');
-            number = parseInt(number, 10);
+            const numberStr = node.getAttribute('data-crossword-cell-number');
+            let num: number|null = parseInt(numberStr as string, 10);
             const rightbar = node.getAttribute('data-right-bar') === "true";
             const bottombar = node.getAttribute('data-bottom-bar') === "true";
-            if ((!number) && number !== 0) {
-              number = null;
+            if ((!num) && num !== 0) {
+              num = null;
             }
             const contents = node.getAttribute('data-crossword-cell-contents') || "";
             cells.push({
               x: Number(x),
               y: Number(y),
               open: open,
-              number: number,
+              number: num,
               contents: contents,
               rightbar: rightbar,
               bottombar: bottombar
@@ -122,14 +120,12 @@ function safelyParseHtml(html: string): Node | null {
 
 // Given a node, return a list containing it and all its descendants
 function allNodes(node: Node): Node[] {
-  const res = [];
-  const recurse = (n) => {
+  const res: Node[] = [];
+  const recurse = (n: Node) => {
     res.push(n);
-    const results = [];
     for (let i = 0; i < n.childNodes.length; i++) {
-      results.push(recurse(n.childNodes[i]));
+      recurse(n.childNodes[i]);
     }
-    return results;
   };
   recurse(node);
   return res;

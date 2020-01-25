@@ -1,10 +1,8 @@
-/* @flow */
-
 // on macs, we use Cmd, for everything else, we use Ctrl
 
-declare var UAParser;
+declare var UAParser: any;
 
-let parser = null;
+let parser: any = null;
 
 export function usesCmd() {
   if (!parser) {

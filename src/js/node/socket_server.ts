@@ -1,5 +1,3 @@
-/* @flow */
-
 // This is the server side of the puzzle syncing process. (The client side is in
 // client/state.js.)
 //
@@ -24,18 +22,18 @@
 import * as db from "./db";
 import * as Ot from "../shared/ot";
 
-import type {PuzzleState} from "../shared/types";
+import {PuzzleState, Cursor} from "../shared/types";
 
 // Takes a single argument, the listener socket.
 export function init(socket_listener: any) {
   // Initialize an empty list of buckets.
-  const connection_buckets = {}
+  const connection_buckets: {[id: string]: ServerSyncer} = {}
 
-  socket_listener.on("connection", (socket) => {
+  socket_listener.on("connection", (socket:any) => {
     console.debug("New connection");
 
     // On each new connection, wait for the "hello" packet to be received.
-    socket.on("hello", (data) => {
+    socket.on("hello", (data:any) => {
       // Now we know which puzzle the connection is for. Add the connection
       // to the bucket.
       if (!(data.puzzleID in connection_buckets)) {
@@ -61,7 +59,7 @@ class AsyncQueue {
   bottom: any = null;
   top: any = null;
 
-  push(fn) {
+  push(fn:any) {
     if (this.top === null) {
       this.top = this.bottom = {
         fn: fn,
@@ -80,7 +78,7 @@ class AsyncQueue {
     }
   }
   
-  call(fn) {
+  call(fn:any) {
     fn(() => {
       if (!this.top) {
         throw new Error('invariant error: top should be non-null');
@@ -96,15 +94,17 @@ class AsyncQueue {
   }
 }
 
+type Connection = {
+  socket: any;    // socket.io object
+  id: number;     // unique id, shared with the clients
+  cursor: Cursor|null; // current cursor
+};
+
 class ServerSyncer {
   latestStateID: number;
   latestState: PuzzleState;
 
-  // list of objects:
-  //   socket: socket.io object
-  //   id: unique id, shared with the clients
-  //   cursor: current cursor
-  connections = [];
+  connections: Connection[] = [];
   
   // All important tasks are done through the queue.
   queue = new AsyncQueue();
@@ -114,11 +114,11 @@ class ServerSyncer {
 
   puzzleID: string;
 
-  constructor(puzzleID, callbackOnClose) {
+  constructor(puzzleID: string, callbackOnClose: () => void) {
     this.puzzleID = puzzleID;
 
     // Start by loading in the latest puzzle state from memory.
-    this.queue.push((callback) => {
+    this.queue.push((callback: () => void) => {
       db.loadPuzzleLatestState(puzzleID, (puzzle) => {
         if (puzzle === null) {
           // puzzle does not exist
@@ -135,7 +135,7 @@ class ServerSyncer {
     });
   }
 
-  addConnection(socket, data) {
+  addConnection(socket: any, data: any) {
     const conn = {
       socket: socket,
       id: this.idCounter,
@@ -152,7 +152,7 @@ class ServerSyncer {
     // (For example, you don't want to add it to the connection list before
     // sending these operations - or else it might send updates in the wrong
     // order.)
-    this.queue.push((callback) => {
+    this.queue.push((callback: () => void) => {
       this.connections.push(conn);
 
       if (data.latest === "yes") {
@@ -185,10 +185,10 @@ class ServerSyncer {
     });
 
     // What to do when you receive an "update" packet from the client.
-    socket.on("update", (update_data) => {
+    socket.on("update", (update_data:any) => {
       console.debug(`Received update ${update_data.opID} rooted at ${update_data.rootID}`);
 
-      this.queue.push((callback) => {
+      this.queue.push((callback: () => void) => {
         this.doesOpExist(update_data.opID, (exists) => {
           if (exists) {
             // If the operation has already been received, ignore it.
@@ -203,12 +203,12 @@ class ServerSyncer {
               db.getOpsToLatest(this.puzzleID, update_data.rootID, (ops) => {
                 let newOp = update_data.op;
                 // TODO check for rootState being null
-                // $FlowFixMe
-                let newState: PuzzleState = rootState;
+                let newState: PuzzleState = rootState as PuzzleState;
                 // Transform the new operation against the operations
                 // that already exist.
                 for (const op of ops) {
-                  const [a1, _] = Ot.xform(newState, newOp, op.op);
+                  const x = Ot.xform(newState, newOp, op.op);
+                  const a1 = x[0];
                   newState = Ot.apply(newState, op.op);
                   newOp = a1;
                 }
@@ -244,7 +244,7 @@ class ServerSyncer {
       });
     });
 
-    socket.on("cursor_update", (update_data) => {
+    socket.on("cursor_update", (update_data:any) => {
       conn.cursor = update_data.cursor;
       this.broadcast_except(conn, "update_cursor", {
         cursor_updates: [
@@ -257,17 +257,17 @@ class ServerSyncer {
     });
   }
 
-  doesOpExist(opID, callback) {
-    db.getOpSeq(this.puzzleID, opID, (op) => {
+  doesOpExist(opID: string, callback: (b:boolean) => void) {
+    db.getOpSeq(this.puzzleID, opID, (op:number) => {
       callback(op !== null);
     });
   }
 
-  broadcast(msg, data) {
+  broadcast(msg: string, data: any) {
     this.broadcast_except(null, msg, data);
   }
 
-  broadcast_except(connExc, msg, data) {
+  broadcast_except(connExc: Connection|null, msg: string, data: any) {
     for (const conn of this.connections) {
       if (conn !== connExc) {
         conn.socket.emit(msg, data);

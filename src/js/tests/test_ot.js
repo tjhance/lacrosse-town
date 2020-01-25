@@ -1,5 +1,3 @@
-/* @flow */
-
 import * as Ot from "../shared/ot";
 import * as OtText from "../shared/ottext";
 import * as PuzzleUtils from "../shared/puzzle_utils";

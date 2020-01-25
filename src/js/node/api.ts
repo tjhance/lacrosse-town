@@ -1,18 +1,16 @@
-/* @flow */
-
 import * as PuzzleUtils from "../shared/puzzle_utils";
 import * as Db from "./db";
 
 export function handle(req: any, res: any) {
   const params = JSON.parse(req.body['params']);
   if (params.type === "new") {
-    return handleNew(req, function(responseData) {
+    return handleNew(req, function(responseData:any) {
       return res.send(JSON.stringify(responseData));
     });
   }
 }
 
-function handleNew(req, callback) {
+function handleNew(req:any, callback:any) {
   // TODO this is duplicated
   const puzzle = PuzzleUtils.getEmptyPuzzle(15, 15, req.body.title);
   return Db.createPuzzle(puzzle, function(puzzleID) {

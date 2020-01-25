@@ -1,5 +1,3 @@
-/* @flow */
-
 /*
 This is the main react element for the puzzle page.
 
@@ -37,12 +35,12 @@ import * as PuzzleUtils from '../shared/puzzle_utils';
 import {EditableTextField} from './text_field_handler';
 import * as KeyboardUtils from './keyboard_utils';
 
-import type {PuzzleState, PuzzleGrid, PuzzleCell, Cursor} from '../shared/types';
-import type {PastedGrid} from './clipboard_utils';
-import type {Operation} from '../shared/ot';
-import type {TextOperation} from '../shared/ottext';
+import {PuzzleState, Cursor} from '../shared/types';
+import {PastedGrid} from './clipboard_utils';
+import {Operation} from '../shared/ot';
+import {TextOperation} from '../shared/ottext';
 
-declare var $;
+declare var $: any;
 
 type GridFocus = {
   focus: { row: number, col: number },
@@ -52,8 +50,8 @@ type GridFocus = {
 };
 
 type Props = {
-  requestOp: (Operation | null, GridFocus | null) => void;
-  onToggleOffline: (boolean) => void;
+  requestOp: (op: Operation | null, gfocus: GridFocus | null) => void;
+  onToggleOffline: (b:boolean) => void;
 };
 
 type FindMatchesInfo = {
@@ -73,13 +71,18 @@ type State = {
   offlineMode: boolean,
   findMatchesInfo: FindMatchesInfo | null,
   grid_focus: GridFocus | null,
-  cursors: {[string]: Cursor}
+  cursors: {[s:string]: Cursor}
 };
 
 type ClueStylingData = {
   primaryNumber: number | null,
   secondaryNumber: number | null,
-  answerLengths: {[number]: number},
+  answerLengths: {[n:number]: number},
+};
+
+type CursorInfo = {
+  id: string;
+  across: boolean;
 };
 
 export class PuzzlePage extends React.Component<Props, State> {
@@ -87,10 +90,8 @@ export class PuzzlePage extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      // $FlowFixMe
-      puzzle: null,
-      // $FlowFixMe
-      initial_puzzle: null,
+      puzzle: null as any,
+      initial_puzzle: null as any,
 
       // If this is true, then maintain rotational symmetry of white/blackness
       // when the user toggles a single square.
@@ -146,8 +147,7 @@ export class PuzzlePage extends React.Component<Props, State> {
   getCellClasses() {
     const grid = this.state.puzzle.grid;
     const grid_focus = this.state.grid_focus;
-    const isLineFree = function(r1, c1, r2, c2) {
-      var ref1, ref2;
+    const isLineFree = function(r1: number, c1: number, r2: number, c2: number) {
       if (r1 === r2) {
         if (c1 === c2) {
           return true;
@@ -174,7 +174,7 @@ export class PuzzlePage extends React.Component<Props, State> {
       }
     };
 
-    const getCellClass = (row, col) => {
+    const getCellClass = (row: number, col: number) => {
       if (grid_focus === null) {
         // no selection, just return the default selection based on whether
         // or not the cell is open or closed
@@ -228,7 +228,7 @@ export class PuzzlePage extends React.Component<Props, State> {
     const row_props = this.state.puzzle.row_props;
     const col_props = this.state.puzzle.col_props;
 
-    const getCellBars = (row, col) => {
+    const getCellBars = (row: number, col: number) => {
       return {
         top: (row === 0 && col_props[col].topbar) || (row > 0 && grid[row - 1][col].bottombar),
         bottom: grid[row][col].bottombar,
@@ -304,17 +304,15 @@ export class PuzzlePage extends React.Component<Props, State> {
       puzzle: this.puzzle_state,
       grid_focus: this.fixFocus(this.puzzle_state, this.state.grid_focus)
     });
-    // $FlowFixMe
     if (op.across_clues != null) {
-      this.refs.acrossClues.takeOp(op.across_clues);
+      (this.refs.acrossClues as any).takeOp(op.across_clues);
     }
-    // $FlowFixMe
     if (op.down_clues != null) {
-      return this.refs.downClues.takeOp(op.down_clues);
+      return (this.refs.downClues as any).takeOp(op.down_clues);
     }
   }
 
-  setCursors(cursors: {[string]: Cursor}) {
+  setCursors(cursors: {[s:string]: Cursor}) {
     return this.setState({
       cursors: cursors
     });
@@ -458,7 +456,6 @@ export class PuzzlePage extends React.Component<Props, State> {
     if (grid_focus === null) {
       return;
     }
-    const g = this.state.puzzle.grid;
     const row1 = Math.min(grid_focus.focus.row, grid_focus.anchor.row);
     const row2 = Math.max(grid_focus.focus.row, grid_focus.anchor.row);
     const col1 = Math.min(grid_focus.focus.col, grid_focus.anchor.col);
@@ -540,12 +537,12 @@ export class PuzzlePage extends React.Component<Props, State> {
 
   toggleBars(keyCode: number) {
     if (this.state.grid_focus !== null) {
-      const dir = {
+      const dir = ({
         '37': 'left',
         '38': 'top',
         '39': 'right',
         '40': 'bottom'
-      }[keyCode];
+      } as any)[keyCode];
       const grid_focus = Utils.clone(this.state.grid_focus);
       const row1 = Math.min(grid_focus.focus.row, grid_focus.anchor.row);
       const row2 = Math.max(grid_focus.focus.row, grid_focus.anchor.row);
@@ -739,11 +736,11 @@ export class PuzzlePage extends React.Component<Props, State> {
   onCellClick(row: number, col: number): void {
     // this sucks
     $('div[contenteditable=true]').blur();
-    window.getSelection().removeAllRanges();
+    (window.getSelection() as Selection).removeAllRanges();
 
-    let grid_focus = this.state.grid_focus === null ?
+    const grid_focus0 = this.state.grid_focus === null ?
         this.defaultGridFocus() : Utils.clone(this.state.grid_focus);
-    grid_focus = this.removeCellField(grid_focus);
+    const grid_focus = this.removeCellField(grid_focus0);
 
     if (!grid_focus) {
       throw new Error("should have a focus object");
@@ -799,7 +796,7 @@ export class PuzzlePage extends React.Component<Props, State> {
 
   clueStylingData(is_across: boolean): ClueStylingData {
     // compute the answer length, in cells, of each clue number
-    const answerLengths = {};
+    const answerLengths: {[n:number] : number} = {};
     let gridForCalculatingLengths;
     if (is_across) {
       gridForCalculatingLengths = this.state.puzzle.grid;
@@ -809,39 +806,39 @@ export class PuzzlePage extends React.Component<Props, State> {
 
     for (let k = 0; k < gridForCalculatingLengths.length; k++) {
       const line = gridForCalculatingLengths[k];
-      let number = null;
+      let num = null;
       let count = 0;
       for (let l = 0; l <  line.length; l++) {
         const cell = line[l];
         if (cell.open) {
           if (cell.number !== null) {
-            if (number === null) {
-              number = cell.number;
+            if (num === null) {
+              num = cell.number;
               count = 1;
             } else {
               count++;
             }
           } else {
-            if (number !== null) {
+            if (num !== null) {
               count++;
             }
           }
           if ((is_across ? cell.rightbar : cell.bottombar)) {
-            if (number !== null) {
-              answerLengths[number] = count;
-              number = null;
+            if (num !== null) {
+              answerLengths[num] = count;
+              num = null;
             }
           }
         } else {
-          if (number !== null) {
-            answerLengths[number] = count;
-            number = null;
+          if (num !== null) {
+            answerLengths[num] = count;
+            num = null;
           }
         }
       }
-      if (number !== null) {
-        answerLengths[number] = count;
-        number = null;
+      if (num !== null) {
+        answerLengths[num] = count;
+        num = null;
       }
     }
     if (this.state.grid_focus === null ||
@@ -899,7 +896,7 @@ export class PuzzlePage extends React.Component<Props, State> {
     }
 
     // get the contiguous run of open cells containing the selection
-    const cells = [];
+    const cells: [number, number][] = [];
     if (grid_focus.is_across) {
       let c1 = col;
       let c2 = col;
@@ -971,7 +968,7 @@ export class PuzzlePage extends React.Component<Props, State> {
     if (ref == null) {
       return "";
     }
-    const text = ref.getText();
+    const text = (ref as any).getText();
     // split it into lines
     const lines = text.split('\n');
     for (let k = 0; k < lines.length; k++) {
@@ -1175,7 +1172,7 @@ export class PuzzlePage extends React.Component<Props, State> {
       }
     }
     // select the region that was just pasted in
-    focus = {
+    const focus: GridFocus = {
       focus: {
         row: row + grid.height - 1,
         col: col + grid.width - 1
@@ -1199,7 +1196,7 @@ export class PuzzlePage extends React.Component<Props, State> {
       const acrossClueStylingData = this.clueStylingData(true);
       const downClueStylingData = this.clueStylingData(false);
 
-      const selectedClueText = (stylingData, type) => {
+      const selectedClueText = (stylingData: ClueStylingData, type: 'Across'|'Down') => {
         let number = null;
         let prevelance = null;
         if (stylingData.primaryNumber !== null) {
@@ -1239,7 +1236,6 @@ export class PuzzlePage extends React.Component<Props, State> {
                   <PuzzlePanel
                       selectedClueTextData={selectedClueTextData}
                       findMatchesInfo={this.state.findMatchesInfo}
-                      onMatchFinderChoose={this.onMatchFinderChoose.bind(this)}
                       onMatchFinderChoose={this.onMatchFinderChoose.bind(this)}
                       onMatchFinderClose={this.closeMatchFinder.bind(this)}
                       renumber={this.renumber.bind(this)}
@@ -1291,7 +1287,7 @@ export class PuzzlePage extends React.Component<Props, State> {
             defaultText={type === "across" ?
               this.state.initial_puzzle.across_clues :
               this.state.initial_puzzle.down_clues}
-            produceOp={(op) => { return this.clueEdited(type, op); }}
+            produceOp={(op: TextOperation) => { return this.clueEdited(type, op); }}
             stylingData={stylingData}
             ref={type === "across" ? "acrossClues" : "downClues"} />
       </div>
@@ -1299,7 +1295,7 @@ export class PuzzlePage extends React.Component<Props, State> {
   }
 
   getCursorInfos() {
-    const res = Utils.makeMatrix(this.height(), this.width(), () => []);
+    const res: CursorInfo[][][] = Utils.makeMatrix(this.height(), this.width(), () => []);
     for (const id in this.state.cursors) {
       const cursor = this.state.cursors[id];
       if (cursor.focus && 0 <= cursor.focus.row && cursor.focus.row < this.height() &&
@@ -1406,7 +1402,7 @@ class PuzzlePanel extends React.Component<any> {
 type DimensionWidgetProps = {
   width: number,
   height: number,
-  onSet: (number, number) => void,
+  onSet: (width:number, height:number) => void,
 };
 
 type DimensionWidgetState = {
@@ -1414,14 +1410,14 @@ type DimensionWidgetState = {
 };
 
 class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWidgetState> {
-  constructor(props) {
+  constructor(props: DimensionWidgetProps) {
     super(props);
     this.state = {
       isEditing: false
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: DimensionWidgetProps, nextState: DimensionWidgetState) {
     return !Utils.deepEquals(this.props, nextProps) ||
            !Utils.deepEquals(this.state, nextState);
   }
@@ -1438,7 +1434,7 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
                 onKeyDown={this.onKeyDown.bind(this)}
                 ref={this.widthInputFun.bind(this)}
                 className="dont-bubble-keydown"
-                size="4" />
+                size={4} />
           </span>
           <span className="dimension-panel-edit-3">Height:</span>
           <span className="dimension-panel-edit-4">
@@ -1448,7 +1444,7 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
                 onKeyDown={this.onKeyDown.bind(this)}
                 ref={this.heightInputFun.bind(this)}
                 className="dont-bubble-keydown"
-                size="4" />
+                size={4} />
           </span>
           <span className="dimension-panel-edit-5">
             <input
@@ -1481,7 +1477,7 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
   widthInput: any;
   heightInput: any;
 
-  widthInputFun(elem) {
+  widthInputFun(elem: any) {
     if ((elem != null) && (this.widthInput == null)) {
       // when creating this field, focus on it
       const node = ReactDom.findDOMNode(elem);
@@ -1501,7 +1497,7 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
     this.widthInput = elem;
   }
 
-  heightInputFun(elem) {
+  heightInputFun(elem: any) {
     return this.heightInput = elem;
   }
 
@@ -1542,7 +1538,7 @@ class DimensionWidget extends React.Component<DimensionWidgetProps, DimensionWid
     });
   }
 
-  onKeyDown(event) {
+  onKeyDown(event: KeyboardEvent) {
     if (event.which === 13) { // enter
       this.onSubmit();
       event.preventDefault();
@@ -1557,7 +1553,7 @@ type PuzzleGridProps = any;
 type PuzzleGridState = { }
 
 class PuzzleGridComponent extends React.Component<PuzzleGridProps, PuzzleGridState> {
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: PuzzleGridProps, nextState: PuzzleGridState) {
     return !Utils.deepEquals(this.props, nextProps);
   }
 
@@ -1575,8 +1571,8 @@ class PuzzleGridComponent extends React.Component<PuzzleGridProps, PuzzleGridSta
                 bars={this.props.bars[row]}
                 grid_focus={(this.props.grid_focus != null) && this.props.grid_focus.focus.row === row ? this.props.grid_focus : null}
                 onCellFieldKeyPress={
-                    (event, col) => { this.props.onCellFieldKeyPress(event, row, col); }}
-                onCellClick={(col) => { this.props.onCellClick(row, col); }} />
+                    (event: Event, col: number) => { this.props.onCellFieldKeyPress(event, row, col); }}
+                onCellClick={(col: number) => { this.props.onCellClick(row, col); }} />
           );
         })}
       </tbody></table>
@@ -1588,7 +1584,7 @@ type PuzzleGridRowProps = any;
 type PuzzleGridRowState = { }
 
 class PuzzleGridRow extends React.Component<PuzzleGridRowProps, PuzzleGridRowState> {
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: PuzzleGridRowProps, nextState: PuzzleGridRowState) {
     return !Utils.deepEquals(this.props, nextProps);
   }
 
@@ -1606,8 +1602,8 @@ class PuzzleGridRow extends React.Component<PuzzleGridRowProps, PuzzleGridRowSta
                 cursorInfo={this.props.cursorInfos[col]}
                 bars={this.props.bars[col]}
                 grid_focus={(this.props.grid_focus != null) && this.props.grid_focus.focus.col === col ? this.props.grid_focus : null}
-                onCellFieldKeyPress={(event) => { this.props.onCellFieldKeyPress(event, col); }}
-                onCellClick={(event) => { this.props.onCellClick(col); }} />
+                onCellFieldKeyPress={(event: Event) => { this.props.onCellFieldKeyPress(event, col); }}
+                onCellClick={(event: Event) => { this.props.onCellClick(col); }} />
           );
         })}
       </tr>
@@ -1619,7 +1615,7 @@ type PuzzleGridCellProps = any;
 type PuzzleGridCellState = { }
 
 class PuzzleGridCell extends React.Component<PuzzleGridCellProps, PuzzleGridCellState> {
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: PuzzleGridCellProps, nextState: PuzzleGridCellState) {
     return !Utils.deepEquals(this.props, nextProps);
   }
 
@@ -1665,7 +1661,7 @@ class PuzzleGridCell extends React.Component<PuzzleGridCellProps, PuzzleGridCell
     );
   }
 
-  onCellFieldCreate(field) {
+  onCellFieldCreate(field: any) {
     if (field != null) {
       const node = ReactDom.findDOMNode(field);
       if (!(node instanceof HTMLInputElement)) {
@@ -1743,11 +1739,11 @@ class SelectedClueTextWidget extends
 }
 
 const CluesEditableTextField = EditableTextField(function(lines, stylingData) {
-  let i = -1;
   const results = [];
+  let i = -1;
   for (let k = 0; k < lines.length; k++) {
     const line = lines[k];
-    i += 1;
+    i = i + 1;
     const childElem = document.createElement('div');
     if (line.length > 0) {
       const parsed = parseClueLine(line);
@@ -1790,7 +1786,7 @@ const CluesEditableTextField = EditableTextField(function(lines, stylingData) {
 // return an object
 // { number, firstPart, secondPart }
 // If it can't be parsed as such, number is null, firstPart is empty, and secondPart is the entire contents
-function parseClueLine(line) {
+function parseClueLine(line: string) {
   let i = 0;
   while (i < line.length && Utils.isWhitespace(line.charAt(i))) {
     i += 1;

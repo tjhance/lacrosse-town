@@ -1,5 +1,3 @@
-/* @flow */
-
 import * as UndoRedo from "../client/undo_redo";
 import * as Ot from "../shared/ot";
 import * as OtText from "../shared/ottext";

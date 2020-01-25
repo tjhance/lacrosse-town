@@ -1,10 +1,8 @@
-/* @flow */
-
-import type {PuzzleState, Cursor} from './types';
+import {PuzzleState, Cursor} from './types';
 
 // Generic utilities.
 
-export function assert(condition: boolean, message: ?string): void {
+export function assert(condition: boolean, message?: string): void {
   const m = message || "Assertion failed";
   if (!condition) {
     throw m;
@@ -12,7 +10,7 @@ export function assert(condition: boolean, message: ?string): void {
 }
 
 export function isValidInteger(s: any): boolean {
-  const isDigit = (c) => c.charCodeAt(0) >= "0".charCodeAt(0) && c.charCodeAt(0) <= "9".charCodeAt(0);
+  const isDigit = (c:string) => c.charCodeAt(0) >= "0".charCodeAt(0) && c.charCodeAt(0) <= "9".charCodeAt(0);
   for (let i = 0; i < s.length; i++) {
     if (!(isDigit(s[i]) || (i == 0 && s[i] == '-'))) {
       return false;
@@ -39,9 +37,9 @@ export function repeatString(str: string, num: number): string {
 }
 
 export function transpose<T>(matr: Array<Array<T>>, width: number, height: number): Array<Array<T>> {
-  const res = [];
+  const res: T[][] = [];
   for (let i = 0; i < width; i++) {
-    const row = [];
+    const row: T[] = [];
     for (let j = 0; j < height; j++) {
       row.push(matr[j][i]);
     }
@@ -158,7 +156,7 @@ export function isValidCursor(state: PuzzleState, cursor: Cursor): boolean {
       return false
     }
   }
-  const isProperPoint = (point) => {
+  const isProperPoint = (point:any) => {
     for (const key in point) {
       if (key !== 'row' && key !== 'col') {
         return false
@@ -178,7 +176,7 @@ export function isValidCursor(state: PuzzleState, cursor: Cursor): boolean {
     (typeof(cursor.cell_field) === 'string' || cursor.cell_field === undefined));
 }
 
-export function makeArray<T>(width: number, f: (number) => T): Array<T> {
+export function makeArray<T>(width: number, f: (n:number) => T): Array<T> {
   const res = [];
   for (let i = 0; i < width; i++) {
     res.push(f(i));
@@ -186,7 +184,7 @@ export function makeArray<T>(width: number, f: (number) => T): Array<T> {
   return res;
 }
 
-export function makeMatrix<T>(height: number, width: number, f: (number, number) => T): Array<Array<T>> {
+export function makeMatrix<T>(height: number, width: number, f: (row:number, col:number) => T): Array<Array<T>> {
   const res = [];
   for (let i = 0; i < height; i++) {
     const row = [];

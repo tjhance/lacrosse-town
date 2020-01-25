@@ -1,13 +1,11 @@
-/* @flow */
-
 // Find matches for a given string
 
 import * as fs from 'fs';
 
-let words = null;
+let words: string[] | null = null;
 
 export function init(callback: () => void) {
-  const simplify = function(word) {
+  const simplify = function(word: string) {
     // TODO should strip other characters like spaces
     return word.toLowerCase();
   };

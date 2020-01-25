@@ -1,5 +1,3 @@
-/* @flow */
-
 // This is an incredibly stateful, very "non reacty" object.
 // TODO move the 'stateful' part outside react, make the react object more stateless
 
@@ -9,20 +7,30 @@ import * as ReactDom from 'react-dom';
 import * as OtText from '../shared/ottext';
 import * as Utils from '../shared/utils';
 
-import type {TextOperation} from '../shared/ottext';
+import {TextOperation} from '../shared/ottext';
 
-declare var $;
+declare var $: any;
 
 type Props = {
   defaultText: string;
   stylingData: any;
-  produceOp: (TextOperation) => void;
+  produceOp: (op: TextOperation) => void;
 };
 
 type State = {
 };
 
-export function EditableTextField(buildContent: (string[], any) => HTMLElement[]) {
+type Range = [number, number];
+
+type LineInfoPiece = {
+  node: Node;
+  left: number;
+  right: number;
+  text: string;
+  isSpace: boolean;
+};
+
+export function EditableTextField(buildContent: (contents: string[], stylingData: any) => Element[]) : any {
   class EditableTextField extends React.Component<Props, State> {
     selection: [number, number][];
     text: string;
@@ -76,7 +84,8 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
     }
 
     updateSelection() {
-      const [selection, text] = this.getSelectionAndText();
+      const selAndText = this.getSelectionAndText();
+      const selection = selAndText[0];
       this.selection = selection;
     }
 
@@ -118,11 +127,11 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
       const modelText = this.baseText;
       const modelTextNew = OtText.applyTextOp(modelText, op);
 
-      let selection;
+      let selection: Range[];
       if (modelTextNew === this.text) {
         selection = this.selection;
       } else if (this.baseText === this.text) {
-        selection = this.selection.map((range) => OtText.xformRange(this.baseText, op, range));
+        selection = this.selection.map((range: Range) => OtText.xformRange(this.baseText, op, range));
       } else {
         selection = [];
       }
@@ -137,14 +146,12 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
       this.scrollIfNecessary();
     }
 
-    getNode(): HTMLElement {
-      // $FlowFixMe
-      return ReactDom.findDOMNode(this.refs.editableDiv);
+    getNode(): Element {
+      return ReactDom.findDOMNode(this.refs.editableDiv) as Element;
     }
 
-    getContainerNode(): HTMLElement {
-      // $FlowFixMe
-      return ReactDom.findDOMNode(this.refs.editableDivContainer);
+    getContainerNode(): Element {
+      return ReactDom.findDOMNode(this.refs.editableDivContainer) as Element;
     }
 
     setContents(text: string) {
@@ -161,7 +168,7 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
     }
 
     setSelection(selection: [number, number][]) {
-      const selObj = window.getSelection();
+      const selObj = window.getSelection() as Selection;
       let element: any = this.getNode();
 
       // if we're to set the selection to nothing,
@@ -181,14 +188,14 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
 
       element = this.getNode();
 
-      const countNewlines = (s) => s.split("\n").length - 1;
+      const countNewlines = (s: string) => s.split("\n").length - 1;
 
-      const getContOffset = (totalIndex) => {
+      const getContOffset = (totalIndex: number) => {
         const startOfLine = 1 + this.text.lastIndexOf('\n', totalIndex - 1);
         let offset = totalIndex - startOfLine;
         const containerIndex = countNewlines(this.text.substr(0, startOfLine));
         const container = element.childNodes[containerIndex];
-        const container2 = $(element).children().get(containerIndex);
+        //const container2 = $(element).children().get(containerIndex);
         if (offset === 0) {
           return [container, 0];
         } else {
@@ -214,19 +221,19 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
       });
     }
 
-    getSelectionAndText() {
+    getSelectionAndText() : [Range[], string] {
       const element: any = this.getNode();
 
       // Ugh, some annoying crap for traversing the DOM nodes for dealing
       // with the crazy way browsers interpret spaces.
-      const text_lines = [];
-      let cur_line = [];
+      const text_lines: string[] = [];
+      let cur_line: LineInfoPiece[] = [];
       let cur_line_has_text = false;
       let line_num = 0;
       let total_offset = 0;
 
-      const add_line_piece = (node) => {
-        node.lt_pieces = [];
+      const add_line_piece = (node: Node) => {
+        (node as any).lt_pieces = [];
         const text = $(node).text();
         if (text.length > 0) {
           let l = 0;
@@ -266,7 +273,7 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
           cur_line.length -= 1;
         }
 
-        const totalText = [];
+        const totalText: string[] = [];
         for (let i = 0; i < cur_line.length; i++) {
           const piece: any = cur_line[i];
           if (piece.isSpace && (i === 0 || cur_line[i-1].isSpace)) {
@@ -294,24 +301,24 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
 
       // Traverse the DOM nodes
       // Annotes all text nodes with `lt_pieces` 
-      const recurse = (elem) => {
-        elem.lt_start_newline = false;
-        elem.lt_end_newline = false;
+      const recurse = (elem: Node) => {
+        (elem as any).lt_start_newline = false;
+        (elem as any).lt_end_newline = false;
 
         if (elem.nodeType === 3) { // is text node
           add_line_piece(elem);
         } else if (elem.nodeType === 1) { // ordinary node
-          if (elem.tagName === "BR") {
+          if ((elem as Element).tagName === "BR") {
             finish_line();
-            elem.lt_end_newline = true;
-          } else if (elem.tagName == "STYLE") {
-            elem.lt_skip = true;
+            (elem as any).lt_end_newline = true;
+          } else if ((elem as Element).tagName == "STYLE") {
+            (elem as any).lt_skip = true;
           } else {
             const cssdisplay = $(elem).css('display');
             const is_inline = (cssdisplay != null && cssdisplay.indexOf('inline') !== -1);
             if (!is_inline && needs_newline()) {
               finish_line();
-              elem.lt_start_newline = true;
+              (elem as any).lt_start_newline = true;
             }
 
             const contents = $(elem).contents();
@@ -321,7 +328,7 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
 
             if (!is_inline && needs_newline()) {
               finish_line();
-              elem.lt_end_newline = true;
+              (elem as any).lt_end_newline = true;
             }
           }
         }
@@ -334,16 +341,16 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
 
       // Traverse the DOM nodes again, annotate all nodes with lt_start and lt_end
       let totalOffset = 0;
-      const recurse2 = (elem) => {
-        if (elem.lt_skip) {
+      const recurse2 = (elem: Node) => {
+        if ((elem as any).lt_skip) {
           return;
         }
-        if (elem.lt_start_newline) {
+        if ((elem as any).lt_start_newline) {
           totalOffset += 1;
         }
-        elem.lt_start = totalOffset;
+        (elem as any).lt_start = totalOffset;
         if (elem.nodeType == 3) { // is text node
-          for (const piece of elem.lt_pieces) {
+          for (const piece of (elem as any).lt_pieces) {
             totalOffset += piece.text.length;
           }
         } else if (elem.nodeType == 1) { // ordinary node
@@ -352,8 +359,8 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
             recurse2(contents[i]);
           }
         }
-        elem.lt_end = totalOffset;
-        if (elem.lt_end_newline) {
+        (elem as any).lt_end = totalOffset;
+        if ((elem as any).lt_end_newline) {
           totalOffset += 1;
         }
       };
@@ -364,14 +371,14 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
       // Now we can use all the lt_* properties on the nodes to compute
       // the selection offsets.
 
-      const getTotalOffset = (container, offsetWithinContainer) => {
+      const getTotalOffset = (container: Node, offsetWithinContainer: number) => {
         if ($(container).closest(this.getNode()).size() === 0) {
           return null;
         }
         if (container.nodeType === 1) {
-          return offsetWithinContainer === 0 ? container.lt_start : container.lt_end;
+          return offsetWithinContainer === 0 ? (container as any).lt_start : (container as any).lt_end;
         } else if (container.nodeType === 3) {
-          for (const piece of container.lt_pieces) {
+          for (const piece of (container as any).lt_pieces) {
             if (offsetWithinContainer >= piece.left && offsetWithinContainer <= piece.right) {
               return piece.totalOffset + Math.min(offsetWithinContainer - piece.left, piece.text.length);
             }
@@ -382,8 +389,8 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
         }
       };
 
-      const sels = [];
-      const selObj = window.getSelection();
+      const sels: Range[] = [];
+      const selObj: Selection = window.getSelection() as Selection;
       for (let i = 0; i < selObj.rangeCount; i++) {
         const range = selObj.getRangeAt(i);
         const left = getTotalOffset(range.startContainer, range.startOffset);
@@ -434,23 +441,23 @@ export function EditableTextField(buildContent: (string[], any) => HTMLElement[]
   return EditableTextField;
 }
 
-function get_text_nodes(el) {
-  const ans = [];
-  const recurse = function(e) {
+function get_text_nodes(el: Node) {
+  const ans: Text[] = [];
+  const recurse = function(e: Node) {
     if (e.nodeType === 1) {
       for (let j = 0; j < e.childNodes.length; j++) {
         const node = e.childNodes[j];
         recurse(node);
       }
     } else if (e.nodeType === 3) {
-      ans.push(e);
+      ans.push(e as Text);
     }
   };
   recurse(el);
   return ans;
 }
 
-function getOpForTextChange(old_sel, old_text, new_sel, new_text) {
+function getOpForTextChange(old_sel: Range[], old_text: string, new_sel: Range[], new_text: string) {
   const skip = OtText.skip;
   const take = OtText.take;
   const insert = OtText.insert;
@@ -503,7 +510,7 @@ function getOpForTextChange(old_sel, old_text, new_sel, new_text) {
 }
 
 // Like `getOpForTextChange`, but it never fails
-function getOpForTextChange2(old_text, new_text) {
+function getOpForTextChange2(old_text: string, new_text: string) {
   let prefix = 0;
   while (prefix < old_text.length && prefix < new_text.length && old_text.charAt(prefix) === new_text.charAt(prefix)) {
     prefix++;

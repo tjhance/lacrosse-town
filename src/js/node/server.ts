@@ -1,5 +1,3 @@
-/* @flow */
-
 // Initialize everything.
 
 import * as log4js from 'log4js';
@@ -21,21 +19,21 @@ const configFilename = process.argv[2];
 const config = JSON.parse(fs.readFileSync(configFilename).toString('utf8'));
 
 async.waterfall([
-  (callback) => {
+  (callback:any) => {
     find_matches.init(() => {
       console.info('Loaded dictionaries');
       callback();
     });
   },
 
-  (callback) => {
+  (callback:any) => {
     db.init(config, () => {
       console.info('Initialized database');
       callback();
     });
   },
 
-  (callback) => {
+  (callback:any) => {
     http_server.init(config, () => {
       callback();
     });

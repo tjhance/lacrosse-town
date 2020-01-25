@@ -1,4 +1,4 @@
 #!/bin/bash
 
-grunt babel 
+grunt ts:server
 nodeunit src/compiled/tests/*.js

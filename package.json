@@ -14,31 +14,36 @@
     }
   ],
   "dependencies": {
+    "@types/async": "~3.0.5",
+    "@types/log4js": "~0.0.32",
+    "@types/node": "~13.5.0",
+    "@types/pg": "~7.14.1",
+    "@types/react": "~16.9.19",
+    "@types/react-dom": "~16.9.5",
+    "@types/socket.io": "~2.1.4",
     "async": "~0.1.15",
-    "babel-cli": "~6.26.0",
-    "babel-plugin-transform-class-properties": "~6.24.1",
-    "babel-preset-env": "~1.6.1",
-    "babel-preset-flow": "~6.23.0",
-    "babel-preset-react": "~6.24.1",
+    "browserify": "~16.5.0",
     "crypto": "0.0.3",
     "express": "3.x",
     "grunt": "~0.4.2",
-    "grunt-babel": "~7.0.0",
-    "grunt-browserify": "~4.0.1",
+    "grunt-browserify": "~5.3.0",
     "grunt-cli": "~0.1.13",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-newer": "~0.6.1",
+    "grunt-ts": "~6.0.0-beta.22",
+    "grunt-typescript": "~0.8.0",
     "log4js": "~0.6.9",
     "pg": "~7.4.1",
-    "socket.io": "~0.9.16"
+    "react": "~16.12.0",
+    "react-dom": "~16.12.0",
+    "socket.io": "~0.9.16",
+    "typescript": "~3.7.5"
   },
   "bin": {
     "lacrosse-town": "./js/node/server.js"
   },
   "private": true,
-  "devDependencies": {
-    "flow-bin": "~0.65.0"
-  },
+  "devDependencies": {},
   "engines": {
     "node": "~6.10.0",
     "npm": "~3.10.10"

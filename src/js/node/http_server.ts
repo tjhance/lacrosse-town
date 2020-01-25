@@ -1,5 +1,3 @@
-/* @flow */
-
 // The HTTP server.
 
 const express = require("express");
@@ -10,11 +8,10 @@ import * as socket_io from "socket.io";
 import * as Api from "./api";
 import * as Db from "./db";
 import * as FindMatches from "./find_matches";
-import * as Utils from "../shared/utils";
 import * as PuzzleUtils from "../shared/puzzle_utils";
 import * as SocketServer from "./socket_server";
 
-import type {Config} from './types';
+import {Config} from './types';
 
 export function init(config: Config, callback: () => void) {
   const app = express();
@@ -39,15 +36,15 @@ export function init(config: Config, callback: () => void) {
   // The 'app' routes itself via the URL.
 
   // /new/
-  app.get(/\/new/, function(req, res) {
+  app.get(/\/new/, function(req:any, res:any) {
     return sendAppWithData(res, null, config);
   });
-  app.get('/', function(req, res) {
+  app.get('/', function(req:any, res:any) {
     return sendAppWithData(res, null, config);
   });
 
   // /puzzle/${puzzle id}
-  app.get(/^\/puzzle\/(.*)/, function(req, res) {
+  app.get(/^\/puzzle\/(.*)/, function(req:any, res:any) {
     const puzzleID = req.params[0];
     return Db.loadPuzzleLatestState(puzzleID, function(puzzle) {
       if (puzzle === null) {
@@ -65,7 +62,7 @@ export function init(config: Config, callback: () => void) {
   // /new/ POST request
   // Creates a new puzzle with a random ID and saves it, then redicts to
   // the puzzle page.
-  app.post(/\/new/, function(req, res) {
+  app.post(/\/new/, function(req:any, res:any) {
     if ((req.body != null) && (req.body.title != null)) {
       const puzzle = PuzzleUtils.getEmptyPuzzle(15, 15, req.body.title);
       return Db.createPuzzle(puzzle, function(puzzleID) {
@@ -80,8 +77,7 @@ export function init(config: Config, callback: () => void) {
   // Set up the socket.io server, which the puzzle view talks to in order to
   // sync the puzzles.
 
-  // $FlowFixMe
-  const server = http.Server(app);
+  const server = (http.Server as any)(app);
   const socket_listener = socket_io.listen(server);
   SocketServer.init(socket_listener);
 
@@ -136,7 +132,7 @@ function getHtml(encodedData: string, config: Config) {
 </html>`;
 }
 
-function sendAppWithData(res, data, config) {
+function sendAppWithData(res:any, data:any, config:any) {
   const jsonData = JSON.stringify(data);
   const encodedData = encodeURIComponent(jsonData);
   const html = getHtml(encodedData, config);

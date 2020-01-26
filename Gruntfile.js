@@ -1,6 +1,5 @@
 module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-ts');
-  grunt.loadNpmTasks('grunt-typescript');
   grunt.loadNpmTasks('grunt-browserify');
 
   grunt.initConfig({

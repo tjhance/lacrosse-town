@@ -1,6 +1,9 @@
 // The HTTP server.
 
 const express = require("express");
+const compression = require("compression");
+const morgan = require("morgan"); // previously 'logger'
+const bodyParser = require("body-parser");
 
 import * as http from "http";
 import * as socket_io from "socket.io";
@@ -17,13 +20,13 @@ export function init(config: Config, callback: () => void) {
   const app = express();
 
   // compression
-  app.use(express.compress());
+  app.use(compression());
 
   // Set up logging.
-  app.use(express.logger());
+  app.use(morgan('tiny'));
 
   // Need this to parse the body of POST requests.
-  app.use(express.bodyParser());
+  app.use(bodyParser.urlencoded({extended: false}));
 
   // Serve static content from the static/ directory.
   // (javascript, CSS, etc.)

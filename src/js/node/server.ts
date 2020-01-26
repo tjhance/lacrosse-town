@@ -8,7 +8,12 @@ import * as find_matches from './find_matches';
 import * as db from './db';
 import * as http_server from './http_server';
 
-log4js.replaceConsole();
+//log4js.replaceConsole();
+const logger = log4js.getLogger('console');
+console.log = logger.info.bind(logger);
+console.debug = logger.debug.bind(logger);
+console.error = logger.error.bind(logger);
+console.info = logger.error.bind(logger);
 
 // Read the config file from the command-line argument
 if (process.argv.length !== 3) {

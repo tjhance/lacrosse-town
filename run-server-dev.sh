@@ -7,4 +7,4 @@ npm install
 grunt ts
 grunt browserify
 
-nodemon --ignore node_modules -V src/compiled/node/server.js config/development.json
+nodemon --ignore node_modules --ignore src/js/ -V src/compiled/node/server.js config/development.json
